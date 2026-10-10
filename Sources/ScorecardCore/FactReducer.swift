@@ -27,6 +27,12 @@ public enum FactReducer {
               segment.sequence >= before.lastEvidenceSequence else { return .rejected("Evidence is stale or missing.") }
         let quote = candidate.quote.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !quote.isEmpty, segment.text.contains(quote) else { return .rejected("Quote does not match transcript.") }
+        if candidate.requiresDirectCustomerEvidence {
+            guard segment.speaker == .customer || segment.debrief,
+                  before.value == .null, !before.locked else {
+                return .rejected("Provisional named Other requires direct customer evidence and an empty unlocked field.")
+            }
+        }
         let policy = field.sourcePolicy ?? "either"
         guard policy == "either" || policy == segment.speaker.rawValue || segment.debrief else {
             return .rejected("Speaker is not permitted for this field.")

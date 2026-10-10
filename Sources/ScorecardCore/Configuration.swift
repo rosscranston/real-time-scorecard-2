@@ -30,6 +30,7 @@ public struct FieldDefinition: Codable, Identifiable, Equatable, Sendable {
     public var sourcePolicy: String?
     public var multiple: Bool?
     public var allowOther: Bool?
+    public var allowTentativeNamedOther: Bool?
     public var evidenceRule: String?
     public var confidence: ConfidenceThresholds?
     public var sourceMetadata: [String: JSONValue]?

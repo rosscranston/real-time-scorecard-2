@@ -574,6 +574,96 @@
           "timestamp_seconds": 70
         }
       ]
+    },
+    {
+      "id": "call-07-unsupported-hosting",
+      "title": "Synthetic unanswered hosting questions and seller examples",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "Which firm is this?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "We are Cedar Example Accounting.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "What tax preparation software do you currently use?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "CCH Axcess is our tax preparation software.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "Do you host that with Rightworks or the provider NimbusHost?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Definitely not NimbusHost; I cannot tell you who hosts it, and our IT person knows that detail.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "For illustration, another firm uses Ace Cloud Hosting and TaxDome.",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Those are not details about our firm.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "Which portal do you use for client documents?",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "I need to ask my team; I do not know which client portal we use.",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "A demo client has two hundred returns and pays eight hundred dollars.",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "We have not discussed our return volume or prices yet.",
+          "timestamp_seconds": 55
+        }
+      ]
     }
   ]
 }

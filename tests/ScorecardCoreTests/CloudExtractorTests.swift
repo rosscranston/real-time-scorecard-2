@@ -12,6 +12,28 @@ private actor MockTransport: HTTPTransport {
     }
 }
 
+private actor FocusedReviewTransport: HTTPTransport {
+    let responses: Data
+    let reviewChoice: String
+    var decisionCalls = 0
+    var focusedQuestions = 0
+    init(responses: Data, reviewChoice: String) { self.responses = responses; self.reviewChoice = reviewChoice }
+    func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        let data: Data
+        if request.url!.lastPathComponent == "responses" { data = responses }
+        else {
+            decisionCalls += 1
+            if decisionCalls == 2 {
+                let body = try JSONSerialization.jsonObject(with: request.httpBody!) as! [String: Any]
+                focusedQuestions = (body["questions"] as! [[String: Any]]).count
+            }
+            let choice = decisionCalls == 1 ? "Lacerte" : reviewChoice
+            data = try JSONSerialization.data(withJSONObject: ["answers": [["type": "choice", "name": "software", "choice": choice, "confidence": 0.99]]])
+        }
+        return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+    }
+}
+
 final class CloudExtractorTests: XCTestCase {
     func config() -> ScorecardConfiguration {
         ScorecardConfiguration(id: "test", title: "Test", groups: [FieldGroup(id: "profile", label: "Profile", fields: [
@@ -25,6 +47,37 @@ final class CloudExtractorTests: XCTestCase {
         ]]]
         let text = String(decoding: try JSONSerialization.data(withJSONObject: facts), as: UTF8.self)
         return try JSONSerialization.data(withJSONObject: ["status": "completed", "output": [["content": [["type": "output_text", "text": text]]]]])
+    }
+    func testFocusedReviewIsBoundedAndStillRequiresAgreement() async throws {
+        for choice in ["Drake", "Lacerte"] {
+            let config = config(); let company = CompanyScorecard(name: "Synthetic", configuration: config)
+            let call = CallRecord(company: company)
+            let segment = TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "We use Drake.")
+            let job = ExtractionJob(company: company, callID: call.id, configuration: config, segments: [segment])
+            let transport = FocusedReviewTransport(responses: try response(value: "Drake", id: segment.id), reviewChoice: choice)
+            let client = try OpenAIClient(key: "fake-test-key", transport: transport)
+            let result = try await CloudExtractor(client: client).extract(job: job, company: company, configuration: config)
+            let count = await transport.decisionCalls
+            let questions = await transport.focusedQuestions
+            XCTAssertEqual(count, 2); XCTAssertEqual(questions, 1)
+            XCTAssertEqual(result.candidates.count, choice == "Drake" ? 1 : 0)
+            if let candidate = result.candidates.first {
+                var current = company
+                XCTAssertEqual(FactReducer.apply(candidate, job: job, currentSegments: [segment.id: segment], configuration: config, company: &current), .updated)
+                XCTAssertEqual(current.facts["software"]?.value, .string("Drake"))
+            }
+        }
+    }
+    func testFocusedReviewNeverRetriesFabricatedEvidence() async throws {
+        let config = config(); let company = CompanyScorecard(name: "Synthetic", configuration: config)
+        let call = CallRecord(company: company)
+        let segment = TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "We have not chosen software.")
+        let job = ExtractionJob(company: company, callID: call.id, configuration: config, segments: [segment])
+        let transport = FocusedReviewTransport(responses: try response(value: "Drake", id: segment.id), reviewChoice: "Drake")
+        let client = try OpenAIClient(key: "fake-test-key", transport: transport)
+        let result = try await CloudExtractor(client: client).extract(job: job, company: company, configuration: config)
+        let count = await transport.decisionCalls
+        XCTAssertEqual(count, 1); XCTAssertTrue(result.candidates.isEmpty)
     }
     func testModelDisagreementDoesNotProduceCandidate() throws {
         let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Lacerte","confidence":0.99}]}"#.utf8)
@@ -54,6 +107,49 @@ final class CloudExtractorTests: XCTestCase {
         XCTAssertEqual(result.candidates.count, 1)
         object["output"] = [["phase": "commentary", "content": [["type": "output_text", "text": "{\"facts\":[]}"]]]]
         XCTAssertThrowsError(try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: object), configuration: config()))
+    }
+    func testProvisionalNamedOtherRequiresOptInDirectEvidenceAndEmptyUnlockedField() throws {
+        var config = config()
+        config.groups[0].fields[0].options?.append("Other")
+        config.groups[0].fields[0].allowTentativeNamedOther = true
+        let callID = UUID()
+        let segment = TranscriptEntry(callID: callID, sequence: 1, speaker: .customer, text: "We use NimbusHost.")
+        let fact: [String: Any] = ["field_key": "software", "value": "Other", "other_detail": "NimbusHost", "confidence": 0.96,
+                                  "estimated": false, "segment_id": segment.id.uuidString, "quote": segment.text, "retracts_previous": false]
+        let payload = String(decoding: try JSONSerialization.data(withJSONObject: ["facts": [fact]]), as: UTF8.self)
+        let response = try JSONSerialization.data(withJSONObject: ["output": [["content": [["type": "output_text", "text": payload]]]]])
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: response, configuration: config)
+        let candidate = try XCTUnwrap(result.candidates.first)
+        XCTAssertTrue(candidate.requiresDirectCustomerEvidence)
+        XCTAssertEqual(candidate.confidence, config.thresholds(for: config.fields[0]).tentative)
+        for mode in ["empty", "filled", "locked", "seller", "debrief"] {
+            var company = CompanyScorecard(name: "Synthetic", configuration: config)
+            var source = segment
+            if mode == "filled" { var old = FactRecord(); old.value = .string("Lacerte"); company.facts["software"] = old }
+            if mode == "locked" { var old = FactRecord(); old.locked = true; company.facts["software"] = old }
+            if mode == "seller" || mode == "debrief" { source.speaker = .salesperson; source.debrief = mode == "debrief" }
+            let job = ExtractionJob(company: company, callID: callID, configuration: config, segments: [source])
+            let outcome = FactReducer.apply(candidate, job: job, currentSegments: [source.id: source], configuration: config, company: &company)
+            if mode == "empty" || mode == "debrief" { XCTAssertEqual(outcome, .updated) }
+            else { if case .rejected = outcome {} else { XCTFail("Provisional Other changed \(mode)") } }
+        }
+        for invalidChoice in ["\"Unlisted invalid choice\"", "null"] {
+            let malformed = Data("{\"answers\":[{\"type\":\"choice\",\"name\":\"software\",\"choice\":\(invalidChoice),\"confidence\":0.99}]}".utf8)
+            XCTAssertTrue(try CloudExtractor.decode(decisions: malformed, responses: response, configuration: config).candidates.isEmpty)
+        }
+        config.groups[0].fields[0].allowTentativeNamedOther = false
+        XCTAssertTrue(try CloudExtractor.decode(decisions: decisions, responses: response, configuration: config).candidates.isEmpty)
+        config.groups[0].fields[0].allowTentativeNamedOther = true
+        config.groups[0].fields[0].aliases = ["Drake": ["NimbusHost"]]
+        XCTAssertTrue(try CloudExtractor.decode(decisions: decisions, responses: response, configuration: config).candidates.isEmpty)
+    }
+    func testAliasNormalizesBeforeClassifierAgreement() throws {
+        var config = config(); config.groups[0].fields[0].aliases = ["Drake": ["Drak"]]
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: response(value: "Drak", id: UUID()), configuration: config)
+        XCTAssertEqual(result.candidates.first?.value, .string("Drake"))
+        XCTAssertTrue(result.reviewCandidates.isEmpty)
     }
     func testAcceptedCandidateUsesLowerConfidence() throws {
         let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.81}]}"#.utf8)

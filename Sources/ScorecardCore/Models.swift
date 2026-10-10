@@ -90,6 +90,7 @@ public struct FactCandidate: Sendable {
     public var segmentID: UUID
     public var quote: String
     public var retractsPrevious: Bool
+    public var requiresDirectCustomerEvidence: Bool = false
     public init(fieldKey: String, value: JSONValue, confidence: Double, segmentID: UUID,
                 quote: String, otherDetail: String? = nil, estimated: Bool = false,
                 retractsPrevious: Bool = false) {

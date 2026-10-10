@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 11,
+  "revision": 14,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -100,7 +100,8 @@
           "automatic_extraction": true,
           "extraction_route": "structured_extraction",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "One primary person with explicitly stated purchasing/approval authority for this decision. A self-introduction or being the person on the call alone does NOT establish decision-maker authority; record that name under main_contact_name instead. Never infer authority merely because the person answers questions."
         },
         {
           "key": "main_contact_name",
@@ -118,7 +119,8 @@
           "automatic_extraction": true,
           "extraction_route": "structured_extraction",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "One primary customer contact name only. Prefer the person introducing themselves first unless they explicitly nominate a different main contact. A self-introduction establishes this field. Do not concatenate colleagues, partners or other attendees into this single name; retain their mentions in transcript evidence."
         },
         {
           "key": "main_contact_email",
@@ -313,7 +315,14 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "Where the current tax software runs. A generic statement in the cloud does NOT establish vendor-hosted online software. If an explicitly named external provider matches an allowed option, select that provider here as well as in hosting_provider. A newly named provider refines any generic cloud/unknown answer and is a change to BOTH fields. A firm-run server does not establish physical location or external provider; retain ambiguity rather than assuming on-premises. Once a provider is known, generic references to its remote Windows environment do not erase its identity. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it."
+          "evidence_rule": "Where the current tax software runs. A generic statement in the cloud does NOT establish vendor-hosted online software. If an explicitly named external provider matches an allowed option, select that provider here as well as in hosting_provider. A newly named provider refines any generic cloud/unknown answer and is a change to BOTH fields. A firm-run server does not establish physical location or external provider; retain ambiguity rather than assuming on-premises. Once a provider is known, generic references to its remote Windows environment do not erase its identity. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it.",
+          "confidence": {
+            "tentative": 0.3,
+            "initial": 0.75,
+            "replacement": 0.9,
+            "calibrated": false
+          },
+          "allow_tentative_named_other": true
         },
         {
           "key": "hosting_company",
@@ -423,7 +432,14 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "The current client portal or document-management tool used to exchange tax documents with clients. A specifically named client portal outside the options is Other with the named product as detail; it is not unknown. Do not confuse the practice-management/job-tracking product with the document portal when the prospect distinguishes their roles."
+          "evidence_rule": "The current client portal or document-management tool used to exchange tax documents with clients. A specifically named client portal outside the options is Other with the named product as detail; it is not unknown. Do not confuse the practice-management/job-tracking product with the document portal when the prospect distinguishes their roles.",
+          "confidence": {
+            "tentative": 0.3,
+            "initial": 0.75,
+            "replacement": 0.9,
+            "calibrated": false
+          },
+          "allow_tentative_named_other": true
         },
         {
           "key": "other_software",
@@ -566,7 +582,14 @@
               "Right Networks"
             ]
           },
-          "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it."
+          "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it.",
+          "confidence": {
+            "tentative": 0.3,
+            "initial": 0.75,
+            "replacement": 0.9,
+            "calibrated": false
+          },
+          "allow_tentative_named_other": true
         },
         {
           "key": "personal_returns",

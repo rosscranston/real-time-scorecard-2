@@ -146,7 +146,8 @@ struct ScorecardProbe {
             guard [0, 45].contains(soakMinutes) else { throw OpenAIError.invalidResponse }
             let packURL = root.appendingPathComponent(CommandLine.arguments.contains("--short")
                 ? "tests/Fixtures/synthetic-short-calls.json" : "tests/Fixtures/synthetic-discovery-calls.json")
-            let pack = try ScorecardCoding.decoder().decode(SyntheticCallPack.self, from: Data(contentsOf: packURL))
+            let packData = try Data(contentsOf: packURL)
+            let pack = try ScorecardCoding.decoder().decode(SyntheticCallPack.self, from: packData)
             let id = argument("--call", fallback: "01-owner-story")
             guard let script = pack.calls.first(where: { $0.id == id }) else { throw OpenAIError.invalidResponse }
             guard let key = CredentialStore.developerKey(directory: root) else { throw OpenAIError.missingKey }
@@ -225,6 +226,7 @@ struct ScorecardProbe {
                 + Double(resources.ru_utime.tv_usec + resources.ru_stime.tv_usec) / 1_000_000
             let results: [String: Any] = [
                 "call": id, "interval_seconds": interval,
+                "fixture_sha256": SHA256.hash(data: packData).map { String(format: "%02x", $0) }.joined(),
                 "configuration_id": config.id, "configuration_revision": config.revision,
                 "configuration_sha256": SHA256.hash(data: try ScorecardCoding.encoder().encode(config)).map { String(format: "%02x", $0) }.joined(),
                 "sentences_sent": session.segments.count, "sentences_processed": times.count,

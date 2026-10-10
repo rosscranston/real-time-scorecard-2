@@ -577,6 +577,47 @@
       "varr": {
         "absent": true
       }
+    },
+    "call-07-unsupported-hosting": {
+      "firm_name": {
+        "equals": "Cedar Example Accounting"
+      },
+      "tax_software": {
+        "equals": "CCH Axcess"
+      },
+      "hosting_deal": {
+        "absent": true
+      },
+      "hosting_provider": {
+        "absent": true
+      },
+      "document_management": {
+        "absent": true
+      },
+      "practice_management": {
+        "absent": true
+      },
+      "number_of_returns": {
+        "absent": true
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
+      },
+      "employee_count": {
+        "absent": true
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
     }
   }
 }
