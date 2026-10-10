@@ -51,11 +51,16 @@ final class NumericCalculationsTests: XCTestCase {
         let config = config(); var company = CompanyScorecard(name: "Test", configuration: config)
         set("total", 100, company: &company); set("personal", 200, company: &company)
         _ = NumericDeriver.recalculate(configuration: config, company: &company)
-        XCTAssertNil(company.facts["business"])
+        XCTAssertEqual(company.facts["business"]?.value, .null)
+        XCTAssertNotNil(company.facts["business"]?.calculationConflict)
         set("business", 50, company: &company)
         _ = NumericDeriver.recalculate(configuration: config, company: &company)
         XCTAssertEqual(company.facts["total"]?.value, .number(100))
         XCTAssertEqual(company.facts["personal"]?.value, .number(200))
+        XCTAssertNotNil(company.facts["total"]?.calculationConflict)
+        set("total", 250, company: &company)
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertTrue(company.facts.values.allSatisfy { $0.calculationConflict == nil })
     }
     func testManualClearWaitsForNewInputAndInvalidFormulaFailsImport() throws {
         var config = config(); var company = CompanyScorecard(name: "Test", configuration: config)
