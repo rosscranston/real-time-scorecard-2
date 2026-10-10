@@ -1,16 +1,16 @@
 # Real-time Scorecard 2: implementation plan
 
-Status: planning complete with recommended defaults; API connection-test scaffold implemented. Native app implementation and paid API validation have not started. Deadline: October 10, 2026, 08:00 America/Los_Angeles. The user moved this earlier on October 9; OVERNIGHT_PLAN.md governs the overnight sequence and preflight findings. This is a target, not a completion guarantee.
+Status: implementation and release verification in progress; PROGRESS.md contains the current evidence. The original planning descriptions below remain requirements, not claims that checks passed. Deadline: October 10, 2026, 08:00 America/Los_Angeles. The user moved this earlier on October 9; OVERNIGHT_PLAN.md governs the overnight sequence and preflight findings. This is a target, not a completion guarantee.
 
 ## Supplied criteria catalog
 
-The user supplied `company-fields.json` on October 9. Its 39 fields across four groups are now the starting catalog in `configurations/company-scorecard.draft.json`. This draft preserves all source IDs and adds exact team size and hosting provider, for 41 fields within the 50-field limit. It supersedes the older 21-field list as the configuration-design starting point; the original 21-field app remains useful for the first integration test. The draft is not yet loaded by the app or API test script.
+The user supplied `company-fields.json` on October 9. Its 39 fields across four groups are now the starting catalog in `configurations/company-scorecard.draft.json`. This draft preserves all source IDs and adds exact team size and hosting provider, The current revision also adds return breakdowns, staff roles, firm revenue, typical return fees, and practice management, reaching the 50-field limit. It supersedes the older 21-field list as the configuration-design starting point; the original 21-field app remains useful for the first integration test. The native app and CLI load the catalog dynamically.
 
 The six source multi-select fields use one primary displayed answer in v1, consistent with the earlier user decision. CRM storage descriptions remain inert metadata. Original examples are retained only in the ignored `private-data/imports/company-fields.original.json`, not the distributable draft. Source document notes do not authorize CRM writes, hiding, or merging records.
 
 Exact team size replaces the employee-range bucket in the default visible layout. The company-level hosting summary remains a hidden reference mapping; hosting environment and provider are visible. Administrative fields are manual-only, with hidden/combined-into kept out of the live scorecard. These are recommended draft defaults, not implemented UI behavior.
 
-Remaining catalog gaps include individual/business return counts, staff role counts, revenue, and per-return pricing discussed earlier; these should be reconciled with the user's upcoming criteria description rather than inferred from unrelated deal amounts. Preserve `GruntWorks` as supplied pending reconciliation with the earlier `GruntWorx` spelling. Two hosting taxonomies in the source require an explicit mapping before any future CRM export. A mention of a competitor must not automatically become a loss reason or a completed deal stage.
+The approved individual/business return counts, staff roles, revenue and per-return pricing are included as distinct fields; do not infer them from unrelated deal amounts. `GruntWorx` is canonical and `GruntWorks` is retained as an alias. Two hosting taxonomies in the source require an explicit mapping before any future CRM export. A mention of a competitor must not automatically become a loss reason or a completed deal stage.
 
 ## Outcome and release priorities
 
@@ -35,7 +35,7 @@ Native Settings/Admin is the admin portal for v1; no hosted admin service. OpenA
 
 ### 2. Configuration engine
 
-Versioned JSON drives field IDs, labels, sections, order, types, canonical options, aliases, source policies, confidence presets, formulas, and initial/demo/review layouts. Maximum 50 fields; use the supplied 41-field draft catalog, with its 33 automatically extracted fields. The existing 21-field enum is a migration reference, not the final catalog. Maintain stable IDs independently of labels. JSON import validates atomically; invalid configurations leave the current one intact. Save multiple named configurations and switch the active one. Editing Settings changes the selected configuration and supports JSON export. A configuration revision accompanies every extraction job.
+Versioned JSON drives field IDs, labels, sections, order, types, canonical options, aliases, source policies, confidence presets, formulas, and initial/demo/review layouts. Maximum 50 fields; use the supplied catalog as reconciled to 50 fields, with 42 automatically extracted fields. The existing 21-field enum is a migration reference, not the final catalog. Maintain stable IDs independently of labels. JSON import validates atomically; invalid configurations leave the current one intact. Save multiple named configurations and switch the active one. Editing Settings changes the selected configuration and supports JSON export. A configuration revision accompanies every extraction job.
 
 Removed fields/options remain in the database but are hidden and no longer evaluated. Mid-call configuration changes apply immediately; results from an obsolete configuration cannot overwrite new state. Corrections can suggest aliases, stored against a particular field and canonical option; no cross-company or provider training. Canonical names take priority over transcript spelling. `Other: <value>` retains unlisted products without extending the enum silently.
 

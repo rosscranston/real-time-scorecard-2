@@ -202,9 +202,48 @@ public final class ScorecardDatabase: @unchecked Sendable {
             }
         }
     }
-    public func pendingJobs() throws -> [ExtractionJob] {
+    private func pendingStatement(companyID: UUID?, callID: UUID?, configurationID: String?,
+                                  limit: Int?, countOnly: Bool = false) throws -> OpaquePointer {
+        let payload = "CAST(payload AS TEXT)"
+        var sql = "SELECT \(countOnly ? "COUNT(*)" : "payload") FROM entities WHERE kind='job' AND json_extract(\(payload),'$.status') IN ('pending','running','failed')"
+        if companyID != nil { sql += " AND company_id=?" }
+        if callID != nil { sql += " AND json_extract(\(payload),'$.callID')=?" }
+        if configurationID != nil { sql += " AND json_extract(\(payload),'$.configurationID')=?" }
+        if !countOnly {
+            // ISO-8601 job creation dates have only second precision. Transcript
+            // sequence, not row update time, defines recovery order within a call.
+            sql += " ORDER BY json_extract(\(payload),'$.callID'), json_extract(\(payload),'$.segments[0].sequence'), json_extract(\(payload),'$.createdAt'), id"
+            if limit != nil { sql += " LIMIT ?" }
+        }
+        let s = try statement(sql)
+        var index: Int32 = 1
+        if let companyID { bind(companyID.uuidString, index, s); index += 1 }
+        if let callID { bind(callID.uuidString, index, s); index += 1 }
+        if let configurationID { bind(configurationID, index, s); index += 1 }
+        if !countOnly, let limit { sqlite3_bind_int64(s, index, Int64(max(0, limit))) }
+        return s
+    }
+    public func pendingJobs(companyID: UUID? = nil, callID: UUID? = nil,
+                            configurationID: String? = nil, limit: Int? = nil) throws -> [ExtractionJob] {
         try synchronized {
-            try read(ExtractionJob.self, kind: "job").filter { [.pending, .running, .failed].contains($0.status) }.sorted { $0.createdAt < $1.createdAt }
+            let s = try pendingStatement(companyID: companyID, callID: callID, configurationID: configurationID, limit: limit)
+            defer { sqlite3_finalize(s) }
+            var jobs: [ExtractionJob] = []
+            while true {
+                let code = sqlite3_step(s)
+                if code == SQLITE_DONE { return jobs }
+                guard code == SQLITE_ROW, let bytes = sqlite3_column_blob(s, 0) else { throw failure() }
+                jobs.append(try decoder.decode(ExtractionJob.self, from: Data(bytes: bytes, count: Int(sqlite3_column_bytes(s, 0)))))
+            }
+        }
+    }
+    public func pendingJobCount(companyID: UUID, callID: UUID, configurationID: String) throws -> Int {
+        try synchronized {
+            let s = try pendingStatement(companyID: companyID, callID: callID, configurationID: configurationID,
+                                         limit: nil, countOnly: true)
+            defer { sqlite3_finalize(s) }
+            guard sqlite3_step(s) == SQLITE_ROW else { throw failure() }
+            return Int(sqlite3_column_int64(s, 0))
         }
     }
     public func savePreference<T: Encodable>(_ value: T, key: String) throws {

@@ -109,6 +109,25 @@ final class AppStore: ObservableObject {
         }
     }
 
+    func importSessionKey() {
+        guard !active, !busy, !starting, !credentialBusy else { return }
+        let panel = NSOpenPanel()
+        panel.title = "Use a developer .env key for this session"
+        panel.message = "Choose your .env file. Only OPENAI_API_KEY is read; it stays in memory until you quit."
+        panel.canChooseFiles = true; panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false; panel.showsHiddenFiles = true
+        panel.allowedContentTypes = []; panel.allowsOtherFileTypes = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard url.lastPathComponent == ".env",
+              let key = CredentialStore.developerKey(directory: url.deletingLastPathComponent(), environment: [:]),
+              !key.contains(where: \.isWhitespace) else {
+            connectionStatus = "Choose a .env file containing OPENAI_API_KEY."; return
+        }
+        sessionKey = key; client = nil; message = nil
+        connectionStatus = "Session key loaded · not saved · choose Test text APIs"
+    }
     func saveKey(_ key: String) async {
         guard !credentialBusy else { return }
         credentialBusy = true
@@ -432,7 +451,9 @@ final class AppStore: ObservableObject {
         } catch { message = error.localizedDescription }
     }
     func importConfiguration() {
-        let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]; panel.allowsMultipleSelection = false
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]
+        panel.canChooseFiles = true; panel.canChooseDirectories = false; panel.allowsMultipleSelection = false
+        panel.allowsOtherFileTypes = true // Decode/validate contents after selection; tolerate custom JSON UTIs.
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let config = try ScorecardConfiguration.load(Data(contentsOf: url))
@@ -493,6 +514,8 @@ final class AppStore: ObservableObject {
     func replayFile() async {
         guard !active, !busy, !starting else { return }
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]
+        panel.canChooseFiles = true; panel.canChooseDirectories = false; panel.allowsMultipleSelection = false
+        panel.allowsOtherFileTypes = true // Decode/validate contents after selection; tolerate custom JSON UTIs.
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let pack = try ScorecardCoding.decoder().decode(SyntheticCallPack.self, from: Data(contentsOf: url))

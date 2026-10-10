@@ -33,7 +33,9 @@ public final class ExtractionSession {
     private var worker: Task<Void, Never>?
     private var generation = UUID()
     private let retryDelay: Duration
-    public var pendingCount: Int { pending.count }
+    public private(set) var pendingCount = 0
+    public var bufferedJobCount: Int { pending.count }
+    public static let maximumBufferedJobs = 128
 
     public init(company: CompanyScorecard, call: CallRecord, configuration: ScorecardConfiguration,
                 database: ScorecardDatabase, extractor: any FactExtracting, retryDelay: Duration = .seconds(1)) throws {
@@ -47,14 +49,14 @@ public final class ExtractionSession {
         try database.saveConfiguration(configuration)
         try database.saveCompany(company); try database.saveCall(call)
         segments = try database.segments(callID: call.id, companyID: company.id)
-        pending = try database.pendingJobs().filter {
-            $0.companyID == company.id && $0.callID == call.id && $0.configurationID == configuration.id
-        }
+        pendingCount = try database.pendingJobCount(companyID: company.id, callID: call.id, configurationID: configuration.id)
+        pending = try database.pendingJobs(companyID: company.id, callID: call.id,
+            configurationID: configuration.id, limit: Self.maximumBufferedJobs)
         // Recovery requires explicit resume; initialization does not send private audio/text.
     }
     public func resume() {
         errorMessage = nil
-        guard worker == nil, !pending.isEmpty else { onChange?(); return }
+        guard worker == nil, pendingCount > 0 else { onChange?(); return }
         let current = generation
         worker = Task { [weak self] in await self?.drain(generation: current) }
     }
@@ -67,7 +69,9 @@ public final class ExtractionSession {
         segments.removeAll { $0.id == segment.id }; segments.append(segment)
         segments.sort { $0.sequence < $1.sequence }
         if let job {
-            pending.append(job)
+            // Overflow stays durable on disk and is paged in after older work.
+            if pendingCount == pending.count && pending.count < Self.maximumBufferedJobs { pending.append(job) }
+            pendingCount += 1
             if errorMessage == nil { resume() }
         }
         onChange?()
@@ -95,12 +99,13 @@ public final class ExtractionSession {
         let jobs = segments.filter(\.isFinal).map {
             ExtractionJob(company: next, callID: call.id, configuration: configuration, segments: [$0])
         }
-        try database.switchConfiguration(company: next, call: updatedCall, superseded: pending, pending: jobs)
+        let superseded = try database.pendingJobs(companyID: company.id, callID: call.id, configurationID: self.configuration.id)
+        try database.switchConfiguration(company: next, call: updatedCall, superseded: superseded, pending: jobs)
         // Cancel only after the replacement state is durable. A late result from an
         // uncooperative transport cannot commit into the new configuration.
         generation = UUID(); worker?.cancel(); worker = nil; isProcessing = false
         self.configuration = configuration; company = next; call = updatedCall
-        pending = jobs; errorMessage = nil
+        pending = Array(jobs.prefix(Self.maximumBufferedJobs)); pendingCount = jobs.count; errorMessage = nil
         onChange?(); resume()
     }
     public func waitUntilIdle() async {
@@ -111,7 +116,18 @@ public final class ExtractionSession {
         defer {
             if generation == currentGeneration { isProcessing = false; worker = nil; onChange?() }
         }
-        while !pending.isEmpty && !Task.isCancelled {
+        while pendingCount > 0 && !Task.isCancelled {
+            if pending.isEmpty {
+                do {
+                    pending = try database.pendingJobs(companyID: company.id, callID: call.id,
+                        configurationID: configuration.id, limit: Self.maximumBufferedJobs)
+                    guard !pending.isEmpty else {
+                        errorMessage = "Saved queue changed unexpectedly; reopen this call from History."; return
+                    }
+                } catch {
+                    errorMessage = "Could not load saved transcript work; retry from History."; return
+                }
+            }
             // Coalesce bursts, but cap each request's new evidence.
             let batch = Array(pending.prefix(4))
             let ids = Set(batch.flatMap(\.segments).map(\.id))
@@ -149,7 +165,7 @@ public final class ExtractionSession {
                 // A crash before these marks can replay, but reducer versions and same-value
                 // detection make committed answers idempotent.
                 for var item in batch { item.status = .completed; try database.saveJob(item) }
-                pending.removeFirst(batch.count)
+                pending.removeFirst(batch.count); pendingCount -= batch.count
                 let completed = Date()
                 for segment in fresh {
                     let end = segment.sentenceEndedAt ?? segment.receivedAt

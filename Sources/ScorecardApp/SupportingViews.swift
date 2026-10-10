@@ -18,6 +18,8 @@ struct ConnectionSettings: View {
                         Task { await store.testConnection(); testing = false }
                     }.disabled(testing || store.credentialBusy || store.starting)
                 }
+                Button("Use .env for this session…") { store.importSessionKey() }
+                    .disabled(store.active || store.busy || store.starting || store.credentialBusy || testing)
                 Text(store.connectionStatus).font(.caption)
                 Text("Your key stays on this Mac. The connection test sends a short synthetic example.").font(.caption).foregroundStyle(.secondary)
             }

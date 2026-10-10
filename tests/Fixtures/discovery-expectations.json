@@ -1,11 +1,6 @@
 {
   "scope": "Mapped core fields from the supplied human-authored synthetic discovery answer keys. Partial rubric, not comprehensive all-field accuracy. Source pack never enters inference as an answer key.",
   "unmapped_source_fields": [
-    "practice_management",
-    "admins",
-    "preparers",
-    "reviewers",
-    "cpas",
     "minimum_commitment",
     "pilot_commitment",
     "other_numbers"
@@ -67,6 +62,27 @@
       },
       "business_returns": {
         "equals": 156
+      },
+      "admins": {
+        "equals": 1
+      },
+      "preparers": {
+        "equals": 3
+      },
+      "reviewers": {
+        "equals": 1
+      },
+      "cpas": {
+        "equals": 2
+      },
+      "practice_management": {
+        "equals": "TaxDome"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
       }
     },
     "02-skeptical-operator": {
@@ -118,6 +134,27 @@
       },
       "business_returns": {
         "equals": 370
+      },
+      "admins": {
+        "equals": 3
+      },
+      "preparers": {
+        "equals": 7
+      },
+      "reviewers": {
+        "equals": 2
+      },
+      "cpas": {
+        "equals": 4
+      },
+      "practice_management": {
+        "equals": "Karbon"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
       }
     },
     "03-partners-corrections": {
@@ -171,6 +208,27 @@
       },
       "business_returns": {
         "equals": 240
+      },
+      "admins": {
+        "equals": 2
+      },
+      "preparers": {
+        "equals": 6
+      },
+      "reviewers": {
+        "equals": 2
+      },
+      "cpas": {
+        "equals": 3
+      },
+      "practice_management": {
+        "equals": "Financial Cents"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
       }
     },
     "call-01-straightforward": {
@@ -218,6 +276,27 @@
       },
       "varr": {
         "absent": true
+      },
+      "admins": {
+        "equals": 2
+      },
+      "preparers": {
+        "equals": 6
+      },
+      "reviewers": {
+        "equals": 2
+      },
+      "cpas": {
+        "equals": 4
+      },
+      "practice_management": {
+        "equals": "Canopy"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
       }
     },
     "call-02-historical-software": {
@@ -255,6 +334,27 @@
         "absent": true
       },
       "varr": {
+        "absent": true
+      },
+      "admins": {
+        "equals": 1
+      },
+      "preparers": {
+        "equals": 2
+      },
+      "reviewers": {
+        "equals": 1
+      },
+      "cpas": {
+        "equals": 2
+      },
+      "practice_management": {
+        "equals": "TaxDome"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
         "absent": true
       }
     },
@@ -296,6 +396,27 @@
       },
       "varr": {
         "absent": true
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
+      },
+      "admins": {
+        "absent": true
+      },
+      "preparers": {
+        "absent": true
+      },
+      "reviewers": {
+        "absent": true
+      },
+      "cpas": {
+        "absent": true
+      },
+      "practice_management": {
+        "absent": true
       }
     },
     "call-04-short-answers": {
@@ -329,6 +450,27 @@
       },
       "varr": {
         "absent": true
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
+      },
+      "admins": {
+        "absent": true
+      },
+      "preparers": {
+        "absent": true
+      },
+      "reviewers": {
+        "absent": true
+      },
+      "cpas": {
+        "absent": true
+      },
+      "practice_management": {
+        "absent": true
       }
     },
     "call-05-new-practice": {
@@ -355,6 +497,68 @@
       },
       "other_software": {
         "equals": "Canopy"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      },
+      "admins": {
+        "equals": 0
+      },
+      "preparers": {
+        "equals": 0
+      },
+      "reviewers": {
+        "equals": 2
+      },
+      "cpas": {
+        "equals": 2
+      },
+      "practice_management": {
+        "equals": "Canopy"
+      },
+      "annual_revenue": {
+        "absent": true
+      },
+      "average_return_fee": {
+        "absent": true
+      }
+    },
+    "call-06-finance-ranges": {
+      "firm_name": {
+        "equals": "Juniper Example Tax"
+      },
+      "annual_revenue": {
+        "equals": 850000
+      },
+      "average_return_fee": {
+        "equals": 550
+      },
+      "employee_count": {
+        "equals": 5
+      },
+      "admins": {
+        "equals": 1
+      },
+      "preparers": {
+        "equals": 4
+      },
+      "reviewers": {
+        "equals": 2
+      },
+      "cpas": {
+        "equals": 3
+      },
+      "practice_management": {
+        "equals": "Truss"
+      },
+      "number_of_returns": {
+        "absent": true
       },
       "deal_value": {
         "absent": true

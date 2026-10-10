@@ -1,6 +1,21 @@
 # Progress
 
-## Current checkpoint — October 10, 01:16 Pacific
+## Current checkpoint — October 10, approximately 01:32 Pacific
+
+This section supersedes the earlier checkpoint below. The prior goal turn made concrete release fixes and packaged commit 736f7a8. This turn continues implementation and verification; the goal is active.
+
+- Catalog **revision 10 now has 50 fields / 42 automatic**. Added the explicitly requested annual firm revenue, typical per-return fee, admins, preparers, reviewers, CPAs and practice management. Both configuration copies match. The supported maximum is still 50.
+- Expanded long/short fixture rubrics for the added staff/practice fields and negative revenue/fee checks. Added `call-06-finance-ranges` with synthetic midpoint, overlapping-role and seller-price distractor cases. These new CLI checks still need running after the soak; do not rescore older 43-field runs as if they used the expanded catalog.
+- Bounded the active job page to 128 while retaining overflow on disk. Recovery orders by transcript sequence rather than second-resolution creation time. Configuration switching supersedes disk overflow too. Two new meaningful tests cover 300 queued sentences/restart/order/no-loss and 140 pending jobs/config switch. **42 Swift tests pass**, log `/tmp/scorecard-paged-queue-tests.log` at 01:21.
+- Added explicit Settings → Use .env for this session. It reads only a user-selected local .env key into memory, without altering Keychain. Native import succeeded, then **Test text APIs succeeded in 2.78 s with catalog 10**. Keychain authorization remains a separate first-launch issue for a key created by a differently signed build; session import is a usable alternative.
+- Native JSON picker testing found Open disabled for local files. File selection is now explicit and custom type associations are tolerated; actual JSON decoding/schema validation remains required after choosing a file. Both replay and configuration import use the fix. Native replay file selection succeeded.
+- A real **native-app replay** of the first short fixture completed: call `48A689FE-17AB-4D06-B85D-6F190A3FD3B9`, 13 segments, all 13 jobs completed, 08:28:46–08:29:48 UTC, catalog 10. Read-only local SQLite inspection verified staff 2/6/2/4, practice management Canopy, 1,240 total / 980 personal / 260 business, UltraTax, Rightworks hosting/provider, Other: SmartVault, correct firm/contact/location. Revenue/vendor-price distractors did not populate financial fields. Unscored extras include competitor GruntWorx and other software Canopy; review their semantics before claiming precision.
+- The UI observer started timing out after replay file selection. Unlike the earlier Keychain issue, a process sample (`/tmp/scorecard-replay-ui-sample.txt`) showed the app idle in its event loop, and persisted replay work completed normally. CUA reset/rebind did not restore observation. Do not restart the replay or claim visible-update/collapsed-count verification from SQLite evidence alone. App process 93075 was alive; revalidate before acting. The CUA runtime was reset and the current `app` binding may be undefined after failed getApp calls.
+- App audio preference remains OpenAI cloud; native replay does not capture audio. Config v10 was selected and persists. Session key remains in the currently running app until quit. The release binary builds (`/tmp/scorecard-catalog50-build.log`). ZIPs currently refer to 736f7a8 and must be regenerated after these changes are committed.
+- Soak **session 77138** still live, last observed beyond sentence 418; due approximately 01:41. It intentionally uses its original catalog 8 and loaded binary. No duplicate probe. Keep-awake 42450 unchanged. Estimated ledgers at about 01:30: probe $1.14274, native UI $0.01492; combined well below $5.
+- Next: finish source/history privacy audit and dedicated GitHub source publication; finish soak and run short fixtures sequentially, then targeted/full expanded-catalog checks justified by failures; reconcile FINAL_REPORT and package exact committed source. Real Meet capture/share/audio-to-screen and notarization remain unverified. GitHub CLI auth was verified earlier but no remote exists yet.
+
+## Earlier checkpoint — October 10, 01:16 Pacific
 
 The native app, extraction core, configuration editor, company persistence, and release tooling are implemented. The overnight goal remains active. Deadline: 08:00 Pacific. No sub-agents are authorized.
 

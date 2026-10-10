@@ -29,13 +29,13 @@ python3 scripts/test_decisions.py --dry-run
 python3 -m unittest discover -s tests -v
 ```
 
-Mac Settings now provides masked key entry, Save/Remove, and Test text APIs. Packaged apps store keys in macOS Keychain; developer runs can use `.env`. Keys will never be bundled into the downloadable app or exported in criteria JSON.
+Mac Settings provides masked key entry, Save/Remove, and Test text APIs. Use .env for this session explicitly imports a selected developer key into memory without saving it; quitting clears that session key. Packaged apps store keys in macOS Keychain; developer runs can use `.env`. Keys will never be bundled into the downloadable app or exported in criteria JSON.
 
 See `PROJECT_PLAN.md` for components, milestones, defaults, acceptance gates, and a future implementation-goal prompt.
 
 ## Starting criteria configuration
 
-`configurations/company-scorecard.draft.json` adapts the supplied 39-field catalog into a 43-field draft, adding exact team size, separate hosting provider, and personal/business return counts with JSON-defined calculations. It includes suggested call-type priorities, one answer per field, uncertainty and lock defaults, and extraction routes. The native app and probe load this configuration at runtime. The older Python smoke test uses only its two built-in questions.
+`configurations/company-scorecard.draft.json` adapts the supplied 39-field catalog into a 50-field draft, adding exact team size, separate hosting provider, personal/business return counts, staff roles, practice management, annual firm revenue and typical return fee; return counts support JSON-defined calculations. It includes suggested call-type priorities, one answer per field, uncertainty and lock defaults, and extraction routes. The native app and probe load this configuration at runtime. The older Python smoke test uses only its two built-in questions.
 
 The untouched source is stored under ignored `private-data/imports/company-fields.original.json`. Contact/company examples are omitted from the distributable draft. Attio mappings are metadata only and do not enable synchronization or writes.
 

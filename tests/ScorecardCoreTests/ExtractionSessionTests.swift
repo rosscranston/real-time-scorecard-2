@@ -46,7 +46,64 @@ private actor SwitchExtractor: FactExtracting {
     }
 }
 
+private actor SequenceExtractor: FactExtracting {
+    var observed: [Int] = []
+    func sequences() -> [Int] { observed }
+    func extract(job: ExtractionJob, company: CompanyScorecard, configuration: ScorecardConfiguration) async throws -> ExtractionResult {
+        observed += job.segments.filter { $0.sequence >= (job.focusSequence ?? 0) }.map(\.sequence)
+        return ExtractionResult(candidates: [], seconds: 0, warnings: [])
+    }
+}
+
 final class ExtractionSessionTests: XCTestCase {
+    @MainActor func testLargeOfflineQueueRestartsInTranscriptOrderWithoutLosingOverflow() async throws {
+        let config = ScorecardConfiguration(id: "offline", title: "Offline", groups: [
+            FieldGroup(id: "profile", label: "Profile", fields: [FieldDefinition(key: "returns", label: "Returns", type: "number")])
+        ])
+        let company = CompanyScorecard(name: "Offline firm", configuration: config)
+        let call = CallRecord(company: company)
+        let db = try ScorecardDatabase(inMemory: true)
+        let first = try ExtractionSession(company: company, call: call, configuration: config, database: db, extractor: FailingExtractor())
+        try first.ingest(TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "First sentence."))
+        await first.waitUntilIdle()
+        for sequence in 2...300 {
+            try first.ingest(TranscriptEntry(callID: call.id, sequence: sequence, speaker: .customer, text: "Sentence \(sequence)."))
+        }
+        XCTAssertEqual(first.pendingCount, 300)
+        XCTAssertEqual(first.bufferedJobCount, ExtractionSession.maximumBufferedJobs)
+        XCTAssertEqual(try db.pendingJobCount(companyID: company.id, callID: call.id, configurationID: config.id), 300)
+        let extractor = SequenceExtractor()
+        let restored = try ExtractionSession(company: first.company, call: call, configuration: config, database: db, extractor: extractor)
+        XCTAssertEqual(restored.bufferedJobCount, ExtractionSession.maximumBufferedJobs)
+        restored.resume(); await restored.waitUntilIdle()
+        let processed = await extractor.sequences()
+        XCTAssertEqual(processed, Array(1...300))
+        XCTAssertEqual(restored.pendingCount, 0)
+        XCTAssertTrue(try db.pendingJobs().isEmpty)
+        XCTAssertEqual(restored.measurements.count, 300)
+        XCTAssertNil(restored.errorMessage)
+    }
+    @MainActor func testConfigurationSwitchSupersedesDiskOverflowAsWellAsMemoryPage() async throws {
+        let config = ScorecardConfiguration(id: "overflow", title: "Overflow", groups: [
+            FieldGroup(id: "profile", label: "Profile", fields: [FieldDefinition(key: "returns", label: "Returns", type: "number")])
+        ])
+        let company = CompanyScorecard(name: "Switch firm", configuration: config)
+        let call = CallRecord(company: company)
+        let db = try ScorecardDatabase(inMemory: true)
+        let session = try ExtractionSession(company: company, call: call, configuration: config, database: db, extractor: FailingExtractor())
+        try session.ingest(TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "First sentence."))
+        await session.waitUntilIdle()
+        for sequence in 2...140 {
+            try session.ingest(TranscriptEntry(callID: call.id, sequence: sequence, speaker: .customer, text: "Sentence \(sequence)."))
+        }
+        var updated = config; updated.revision = 2
+        try session.switchConfiguration(updated)
+        await session.waitUntilIdle()
+        let jobs = try db.pendingJobs(companyID: company.id, callID: call.id)
+        XCTAssertEqual(jobs.count, 140)
+        XCTAssertTrue(jobs.allSatisfy { $0.configurationRevision == 2 })
+        XCTAssertEqual(session.bufferedJobCount, ExtractionSession.maximumBufferedJobs)
+    }
     @MainActor func testConfigurationSwitchRejectsOldInflightResponseAndKeepsRemovedFacts() async throws {
         let config = ScorecardConfiguration(id: "test", title: "Test", groups: [
             FieldGroup(id: "profile", label: "Profile", fields: [FieldDefinition(key: "returns", label: "Returns", type: "number")])

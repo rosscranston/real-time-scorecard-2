@@ -463,6 +463,117 @@
           "timestamp_seconds": 55
         }
       ]
+    },
+    {
+      "id": "call-06-finance-ranges",
+      "title": "Synthetic finance ranges and overlapping staff roles",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "What is your firm called?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Our firm is Juniper Example Tax.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "Our demo package costs forty dollars per return.",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "That is your price, not what we charge our clients.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "What did your firm bring in last year?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Our firm had between eight hundred thousand and nine hundred thousand dollars of revenue last year.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "One of our clients made two million dollars, but that is their business, not ours.",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "What do you charge for a typical return?",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Our typical individual tax return fee is between four hundred fifty and six hundred fifty dollars.",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "How many people are on your team?",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "We have five people: one administrator and four preparers.",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Two of those preparers also review returns, and three of the four preparers are CPAs.",
+          "timestamp_seconds": 55
+        },
+        {
+          "turn": 13,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "Which system runs your practice management?",
+          "timestamp_seconds": 60
+        },
+        {
+          "turn": 14,
+          "speaker": "Prospect",
+          "channel": "PROSPECT",
+          "text": "Truss is our practice management system.",
+          "timestamp_seconds": 65
+        },
+        {
+          "turn": 15,
+          "speaker": "Salesperson",
+          "channel": "ROSS",
+          "text": "The example client in our demo has twenty documents and three employees.",
+          "timestamp_seconds": 70
+        }
+      ]
     }
   ]
 }

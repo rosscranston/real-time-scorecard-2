@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 9,
+  "revision": 10,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
   "source_catalog": {
-    "title": "Company fields you can set \u2014 Pipeline Timeline + Attio",
+    "title": "Company fields you can set — Pipeline Timeline + Attio",
     "as_of": "2026-10-09",
     "field_count": 39
   },
@@ -92,7 +92,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People \u2605 Primary decision maker)"
+              "Pipeline Timeline (this page) (People ★ Primary decision maker)"
             ]
           },
           "multiple": false,
@@ -162,7 +162,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People \u2691)"
+              "Pipeline Timeline (this page) (People ⚑)"
             ],
             "notes": "Person who wants the deal to go forward even if someone else approves it."
           },
@@ -293,7 +293,7 @@
             "CCI",
             "Thomson Reuters Virtual Office",
             "Tax software vendor cloud/online",
-            "Remote desktop/server \u2014 host unknown",
+            "Remote desktop/server — host unknown",
             "Multiple environments",
             "Other"
           ],
@@ -369,7 +369,7 @@
         },
         {
           "key": "individual_return_mix_pct",
-          "label": "Return mix \u2014 individual %",
+          "label": "Return mix — individual %",
           "type": "number",
           "min": 0,
           "max": 100,
@@ -591,6 +591,110 @@
           "source_policy": "either",
           "evidence_rule": "Current annual business return count for the whole firm, including partnership and corporate returns. Exclude pilot samples, proposed purchase volumes and future acquisitions.",
           "added_by": "scorecard_numeric_requirements"
+        },
+        {
+          "key": "admins",
+          "label": "Administrative staff",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "Number of people doing administration or intake at the firm. Part-time people count as people, not fractional FTEs. Roles may overlap; never sum roles to infer total headcount.",
+          "added_by": "approved_numeric_and_staff_requirements"
+        },
+        {
+          "key": "preparers",
+          "label": "Preparers",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "Current tax-season preparer headcount, including owners/partners and seasonal preparers when stated. Retain year-round qualification in evidence. Do not add reviewers or CPAs who already prepare returns.",
+          "added_by": "approved_numeric_and_staff_requirements"
+        },
+        {
+          "key": "reviewers",
+          "label": "Reviewers",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "People who review tax returns, including partners when stated. This role can overlap preparers; never add it to total headcount.",
+          "added_by": "approved_numeric_and_staff_requirements"
+        },
+        {
+          "key": "cpas",
+          "label": "CPAs",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "Count of people identified as CPAs at the firm. Do not infer all partners or preparers are CPAs. May overlap other roles.",
+          "added_by": "approved_numeric_and_staff_requirements"
+        },
+        {
+          "key": "annual_revenue",
+          "label": "Annual firm revenue",
+          "type": "currency_usd",
+          "integer": false,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "The prospect firm’s annual revenue in USD, not Cranston deal value, software spending, revenue of a client, or revenue per employee. Prefer current actual revenue; explicitly qualified estimates may be tentative. Preserve spoken ranges in evidence and use their midpoint. Do not convert a non-USD amount without an explicit conversion.",
+          "added_by": "approved_numeric_and_staff_requirements",
+          "currency": "USD"
+        },
+        {
+          "key": "average_return_fee",
+          "label": "Typical return fee",
+          "type": "currency_usd",
+          "integer": false,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "The prospect’s stated typical or average price charged to clients per tax return, in USD. Exclude vendor software prices, proposed Cranston pricing, hourly rates, and total firm revenue. If distinct fees exist, use the explicitly identified primary/typical return category and preserve that qualification in evidence; do not average unrelated categories. Use the midpoint of a stated range.",
+          "added_by": "approved_numeric_and_staff_requirements",
+          "currency": "USD"
+        },
+        {
+          "key": "practice_management",
+          "label": "Practice management",
+          "type": "select",
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "allow_other": true,
+          "options": [
+            "TaxDome",
+            "Karbon",
+            "Financial Cents",
+            "Canopy",
+            "Truss",
+            "Magnetic",
+            "Taxstone",
+            "Other"
+          ],
+          "aliases": {
+            "TaxDome": [
+              "Tax Dome"
+            ],
+            "Financial Cents": [
+              "Financial Sense"
+            ]
+          },
+          "evidence_rule": "Primary practice-management, workflow or client-intake system currently used by the prospect firm. A client portal alone does not establish practice management. Keep distinct from tax preparation software, document portal, accounting tools, and products being demonstrated or evaluated. Use Other with the named product if it is not listed.",
+          "added_by": "approved_practice_management_requirement"
         }
       ]
     },
@@ -606,7 +710,7 @@
             "Lead",
             "Prove Value",
             "Contracting",
-            "Won \ud83c\udf89",
+            "Won 🎉",
             "After October 15th",
             "Limbo",
             "Lost",
@@ -949,7 +1053,7 @@
         },
         {
           "key": "pilot_contract_signed",
-          "label": "Pilot contract signed (\u2b50)",
+          "label": "Pilot contract signed (⭐)",
           "type": "date",
           "source_metadata": {
             "type": "date",
@@ -1172,7 +1276,8 @@
     "CRM mappings are metadata only; this app does not write to Attio or publish transcripts.",
     "43 fields including exact team size, hosting provider, personal return count and business return count; maximum 50.",
     "GruntWorx is the canonical user-specified spelling; GruntWorks is retained as an alias.",
-    "Initial/demo/review priorities can be changed by importing a revised layout JSON."
+    "Initial/demo/review priorities can be changed by importing a revised layout JSON.",
+    "Revision 10 reconciles the approved revenue, per-return fee, staff-role counts and practice-management requirements. The 50-field limit is now fully occupied; role counts may overlap and must not be summed into team size."
   ],
   "calculations": [
     {

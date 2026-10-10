@@ -32,8 +32,8 @@ final class ScorecardCoreTests: XCTestCase {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let data = try Data(contentsOf: root.appendingPathComponent("configurations/company-scorecard.draft.json"))
         let config = try ScorecardConfiguration.load(data)
-        XCTAssertEqual(config.fields.count, 43)
-        XCTAssertEqual(config.fields.filter(\.isAutomatic).count, 35)
+        XCTAssertEqual(config.fields.count, 50)
+        XCTAssertEqual(config.fields.filter(\.isAutomatic).count, 42)
         XCTAssertEqual(try ScorecardConfiguration.load(ScorecardCoding.encoder().encode(config)), config)
         XCTAssertEqual(config.orderedGroups(for: "review").first?.id, "deal")
     }
