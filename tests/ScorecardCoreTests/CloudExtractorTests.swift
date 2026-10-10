@@ -38,6 +38,12 @@ final class CloudExtractorTests: XCTestCase {
         XCTAssertEqual(result.candidates.count, 1)
         XCTAssertEqual(result.candidates[0].confidence, 0.81)
     }
+    func testInvalidTypedOptionDoesNotStopEntireTranscriptQueue() throws {
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Invalid option","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: response(value: "Invalid option", id: UUID()), configuration: config())
+        XCTAssertTrue(result.candidates.isEmpty)
+        XCTAssertEqual(result.warnings.count, 1)
+    }
     func testQuotaErrorPreventsRepeatedEndpointCalls() async throws {
         let transport = MockTransport(status: 429, payload: #"{"error":{"code":"credit_balance_exhausted"}}"#)
         let client = try OpenAIClient(key: "fake-test-key", transport: transport)

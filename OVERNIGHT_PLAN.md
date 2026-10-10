@@ -6,7 +6,7 @@ This plan is the current execution order and overrides older provider/deadline r
 
 ## Preflight result and overnight operating rules
 
-Read PREFLIGHT.md before starting. Decisions and Responses work with the configured key. OpenAI streaming transcription configuration failed with `credit_balance_exhausted`. Do not retry that quota failure in a loop. Implement and test the audio adapter using synthetic replay while the account issue is unresolved; mark live cloud transcription blocked until an actual successful audio test. Do not call the key globally invalid: text endpoints passed.
+Read PREFLIGHT.md before starting. Decisions and Responses work with the configured key. OpenAI streaming transcription configuration initially failed with `credit_balance_exhausted`; the user added a payment method and an explicit recheck returned `rate_limit_exceeded`. Do not retry that quota failure in a loop. Implement and test the audio adapter using synthetic replay while the account issue is unresolved; mark live cloud transcription blocked until an actual successful audio test. Do not call the key globally invalid: text endpoints passed.
 
 The Mac was on battery with about two hours remaining at preflight. It must be plugged in and kept awake with the local Codex run available. A goal does not supply an always-on cloud machine or override account usage limits. Use a bounded keep-awake assertion during an active overnight run when plugged in; do not alter permanent power settings or assume this prevents lid-close sleep. No separate recurring automation or duplicate build worker is required for this goal.
 
@@ -31,7 +31,7 @@ Target: 01:00–02:30.
 
 - Replace the fixed enum as the runtime catalog with the supplied JSON design, up to 50 fields. The draft has 41 catalog fields, 33 marked for automatic extraction; metadata-only entries do not become transcript-triggered actions.
 - Validate IDs/types/options/aliases/layout references; atomically import configurations, keep previous versions, switch active configuration, and export edits. Preserve hidden historical facts.
-- Implement company-scoped current answers and evidence with persistent SQLite storage. Preserve calls and full transcript views, calendar matching, manual company selection, and independent contact identity.
+- Implement company-scoped current answers and evidence with persistent SQLite storage. Preserve calls and full transcript views, manual company selection, and independent contact identity. Start requires only an event name, never Calendar. Calendar connection is optional in Settings; automatic calendar matching/naming is deferred to the next version.
 - Enforce automatic updates for unlocked fields, manual-edit auto-lock, immutable locked values, proposed conflicting replacements, acceptance remaining locked, source policies, undo, evidence watermarks for cleared fields, and company/config/segment-version checks for late responses.
 - Apply midpoint and aggregate arithmetic rules only to supported inputs. Preserve approximate evidence instead of representing inferred numbers as measured facts.
 
@@ -56,7 +56,7 @@ Target: 04:00–05:30.
 - Preserve separate microphone and Chrome audio channels using existing capture code. Use separate OpenAI transcription streams to preserve salesperson/customer roles, with client-side turn boundaries and stable segment revisions. Do not rely on the model to return speaker labels it does not provide.
 - Implement reconnect, bounded audio buffering, explicit gaps, transcript-job persistence, post-call drain, and manual debrief mode. Never send a stale response into a new company or call.
 - Ensure capture permissions and calendar permissions have clear onboarding states. Only capture after the user starts a session; unattended tests use files or synthetic audio.
-- Use the five existing labeled fixtures and three longer synthetic conversations. Add a synthetic audio-file input path and at least one 45-minute replay/soak run. Real Google recordings are currently unlocated; do not wait for them to implement the app.
+- Start with the three longer synthetic discovery conversations supplied by the user, feeding individual sentences every 3 or 5 seconds independently of response timing; then use the five shorter labeled fixtures. Add a synthetic audio-file input path and at least one 45-minute replay/soak run. Real Google recordings are currently unlocated; do not wait for them to implement the app.
 - If OpenAI audio quota becomes available, run a bounded actual transcription test. Until then, keep audio access blocked and use replay to test the rest of the pipeline.
 
 Gate: successful replay and restart/reconnect tests with no lost/duplicated company facts; actual cloud audio success required before claiming it works. Measure sentence-end → transcript → API → reducer → visible UI separately. Preserve screen-sharing exclusion default, but mark Google Meet capture-mode testing pending if not actually observed.

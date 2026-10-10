@@ -3,6 +3,7 @@ import CSQLite
 
 public struct DatabaseError: Error, LocalizedError {
     public let message: String
+    public init(message: String) { self.message = message }
     public var errorDescription: String? { message }
 }
 
@@ -155,6 +156,24 @@ public final class ScorecardDatabase: @unchecked Sendable {
         try synchronized {
             try read(TranscriptEntry.self, kind: "segment", companyID: companyID)
                 .filter { $0.callID == callID }.sorted { $0.sequence < $1.sequence }
+        }
+    }
+    public func saveIncoming(_ segment: TranscriptEntry, company: CompanyScorecard, job: ExtractionJob?) throws -> Bool {
+        try synchronized {
+            var inserted = false
+            try transaction {
+                inserted = try saveSegment(segment, companyID: company.id)
+                guard inserted else { return }
+                try write(company, kind: "company", id: company.storageID, companyID: company.id)
+                if let job {
+                    guard job.callID == segment.callID, job.companyID == company.id,
+                          job.configurationID == company.configurationID else {
+                        throw DatabaseError(message: "Transcript queue identity does not match.")
+                    }
+                    try write(job, kind: "job", id: job.id.uuidString, companyID: company.id)
+                }
+            }
+            return inserted
         }
     }
     public func saveJob(_ job: ExtractionJob) throws {

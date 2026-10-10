@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 1,
+  "revision": 2,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
   "source_catalog": {
-    "title": "Company fields you can set — Pipeline Timeline + Attio",
+    "title": "Company fields you can set \u2014 Pipeline Timeline + Attio",
     "as_of": "2026-10-09",
     "field_count": 39
   },
@@ -92,7 +92,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People ★ Primary decision maker)"
+              "Pipeline Timeline (this page) (People \u2605 Primary decision maker)"
             ]
           },
           "multiple": false,
@@ -162,7 +162,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People ⚑)"
+              "Pipeline Timeline (this page) (People \u2691)"
             ],
             "notes": "Person who wants the deal to go forward even if someone else approves it."
           },
@@ -293,7 +293,7 @@
             "CCI",
             "Thomson Reuters Virtual Office",
             "Tax software vendor cloud/online",
-            "Remote desktop/server — host unknown",
+            "Remote desktop/server \u2014 host unknown",
             "Multiple environments",
             "Other"
           ],
@@ -368,7 +368,7 @@
         },
         {
           "key": "individual_return_mix_pct",
-          "label": "Return mix — individual %",
+          "label": "Return mix \u2014 individual %",
           "type": "number",
           "min": 0,
           "max": 100,
@@ -577,7 +577,7 @@
             "Lead",
             "Prove Value",
             "Contracting",
-            "Won 🎉",
+            "Won \ud83c\udf89",
             "After October 15th",
             "Limbo",
             "Lost",
@@ -907,12 +907,12 @@
           "visible": true,
           "automatic_extraction": true,
           "extraction_route": "structured_extraction",
-          "source_policy": "salesperson",
+          "source_policy": "either",
           "unknown_value": null
         },
         {
           "key": "pilot_contract_signed",
-          "label": "Pilot contract signed (⭐)",
+          "label": "Pilot contract signed (\u2b50)",
           "type": "date",
           "source_metadata": {
             "type": "date",

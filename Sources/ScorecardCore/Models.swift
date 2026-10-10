@@ -129,6 +129,7 @@ public struct CallRecord: Codable, Identifiable, Equatable, Sendable {
     public var callType: String
     public var isReplay: Bool
     public var calendarEventID: String?
+    public var eventName: String?
     public var participantEmails: [String]
     public init(id: UUID = UUID(), company: CompanyScorecard, callType: String = "initial", isReplay: Bool = false) {
         self.id = id; companyID = company.id; companyName = company.name
@@ -150,6 +151,7 @@ public struct ExtractionJob: Codable, Identifiable, Sendable {
     public var attempts: Int = 0
     public var createdAt: Date = Date()
     public var errorSummary: String?
+    public var focusSequence: Int?
     public init(company: CompanyScorecard, callID: UUID, configuration: ScorecardConfiguration, segments: [TranscriptEntry]) {
         self.id = UUID(); self.companyID = company.id; self.callID = callID
         self.configurationID = configuration.id; self.configurationRevision = configuration.revision

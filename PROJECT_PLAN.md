@@ -124,3 +124,7 @@ OpenAI Decisions: https://developers.openai.com/api/docs/guides/decisions
 OpenAI structured outputs: https://developers.openai.com/api/docs/guides/structured-outputs
 
 Current test harness only exercises fixed choices. Native integration, all-field extraction, live latency, API cost, OpenAI audio access, signing, and release availability must be validated during implementation.
+
+## Latest scope decision — October 9 overnight
+
+The first draft must work without Google Calendar: enter an event/customer name and press Start. Offer an optional Calendar connection through macOS Calendar accounts; automatic matching and naming are deferred to the next version. Begin paid replay testing with the three supplied synthetic discovery conversations, using fixed 3- or 5-second sentence arrivals. Synthetic text-to-speech and OpenAI speech-to-text are a secondary audio test if API access permits. No ElevenLabs.

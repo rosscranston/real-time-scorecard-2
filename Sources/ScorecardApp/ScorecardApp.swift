@@ -1,19 +1,22 @@
 import SwiftUI
 import ScorecardCore
 
+let scoreGreen = Color(red: 0.33, green: 1, blue: 0.57)
+
 @main
 struct ScorecardApplication: App {
+    @StateObject private var store = AppStore()
     var body: some Scene {
         WindowGroup("Live Scorecard 2") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("LIVE SCORECARD 2").foregroundStyle(.green)
-                Text("Independent app foundation")
-                Text("Cloud extraction and the live interface are being connected.")
-                    .foregroundStyle(.secondary)
-            }
-            .font(.system(size: 12, design: .monospaced))
-            .padding().frame(minWidth: 260, minHeight: 600, alignment: .topLeading)
-            .preferredColorScheme(.dark)
+            ScorecardView().environmentObject(store).preferredColorScheme(.dark)
         }
+        .defaultSize(width: 340, height: 850)
+        .commands {
+            CommandGroup(replacing: .undoRedo) {
+                Button("Undo scorecard edit") { store.undo() }.keyboardShortcut("z")
+                Button("Undo scorecard edit (Control-Z)") { store.undo() }.keyboardShortcut("z", modifiers: .control)
+            }
+        }
+        Settings { ConnectionSettings().environmentObject(store).preferredColorScheme(.dark) }
     }
 }

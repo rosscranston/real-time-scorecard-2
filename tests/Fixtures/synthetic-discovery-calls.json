@@ -1,0 +1,1845 @@
+{
+  "title": "Three synthetic discovery calls",
+  "prepared_as_of": "2026-10-09",
+  "source_basis": "Reviewed the discovery openings of the ten most recent identifiable first substantive Ross-led prospect conversations in connected Circleback as of October 9, 2026. Selected call dates span September 29–October 9, 2026. First means substantive discovery, excluding scheduling-only callbacks, repeat demos, onboarding, internal calls, and no-shows. One recording contained substantial crosstalk; only intelligible relevant passages informed the patterns. Availability and first-call classification are limited to accessible Circleback evidence.",
+  "source_method": "Read chronological meeting results and transcripts. For recordings with waiting, technical setup, or unrelated audio, use roughly the first ten minutes of the substantive customer conversation. Validate ambiguous introductory versus repeat sessions using available earlier-call transcripts. No one-to-one mapping of real customers to fictional personas.",
+  "privacy": "All prospect names, firm names, locations, numbers, staffing details, business circumstances, and commercial scenarios in these scripts are invented and recombined. Familiar software names and general discovery patterns are retained. No customer contact details, source links, real client examples, or raw source transcripts are included.",
+  "timing": "Estimated at 150 spoken words per minute plus about one second between turns. Timestamps are synthetic reading cues, not source-recording timestamps. Natural pauses can change duration.",
+  "scope": "Discovery only, ending at the handoff to a demo. All 21 current scorecard fields are answered in every script, including explicit no-commitment answers. First-call realism takes priority over inventing signed purchases. Proposed annual volume, free evaluation scope, and paid commitment must remain distinct.",
+  "schema_reference": "Sources/LiveScorecard/Models.swift — ScorecardField.displayOrder; minimum_commitment is the persisted annual-commitment key.",
+  "evaluation_note": "This is a human-authored script and expected-answer pack, not a measured extraction benchmark or a drop-in replacement for the existing test fixtures. A scorecard has one prospect audio channel, so the third script preserves individual display names while mapping both to PROSPECT. Null contracted-return counts mean no numeric contracted quantity was agreed; explicit refusals remain covered answers.",
+  "calls": [
+    {
+      "id": "01-owner-story",
+      "title": "The owner who tells the whole story",
+      "setup": "Ross speaks with Nina Mercer, the owner of fictional Sable Finch Tax Studio. Nina thinks aloud, volunteers several facts at once, and drifts into stories. Ross follows the story, then checks the details he still needs.",
+      "duration_estimate_seconds": 543,
+      "word_count": 1266,
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Hey, Nina. Good to meet you. How is your day going?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Better now that the printer has stopped making that noise. If you hear it start again, just keep talking. I'm Nina Mercer, by the way. The calendar probably just says Nina. I own Sable Finch Tax Studio.",
+          "timestamp_seconds": 5.5
+        },
+        {
+          "turn": 3,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Great to meet you. Where are you calling in from?",
+          "timestamp_seconds": 21.4
+        },
+        {
+          "turn": 4,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Madison, Wisconsin. Central time. We're all here in the same office, although right now it feels like everyone's standing next to that printer.",
+          "timestamp_seconds": 26.5
+        },
+        {
+          "turn": 5,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Sounds like the most popular person on the team. Well, there's plenty I can show you today. Before I share my screen, tell me a little about the firm and what made you take this call.",
+          "timestamp_seconds": 36.8
+        },
+        {
+          "turn": 6,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Last Thursday I went back into a return after dinner because I remembered a rental schedule hadn't been finished. Nothing dramatic had gone wrong. I just couldn't stop thinking about it. That's the problem. We've got good clients, we're busy, and I still feel as if every piece of work has to pass through my brain twice. I don't want another season where being the owner means being the person who catches up at night.",
+          "timestamp_seconds": 52.3
+        },
+        {
+          "turn": 7,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "When you went back into that return, were you fixing someone else's work or finishing your own?",
+          "timestamp_seconds": 83.4
+        },
+        {
+          "turn": 8,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Finishing mine. That is an annoyingly good question. I talk about needing help, but I'm also doing preparation. There's me and two other preparers, so three preparers including me. One of them is a CPA like I am. The other is an enrolled agent. We have two CPAs total, not three. And then our one admin works part time, mostly mornings. She's the person who makes the rest of us look organized.",
+          "timestamp_seconds": 91.3
+        },
+        {
+          "turn": 9,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Does either preparer take review off your plate?",
+          "timestamp_seconds": 121.2
+        },
+        {
+          "turn": 10,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "No. I'm the only reviewer. They sometimes check each other's input, but I do the final review on every return. So the office is four people, and I'm wearing both the preparer and reviewer hats. I keep saying I'll let go of more. Then a client calls with something unusual and I take the file back. That's on me, honestly.",
+          "timestamp_seconds": 125.5
+        },
+        {
+          "turn": 11,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Got it. What does the work look like across the year? More individual returns, more business owners, a particular specialty?",
+          "timestamp_seconds": 150.6
+        },
+        {
+          "turn": 12,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Mostly individuals connected to small businesses. Consultants, people with a couple of rentals, people whose spouse has a regular job. It's not a celebrity practice or anything. Last season we filed 528 personal returns and 156 business returns. That's 684 returns altogether. I pulled the report before this call because otherwise I'd have said around seven hundred and then spent the whole afternoon wondering whether I was lying to you.",
+          "timestamp_seconds": 159.7
+        },
+        {
+          "turn": 13,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "I appreciate the homework. Are those business returns additional to the owners' personal returns?",
+          "timestamp_seconds": 188.8
+        },
+        {
+          "turn": 14,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Yes. If I do an S corporation and the owner's 1040, that's two returns in those numbers. I'm not counting state filings separately. The 156 business returns are mostly S corporations and partnerships, with a few C corporations. The personal side includes those owners, but also plenty of unrelated households. We aren't trying to automate every single one. Some are faster to do than to explain.",
+          "timestamp_seconds": 195.5
+        },
+        {
+          "turn": 15,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Which ones would you want to start with?",
+          "timestamp_seconds": 223.0
+        },
+        {
+          "turn": 16,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "The middle. The ones with enough brokerage statements and rental expenses that someone spends an hour just organizing the story. We timed a batch recently: roughly 70 minutes of preparation and another 20 minutes of review per return. If all we do is move the 70 minutes into review, that isn't a win. I'd like to recover about 14 hours a week across the team during busy season. Then I could actually keep the planning appointments I put on my calendar.",
+          "timestamp_seconds": 227.3
+        },
+        {
+          "turn": 17,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "So the test is the whole job taking less time, including your review. Walk me through one of those files arriving today.",
+          "timestamp_seconds": 260.8
+        },
+        {
+          "turn": 18,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "A client uploads to TaxDome. Our admin checks it against the organizer, asks for anything obvious, and assigns it. TaxDome is also our practice management system. The task list, who's waiting on whom, all that lives there. We used to have a whiteboard, which sounds charming until someone wipes off the one thing you actually needed. I still have a photo of that board somewhere.",
+          "timestamp_seconds": 270.7
+        },
+        {
+          "turn": 19,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "And from TaxDome, what are you preparing the return in?",
+          "timestamp_seconds": 297.8
+        },
+        {
+          "turn": 20,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "Lacerte. We've used it for years. It's a desktop application running on our own server in this office. No outside hosting company. Our IT person maintains it, but he doesn't host it. I can connect remotely when I'm home, which is probably how I got into the Thursday-night situation in the first place.",
+          "timestamp_seconds": 302.9
+        },
+        {
+          "turn": 21,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That's helpful. Remote access can sound like hosted software, so I wanted to get that straight. What else touches the work between the client upload and your review?",
+          "timestamp_seconds": 325.2
+        },
+        {
+          "turn": 22,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "QuickBooks Online for the bookkeeping clients, Excel for our reconciliations, and Adobe Acrobat for assembling and annotating documents. Those are the regular supporting tools. I've watched demos of other things, but we haven't added them. If you ask the staff to learn another five systems they'll put my desk outside.",
+          "timestamp_seconds": 337.5
+        },
+        {
+          "turn": 23,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Fair. What did you see in those demos that you liked or didn't like?",
+          "timestamp_seconds": 358.6
+        },
+        {
+          "turn": 24,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "I liked being able to trace a number back to its source. I didn't like having to approve a hundred little boxes before I could see whether the return made sense. I want to review as an accountant, not play spot-the-number. And I want a junior person to be able to explain why something changed instead of saying the computer did it. That's probably the most important part for me.",
+          "timestamp_seconds": 365.3
+        },
+        {
+          "turn": 25,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That gives me a useful place to focus. What happens if you keep doing things exactly as you are?",
+          "timestamp_seconds": 394.4
+        },
+        {
+          "turn": 26,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "We'd probably still get through the season. We'd just say no to more clients and I'd still be doing my evening shift. I don't need a story about doubling the firm. I need us to finish the work we already have and answer the phone without resenting it. Oh, and I'd like our admin involved in the test. If getting the documents ready takes her all morning, we need to count that time too.",
+          "timestamp_seconds": 403.1
+        },
+        {
+          "turn": 27,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Absolutely. Who besides you would need to approve moving forward, and what would be a sensible first step?",
+          "timestamp_seconds": 433.8
+        },
+        {
+          "turn": 28,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "I make the purchase decision. The team needs to like using it. I'd bring six completed returns to a free evaluation: four personal and two business. I can commit to getting those six ready and having our admin and one preparer on the next call. Completed returns, so we already know what the output should look like. I'm not agreeing to a paid pilot today.",
+          "timestamp_seconds": 442.1
+        },
+        {
+          "turn": 29,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Understood. If that evaluation goes well, have you thought about an annual number, or is that too early?",
+          "timestamp_seconds": 469.2
+        },
+        {
+          "turn": 30,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "For planning, 240 returns a year is a reasonable starting target. That is conditional on the test and on seeing the price and terms. No annual commitment today. Please don't put 684 on a proposal just because that's the size of the firm. The simple returns can stay the way they are until we see a reason to change them.",
+          "timestamp_seconds": 477.5
+        },
+        {
+          "turn": 31,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Makes sense. I'll focus the demo on the path from prepared documents to a review you can trust, and we can measure the admin time as part of the evaluation. Anything else that would stop this before we even get there?",
+          "timestamp_seconds": 502.6
+        },
+        {
+          "turn": 32,
+          "speaker": "Nina",
+          "channel": "PROSPECT",
+          "text": "If it requires replacing Lacerte, we're done. And I want to review the data-handling terms before uploading client information. Beyond that, I'm open. Show me where I can see the source behind a number. If that part feels right, we can work through the rest together.",
+          "timestamp_seconds": 520.1
+        },
+        {
+          "turn": 33,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Great. Let me start there.",
+          "timestamp_seconds": 539.6
+        }
+      ],
+      "answer_key": [
+        {
+          "field": "name",
+          "label": "Name",
+          "expected_answer": "Nina Mercer",
+          "evidence": [
+            {
+              "turn": 2,
+              "speaker": "Nina",
+              "quote": "I'm Nina Mercer"
+            }
+          ]
+        },
+        {
+          "field": "firm_name",
+          "label": "Firm",
+          "expected_answer": "Sable Finch Tax Studio",
+          "evidence": [
+            {
+              "turn": 2,
+              "speaker": "Nina",
+              "quote": "I own Sable Finch Tax Studio."
+            }
+          ]
+        },
+        {
+          "field": "location",
+          "label": "Location",
+          "expected_answer": "Madison, Wisconsin",
+          "evidence": [
+            {
+              "turn": 4,
+              "speaker": "Nina",
+              "quote": "Madison, Wisconsin."
+            }
+          ]
+        },
+        {
+          "field": "timezone",
+          "label": "Timezone",
+          "expected_answer": "Central time — America/Chicago",
+          "evidence": [
+            {
+              "turn": 4,
+              "speaker": "Nina",
+              "quote": "Central time."
+            }
+          ]
+        },
+        {
+          "field": "total_returns",
+          "label": "Total returns",
+          "expected_answer": "684",
+          "evidence": [
+            {
+              "turn": 12,
+              "speaker": "Nina",
+              "quote": "That's 684 returns altogether."
+            }
+          ]
+        },
+        {
+          "field": "personal_returns",
+          "label": "Personal returns",
+          "expected_answer": "528",
+          "evidence": [
+            {
+              "turn": 12,
+              "speaker": "Nina",
+              "quote": "528 personal returns"
+            }
+          ]
+        },
+        {
+          "field": "business_returns",
+          "label": "Business returns",
+          "expected_answer": "156",
+          "evidence": [
+            {
+              "turn": 14,
+              "speaker": "Nina",
+              "quote": "156 business returns"
+            }
+          ]
+        },
+        {
+          "field": "primary_tax_software",
+          "label": "Primary tax software",
+          "expected_answer": "Lacerte",
+          "evidence": [
+            {
+              "turn": 20,
+              "speaker": "Nina",
+              "quote": "Lacerte. We've used it for years."
+            }
+          ]
+        },
+        {
+          "field": "tax_software_environment",
+          "label": "Desktop, hosted, or cloud environment",
+          "expected_answer": "Desktop application on a firm-owned office server; remote access available",
+          "evidence": [
+            {
+              "turn": 20,
+              "speaker": "Nina",
+              "quote": "It's a desktop application running on our own server in this office."
+            }
+          ]
+        },
+        {
+          "field": "tax_software_host",
+          "label": "Hosting provider",
+          "expected_answer": "Self-hosted; no outside hosting provider",
+          "evidence": [
+            {
+              "turn": 20,
+              "speaker": "Nina",
+              "quote": "No outside hosting company."
+            }
+          ]
+        },
+        {
+          "field": "client_portal",
+          "label": "Client portal",
+          "expected_answer": "TaxDome",
+          "evidence": [
+            {
+              "turn": 18,
+              "speaker": "Nina",
+              "quote": "A client uploads to TaxDome."
+            }
+          ]
+        },
+        {
+          "field": "practice_management",
+          "label": "Practice management",
+          "expected_answer": "TaxDome",
+          "evidence": [
+            {
+              "turn": 18,
+              "speaker": "Nina",
+              "quote": "TaxDome is also our practice management system."
+            }
+          ]
+        },
+        {
+          "field": "supporting_software",
+          "label": "Supporting software",
+          "expected_answer": "QuickBooks Online, Excel, Adobe Acrobat",
+          "evidence": [
+            {
+              "turn": 22,
+              "speaker": "Nina",
+              "quote": "QuickBooks Online for the bookkeeping clients, Excel for our reconciliations, and Adobe Acrobat for assembling and annotating documents."
+            }
+          ]
+        },
+        {
+          "field": "admins",
+          "label": "Admins",
+          "expected_answer": "1 part-time admin",
+          "evidence": [
+            {
+              "turn": 8,
+              "speaker": "Nina",
+              "quote": "our one admin works part time"
+            }
+          ]
+        },
+        {
+          "field": "preparers",
+          "label": "Preparers",
+          "expected_answer": "3, including Nina",
+          "evidence": [
+            {
+              "turn": 8,
+              "speaker": "Nina",
+              "quote": "three preparers including me"
+            }
+          ]
+        },
+        {
+          "field": "reviewers",
+          "label": "Reviewers",
+          "expected_answer": "1, Nina; overlaps with preparers",
+          "evidence": [
+            {
+              "turn": 10,
+              "speaker": "Nina",
+              "quote": "I'm the only reviewer."
+            }
+          ]
+        },
+        {
+          "field": "cpas",
+          "label": "CPAs",
+          "expected_answer": "2; included in the preparer count",
+          "evidence": [
+            {
+              "turn": 8,
+              "speaker": "Nina",
+              "quote": "We have two CPAs total, not three."
+            }
+          ]
+        },
+        {
+          "field": "minimum_commitment",
+          "label": "Annual commitment",
+          "expected_answer": "No annual commitment. Conditional planning target: 240 returns/year; price and terms not agreed.",
+          "evidence": [
+            {
+              "turn": 30,
+              "speaker": "Nina",
+              "quote": "240 returns a year is a reasonable starting target."
+            },
+            {
+              "turn": 30,
+              "speaker": "Nina",
+              "quote": "No annual commitment today."
+            }
+          ]
+        },
+        {
+          "field": "pilot_commitment",
+          "label": "Pilot commitment",
+          "expected_answer": "6-return free evaluation agreed: 4 personal + 2 business. No paid pilot agreed.",
+          "evidence": [
+            {
+              "turn": 28,
+              "speaker": "Nina",
+              "quote": "six completed returns to a free evaluation: four personal and two business."
+            },
+            {
+              "turn": 28,
+              "speaker": "Nina",
+              "quote": "I'm not agreeing to a paid pilot today."
+            }
+          ]
+        },
+        {
+          "field": "other_numbers",
+          "label": "Other numbers",
+          "expected_answer": "About 70 minutes prep + 20 minutes review per sampled return; target about 14 team hours saved/week in busy season; 4 distinct staff.",
+          "evidence": [
+            {
+              "turn": 16,
+              "speaker": "Nina",
+              "quote": "roughly 70 minutes of preparation and another 20 minutes of review per return."
+            },
+            {
+              "turn": 16,
+              "speaker": "Nina",
+              "quote": "I'd like to recover about 14 hours a week"
+            },
+            {
+              "turn": 10,
+              "speaker": "Nina",
+              "quote": "the office is four people"
+            }
+          ]
+        },
+        {
+          "field": "notes",
+          "label": "Notes",
+          "expected_answer": "Owner review bottleneck and evening work; wants source traceability and less total handling time. Nina approves purchase; admin and preparer join evaluation. Keep Lacerte; review data-handling terms before uploading.",
+          "evidence": [
+            {
+              "turn": 24,
+              "speaker": "Nina",
+              "quote": "I want to review as an accountant, not play spot-the-number."
+            },
+            {
+              "turn": 28,
+              "speaker": "Nina",
+              "quote": "I make the purchase decision."
+            },
+            {
+              "turn": 32,
+              "speaker": "Nina",
+              "quote": "If it requires replacing Lacerte, we're done."
+            },
+            {
+              "turn": 32,
+              "speaker": "Nina",
+              "quote": "I want to review the data-handling terms before uploading client information."
+            }
+          ]
+        }
+      ],
+      "interpretation_checks": [
+        "Do not add roles to infer headcount: Nina is both preparer and reviewer; CPAs are a subset. Four distinct staff.",
+        "684 is annual firm volume, not annual purchased volume. 240 is only a conditional target.",
+        "Six is an agreed free evaluation, not a paid pilot or signed contract.",
+        "Remote access does not make this third-party hosted software."
+      ],
+      "commercial_interpretation": {
+        "annual_contracted_returns": null,
+        "annual_planning_target_returns": 240,
+        "annual_status": "not_agreed",
+        "paid_pilot_contracted_returns": null,
+        "free_evaluation_returns": 6,
+        "pilot_status": "free_evaluation_agreed"
+      }
+    },
+    {
+      "id": "02-skeptical-operator",
+      "title": "The operator who makes you earn the demo",
+      "setup": "Ross speaks with Eli Navarro, the operations lead at fictional Copper Kite Advisory. Eli opens with an objection, challenges assumptions, and gives short answers until Ross asks about a specific failed workflow.",
+      "duration_estimate_seconds": 562,
+      "word_count": 1297,
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Before we get into the slides, can I ask something? Is this going to be another tool that saves the preparer twenty minutes and gives the reviewer forty minutes of cleanup?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That's a fair place to start. What happened with the last one you tried?",
+          "timestamp_seconds": 13.5
+        },
+        {
+          "turn": 3,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "It extracted things beautifully. Then we had to figure out what it hadn't extracted, which was most of the work. I'm Eli Navarro, operations lead at Copper Kite Advisory. I booked this because the partners asked me to look, not because I've already decided we need another subscription.",
+          "timestamp_seconds": 20.2
+        },
+        {
+          "turn": 4,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Good to meet you, Eli. We can spend this first part figuring out what would make a test worthwhile. Where is the team based?",
+          "timestamp_seconds": 40.5
+        },
+        {
+          "turn": 5,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Richmond, Virginia. Eastern time. We have remote staff, but Richmond is the main office and the schedule we use. I'm working from there today. And, just so you know, I have the workflow report open. I'd rather use actual numbers than describe us as a small or medium firm. Those words don't tell you much.",
+          "timestamp_seconds": 51.2
+        },
+        {
+          "turn": 6,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Agreed. What did that last test look like in your report?",
+          "timestamp_seconds": 74.3
+        },
+        {
+          "turn": 7,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "A preparer said, this took almost no time. Then the reviewer spent 45 minutes checking whether the documents were all represented. Then it went back to the preparer. The test company counted the first step and called it a success. I counted the whole afternoon. We stopped the test. Nobody here is against automation. We're against having another queue to manage without removing one.",
+          "timestamp_seconds": 79.8
+        },
+        {
+          "turn": 8,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "So where is the queue building up now?",
+          "timestamp_seconds": 106.5
+        },
+        {
+          "turn": 9,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Between document intake and a file actually being ready. We use ShareFile as the client portal. A client uploads something, someone thinks the file is complete, and a preparer opens it and realizes the attachment was a photograph of the organizer, not the actual statement. Then everything moves backward. We spend more time coordinating the work than anyone wants to admit.",
+          "timestamp_seconds": 110.8
+        },
+        {
+          "turn": 10,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Who owns that intake check?",
+          "timestamp_seconds": 136.3
+        },
+        {
+          "turn": 11,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Three admins. They're good at their jobs. This isn't a staff-quality problem.",
+          "timestamp_seconds": 139.4
+        },
+        {
+          "turn": 12,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Understood. I want to understand where a new step would land. Who prepares after the handoff?",
+          "timestamp_seconds": 145.3
+        },
+        {
+          "turn": 13,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Seven preparers, including the two partners. Two of those seven also do final review. So two reviewers, not two additional people. Four of the seven preparers are CPAs. There are ten people across tax and admin. Please don't build a business case around reducing that headcount. Keeping those people is the point. We've invested a lot in getting them working together.",
+          "timestamp_seconds": 152.8
+        },
+        {
+          "turn": 14,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Okay. What would you want them doing with time they got back?",
+          "timestamp_seconds": 178.3
+        },
+        {
+          "turn": 15,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Answering clients before the clients chase us. Taking real lunch breaks. Getting the review queue under control. The partners want growth, but I'm not putting growth in the model until we can deliver the work we've already promised. I want the first test to succeed without assuming we'll suddenly sell a hundred new engagements.",
+          "timestamp_seconds": 184.2
+        },
+        {
+          "turn": 16,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That's reasonable. What volume are they handling today?",
+          "timestamp_seconds": 206.9
+        },
+        {
+          "turn": 17,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Last completed season: 1,480 total returns. Of those, 1,110 were personal and 370 were business returns. Federal engagements, with related states included. We don't count a second state as another return. And that's filed work, not every client record sitting in the database. The software has years of inactive records that would make us look much bigger if you just counted them.",
+          "timestamp_seconds": 211.2
+        },
+        {
+          "turn": 18,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Any particular slice of those 1,480 that creates the coordination problem?",
+          "timestamp_seconds": 237.1
+        },
+        {
+          "turn": 19,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "The owner returns with information coming from several places. A K-1 arrives after everything else. Someone sends a revised spreadsheet. We aren't short of information, we're short of confidence that everybody is using the same version. Most business returns are partnerships and S corporations. But don't assume all 370 are candidates for a new process. Some run perfectly well now.",
+          "timestamp_seconds": 242.6
+        },
+        {
+          "turn": 20,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "What is the tax software underneath that process?",
+          "timestamp_seconds": 267.7
+        },
+        {
+          "turn": 21,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "CCH Axcess.",
+          "timestamp_seconds": 272.0
+        },
+        {
+          "turn": 22,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "And how are you accessing it? A hosted desktop from a separate provider, or the vendor's cloud service?",
+          "timestamp_seconds": 273.9
+        },
+        {
+          "turn": 23,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "CCH Axcess is our cloud tax platform, supplied by Wolters Kluwer. We don't have a separate hosting provider or an office tax server. I have a Windows application to get into it, but that doesn't mean the return data lives on my laptop. We've had salespeople get that mixed up, so I'm glad you asked.",
+          "timestamp_seconds": 282.2
+        },
+        {
+          "turn": 24,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Helpful distinction. And ShareFile handles documents. Where do assignments and deadlines live?",
+          "timestamp_seconds": 305.3
+        },
+        {
+          "turn": 25,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Karbon. That's our practice management. ShareFile doesn't run our jobs, and Karbon isn't where clients upload their tax documents. We use QuickBooks Online for bookkeeping, Excel for reconciliations, and DocuSign for signatures. Those are the supporting tools I'd want you to know about. At my previous employer we used ProSeries. That has nothing to do with this firm, but it sometimes ends up in vendors' notes because I mention the comparison.",
+          "timestamp_seconds": 311.2
+        },
+        {
+          "turn": 26,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Got it. We should focus on your current CCH process. If we got to a test, what would you measure?",
+          "timestamp_seconds": 340.7
+        },
+        {
+          "turn": 27,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Total staff minutes from a complete document set to a reviewed return. We have a sample baseline of 110 minutes. For us to change the workflow, I'd want that at 80 minutes or less, with no increase in corrections. That includes setup, checking the output, chasing missing information, everything. The 45 minutes I mentioned earlier was from the failed vendor test. It isn't our average review time.",
+          "timestamp_seconds": 349.8
+        },
+        {
+          "turn": 28,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Thanks for separating those. Would you compare the same kinds of returns, with the same reviewer?",
+          "timestamp_seconds": 377.7
+        },
+        {
+          "turn": 29,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "Exactly. And no picking three pristine W-2-only files and declaring victory. I'd want a rental, an owner return with a partnership interest, and something with revised source documents. Ordinary work, not a puzzle designed to break your product. If the people doing the work say it helped, I can take that to the partners. A screenshot of a fast extraction won't be enough.",
+          "timestamp_seconds": 385.2
+        },
+        {
+          "turn": 30,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "How does the decision work from there? Can you approve a small evaluation, or do the partners need to be involved first?",
+          "timestamp_seconds": 411.5
+        },
+        {
+          "turn": 31,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "I can recommend it. I cannot sign the annual contract. Both partners approve new software spend, and our IT adviser reviews the data-handling terms. That's the next gate. I don't upload client documents into a new system just because the demo looked good. I need to know what the permissions look like and how we get information back out if we stop.",
+          "timestamp_seconds": 421.4
+        },
+        {
+          "turn": 32,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "We can make those part of the evaluation criteria. If the results justified it, would something like 300 returns be a reasonable annual starting point?",
+          "timestamp_seconds": 447.3
+        },
+        {
+          "turn": 33,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "No, don't use 300. At most, 120 returns would be a possible first group to evaluate for an annual rollout. Even that is a planning estimate. We have no annual commitment to Cranston, and I can't make one on this call. Firm volume, possible rollout volume, and purchased volume are three different things.",
+          "timestamp_seconds": 458.4
+        },
+        {
+          "turn": 34,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Understood. Would you want to reserve a pilot now and make it contingent on the IT review?",
+          "timestamp_seconds": 480.7
+        },
+        {
+          "turn": 35,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "No pilot commitment either. Not paid, not free, not contingent. Show me a synthetic sample today. If the workflow looks promising, send the security and data-handling information for our review. Then we can decide whether to schedule a separate test. I don't want the calendar invite to become an agreement I never made.",
+          "timestamp_seconds": 488.6
+        },
+        {
+          "turn": 36,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Clear. One last thing: is there a date driving this, or is it simply when the evidence is good enough?",
+          "timestamp_seconds": 510.9
+        },
+        {
+          "turn": 37,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "We want the software decision made within six weeks so there's time to train before the next busy period. That's our internal target, not a promise to buy. If the evidence isn't there, we keep the current process. I'd rather make a smaller improvement we can trust than add something the staff quietly works around.",
+          "timestamp_seconds": 520.0
+        },
+        {
+          "turn": 38,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That's plenty for me to work with. I'll use a synthetic file and show the handoff and review steps. Stop me whenever you see work that would land back on your team.",
+          "timestamp_seconds": 543.1
+        },
+        {
+          "turn": 39,
+          "speaker": "Eli",
+          "channel": "PROSPECT",
+          "text": "I will. That's the useful part of this call.",
+          "timestamp_seconds": 557.0
+        }
+      ],
+      "answer_key": [
+        {
+          "field": "name",
+          "label": "Name",
+          "expected_answer": "Eli Navarro",
+          "evidence": [
+            {
+              "turn": 3,
+              "speaker": "Eli",
+              "quote": "I'm Eli Navarro"
+            }
+          ]
+        },
+        {
+          "field": "firm_name",
+          "label": "Firm",
+          "expected_answer": "Copper Kite Advisory",
+          "evidence": [
+            {
+              "turn": 3,
+              "speaker": "Eli",
+              "quote": "operations lead at Copper Kite Advisory."
+            }
+          ]
+        },
+        {
+          "field": "location",
+          "label": "Location",
+          "expected_answer": "Richmond, Virginia",
+          "evidence": [
+            {
+              "turn": 5,
+              "speaker": "Eli",
+              "quote": "Richmond, Virginia."
+            }
+          ]
+        },
+        {
+          "field": "timezone",
+          "label": "Timezone",
+          "expected_answer": "Eastern time — America/New_York",
+          "evidence": [
+            {
+              "turn": 5,
+              "speaker": "Eli",
+              "quote": "Eastern time."
+            }
+          ]
+        },
+        {
+          "field": "total_returns",
+          "label": "Total returns",
+          "expected_answer": "1,480",
+          "evidence": [
+            {
+              "turn": 17,
+              "speaker": "Eli",
+              "quote": "1,480 total returns."
+            }
+          ]
+        },
+        {
+          "field": "personal_returns",
+          "label": "Personal returns",
+          "expected_answer": "1,110",
+          "evidence": [
+            {
+              "turn": 17,
+              "speaker": "Eli",
+              "quote": "1,110 were personal"
+            }
+          ]
+        },
+        {
+          "field": "business_returns",
+          "label": "Business returns",
+          "expected_answer": "370",
+          "evidence": [
+            {
+              "turn": 17,
+              "speaker": "Eli",
+              "quote": "370 were business returns."
+            }
+          ]
+        },
+        {
+          "field": "primary_tax_software",
+          "label": "Primary tax software",
+          "expected_answer": "CCH Axcess",
+          "evidence": [
+            {
+              "turn": 23,
+              "speaker": "Eli",
+              "quote": "CCH Axcess is our cloud tax platform"
+            }
+          ]
+        },
+        {
+          "field": "tax_software_environment",
+          "label": "Desktop, hosted, or cloud environment",
+          "expected_answer": "Cloud tax platform; Windows client access",
+          "evidence": [
+            {
+              "turn": 23,
+              "speaker": "Eli",
+              "quote": "CCH Axcess is our cloud tax platform"
+            },
+            {
+              "turn": 23,
+              "speaker": "Eli",
+              "quote": "I have a Windows application to get into it"
+            }
+          ]
+        },
+        {
+          "field": "tax_software_host",
+          "label": "Hosting provider",
+          "expected_answer": "Wolters Kluwer vendor cloud; no separate hosting provider",
+          "evidence": [
+            {
+              "turn": 23,
+              "speaker": "Eli",
+              "quote": "supplied by Wolters Kluwer."
+            },
+            {
+              "turn": 23,
+              "speaker": "Eli",
+              "quote": "We don't have a separate hosting provider"
+            }
+          ]
+        },
+        {
+          "field": "client_portal",
+          "label": "Client portal",
+          "expected_answer": "ShareFile",
+          "evidence": [
+            {
+              "turn": 9,
+              "speaker": "Eli",
+              "quote": "We use ShareFile as the client portal."
+            }
+          ]
+        },
+        {
+          "field": "practice_management",
+          "label": "Practice management",
+          "expected_answer": "Karbon",
+          "evidence": [
+            {
+              "turn": 25,
+              "speaker": "Eli",
+              "quote": "Karbon. That's our practice management."
+            }
+          ]
+        },
+        {
+          "field": "supporting_software",
+          "label": "Supporting software",
+          "expected_answer": "QuickBooks Online, Excel, DocuSign",
+          "evidence": [
+            {
+              "turn": 25,
+              "speaker": "Eli",
+              "quote": "We use QuickBooks Online for bookkeeping, Excel for reconciliations, and DocuSign for signatures."
+            }
+          ]
+        },
+        {
+          "field": "admins",
+          "label": "Admins",
+          "expected_answer": "3",
+          "evidence": [
+            {
+              "turn": 11,
+              "speaker": "Eli",
+              "quote": "Three admins."
+            }
+          ]
+        },
+        {
+          "field": "preparers",
+          "label": "Preparers",
+          "expected_answer": "7, including both partners",
+          "evidence": [
+            {
+              "turn": 13,
+              "speaker": "Eli",
+              "quote": "Seven preparers, including the two partners."
+            }
+          ]
+        },
+        {
+          "field": "reviewers",
+          "label": "Reviewers",
+          "expected_answer": "2; included in the 7 preparers",
+          "evidence": [
+            {
+              "turn": 13,
+              "speaker": "Eli",
+              "quote": "So two reviewers, not two additional people."
+            }
+          ]
+        },
+        {
+          "field": "cpas",
+          "label": "CPAs",
+          "expected_answer": "4; included in the 7 preparers",
+          "evidence": [
+            {
+              "turn": 13,
+              "speaker": "Eli",
+              "quote": "Four of the seven preparers are CPAs."
+            }
+          ]
+        },
+        {
+          "field": "minimum_commitment",
+          "label": "Annual commitment",
+          "expected_answer": "None agreed; Eli lacks signing authority. Possible rollout estimate: at most 120. Explicitly rejects 300.",
+          "evidence": [
+            {
+              "turn": 33,
+              "speaker": "Eli",
+              "quote": "No, don't use 300."
+            },
+            {
+              "turn": 33,
+              "speaker": "Eli",
+              "quote": "At most, 120 returns would be a possible first group"
+            },
+            {
+              "turn": 33,
+              "speaker": "Eli",
+              "quote": "We have no annual commitment to Cranston"
+            }
+          ]
+        },
+        {
+          "field": "pilot_commitment",
+          "label": "Pilot commitment",
+          "expected_answer": "Explicitly declined for now: no paid, free, or conditional pilot.",
+          "evidence": [
+            {
+              "turn": 35,
+              "speaker": "Eli",
+              "quote": "No pilot commitment either. Not paid, not free, not contingent."
+            }
+          ]
+        },
+        {
+          "field": "other_numbers",
+          "label": "Other numbers",
+          "expected_answer": "1,480 filed engagements, not database records; 10 staff; 110-minute baseline, success at 80 minutes or less; decision target within 6 weeks. Failed-vendor example: 45 minutes checking completeness.",
+          "evidence": [
+            {
+              "turn": 13,
+              "speaker": "Eli",
+              "quote": "There are ten people across tax and admin."
+            },
+            {
+              "turn": 27,
+              "speaker": "Eli",
+              "quote": "We have a sample baseline of 110 minutes."
+            },
+            {
+              "turn": 27,
+              "speaker": "Eli",
+              "quote": "I'd want that at 80 minutes or less"
+            },
+            {
+              "turn": 37,
+              "speaker": "Eli",
+              "quote": "within six weeks"
+            },
+            {
+              "turn": 7,
+              "speaker": "Eli",
+              "quote": "the reviewer spent 45 minutes checking whether the documents were all represented."
+            }
+          ]
+        },
+        {
+          "field": "notes",
+          "label": "Notes",
+          "expected_answer": "Operations-led evaluation; intake/version-control bottleneck. Preserve headcount. Both partners approve spend; IT adviser reviews data handling. Show synthetic sample first. Success requires lower total staff time without more corrections.",
+          "evidence": [
+            {
+              "turn": 13,
+              "speaker": "Eli",
+              "quote": "Keeping those people is the point."
+            },
+            {
+              "turn": 31,
+              "speaker": "Eli",
+              "quote": "Both partners approve new software spend, and our IT adviser reviews the data-handling terms."
+            },
+            {
+              "turn": 35,
+              "speaker": "Eli",
+              "quote": "Show me a synthetic sample today."
+            },
+            {
+              "turn": 27,
+              "speaker": "Eli",
+              "quote": "with no increase in corrections."
+            }
+          ]
+        }
+      ],
+      "interpretation_checks": [
+        "300 appears in a seller question and is explicitly rejected. Do not record it as an annual commitment.",
+        "120 is only a possible rollout estimate; neither an annual purchase nor a pilot is agreed.",
+        "ProSeries belongs to a previous employer. Current tax software is CCH Axcess.",
+        "A Windows client does not make the underlying tax platform a local installation.",
+        "The 45-minute example belongs to a failed vendor test; the current complete-workflow baseline is 110 minutes."
+      ],
+      "commercial_interpretation": {
+        "annual_contracted_returns": null,
+        "annual_planning_target_returns": 120,
+        "annual_status": "not_agreed",
+        "paid_pilot_contracted_returns": null,
+        "free_evaluation_returns": null,
+        "pilot_status": "declined_for_now"
+      }
+    },
+    {
+      "id": "03-partners-corrections",
+      "title": "Two partners, one set of facts",
+      "setup": "Ross speaks with Morgan Vale, managing partner of fictional Fernbridge Tax Partners, and Casey Rowan, the delivery partner. Casey joins late, corrects figures, and separates an acquisition idea from the current practice. Both customer voices use the PROSPECT audio channel.",
+      "duration_estimate_seconds": 589,
+      "word_count": 1348,
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Hey, Morgan. Good to meet you. Are we expecting anyone else?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Casey should be here in a minute. I'm Morgan Vale, managing partner at Fernbridge Tax Partners. Casey runs delivery. We each think the other one is the organized partner, which tells you something about why we're looking at this.",
+          "timestamp_seconds": 5.5
+        },
+        {
+          "turn": 3,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "We'll see who has the better spreadsheet. Where are you calling from?",
+          "timestamp_seconds": 22.2
+        },
+        {
+          "turn": 4,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "The main office in Spokane, Washington. We're on Pacific time. Casey's visiting family, so she might tell you a different city. But use Spokane for the firm. We're trying to keep one office calendar even when everyone wanders off.",
+          "timestamp_seconds": 28.1
+        },
+        {
+          "turn": 5,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Got it. While we wait, what made this worth a conversation now?",
+          "timestamp_seconds": 44.8
+        },
+        {
+          "turn": 6,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "We have about twelve hundred returns, and I think we could take on more without hiring another whole layer of people. There's a small book of business we might acquire, another 280 returns. But I don't want to buy myself a bigger review queue. Casey says we need to fix the handoffs first. I say those two things can happen together. She'll probably join right when I say something she disagrees with.",
+          "timestamp_seconds": 50.7
+        },
+        {
+          "turn": 7,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Correct. Hi. I heard the last sentence. I'm Casey Rowan, the other partner. And before you put twelve hundred in your notes, I closed the report this morning. Last season was 1,260 total returns: 1,020 personal returns and 240 business returns. Morgan's number was from an earlier report.",
+          "timestamp_seconds": 80.6
+        },
+        {
+          "turn": 8,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "There it is. Better spreadsheet.",
+          "timestamp_seconds": 100.9
+        },
+        {
+          "turn": 9,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Good timing. So 1,260 is current, and the possible acquisition is separate?",
+          "timestamp_seconds": 104.0
+        },
+        {
+          "turn": 10,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Exactly. Don't add the 280. We haven't bought it, and we don't know how many of those clients would stay. We're discussing this for our existing firm. I'm in Boise, Idaho, today, by the way. Mountain time for me personally, but our firm schedule is Pacific, as Morgan said.",
+          "timestamp_seconds": 109.9
+        },
+        {
+          "turn": 11,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Thanks. Casey, what's the handoff problem from your side?",
+          "timestamp_seconds": 130.6
+        },
+        {
+          "turn": 12,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "A preparer finishes what they can, sends it to review, and only then do we discover that the brokerage statement was replaced yesterday. The file isn't bad. It's just no longer the same file everyone thought they were working on. I send it back, the preparer loses their place, and we both touch it again. I'd like a reliable first draft and a clear explanation of what changed. I don't need another dashboard telling me we're behind.",
+          "timestamp_seconds": 135.3
+        },
+        {
+          "turn": 13,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "And I'd like to stop being the emergency preparer. When the queue gets long, I jump in and do input. Then my own reviews get delayed. It feels productive for an hour and terrible for the rest of the day.",
+          "timestamp_seconds": 167.2
+        },
+        {
+          "turn": 14,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Who's actually doing the preparation and review today?",
+          "timestamp_seconds": 184.3
+        },
+        {
+          "turn": 15,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Five preparers, plus us on review—",
+          "timestamp_seconds": 188.6
+        },
+        {
+          "turn": 16,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Six preparers during tax season, including both of us and the seasonal person. Five is our year-round preparation group. For the season we're planning, use six. Morgan and I are the two reviewers, and we're already in that six. There are two admins in addition to the preparation group. Eight people altogether during season.",
+          "timestamp_seconds": 192.1
+        },
+        {
+          "turn": 17,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "And the CPA count within that group?",
+          "timestamp_seconds": 214.8
+        },
+        {
+          "turn": 18,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Three CPAs total: Morgan, me, and one senior preparer. The other preparers aren't CPAs. The admins don't prepare returns. They organize the source documents, send the missing-item requests, and keep work moving. So if this changes document intake, they're the first people who need to try it.",
+          "timestamp_seconds": 218.7
+        },
+        {
+          "turn": 19,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Our senior preparer is very good at spotting when something is technically correct but doesn't fit the client's situation. I'd want her in the test, too. She's not an extra reviewer in the official count. Casey and I still sign off.",
+          "timestamp_seconds": 238.6
+        },
+        {
+          "turn": 20,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "That's helpful. Walk me through the tools those people touch, starting with documents coming in.",
+          "timestamp_seconds": 256.1
+        },
+        {
+          "turn": 21,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Canopy is the client portal. That's where people upload, and where the admins send document requests. We use Financial Cents for practice management, job status, assignments, and deadlines. I know Canopy can do more, but that's how we've split it. Please don't assume they're both running the same workflow.",
+          "timestamp_seconds": 263.2
+        },
+        {
+          "turn": 22,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "And we used UltraTax for a long time, so some of our templates still say UltraTax—",
+          "timestamp_seconds": 283.9
+        },
+        {
+          "turn": 23,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "But our current tax software is Drake. We finished that move before last season. There are old PDFs from UltraTax in the archive; no current returns are prepared there.",
+          "timestamp_seconds": 291.4
+        },
+        {
+          "turn": 24,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Good clarification. Is Drake on a server in the office, or hosted somewhere else?",
+          "timestamp_seconds": 304.1
+        },
+        {
+          "turn": 25,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "In the cloud. We just log in.",
+          "timestamp_seconds": 310.8
+        },
+        {
+          "turn": 26,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Specifically, Drake desktop hosted by Verito. We connect to a Windows environment there. It isn't Drake Tax Online, and it isn't a server in our office. Verito is the hosting provider. If you need anything installed, I coordinate with them. Morgan usually forwards the email to me and writes, thoughts?",
+          "timestamp_seconds": 314.7
+        },
+        {
+          "turn": 27,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Sometimes I add a question mark.",
+          "timestamp_seconds": 335.8
+        },
+        {
+          "turn": 28,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "A complete technical specification. Besides those, what supports the work itself?",
+          "timestamp_seconds": 339.3
+        },
+        {
+          "turn": 29,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "QuickBooks Online for the business books, Excel for reconciliations, and Adobe Acrobat for document review. Those are current. We looked at an extraction product last winter but never rolled it out, so I wouldn't put that in our software stack. It never got beyond a test folder on my laptop.",
+          "timestamp_seconds": 344.8
+        },
+        {
+          "turn": 30,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "What happened in that test?",
+          "timestamp_seconds": 365.9
+        },
+        {
+          "turn": 31,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "The easy examples were easy. Then we used a normal owner return with several revised documents, and nobody could tell which version the output used. I don't mind resolving an accounting question. I mind doing detective work to establish what information the software even saw. The next test needs to show the document history clearly enough that our reviewer isn't guessing.",
+          "timestamp_seconds": 369.0
+        },
+        {
+          "turn": 32,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Also, our clients aren't all complicated. The 1,020 personal returns include plenty of straightforward households. The 240 business returns are mostly partnerships and S corporations, plus a smaller C corporation group. I'd start with the owner returns and the business files with clean books. I don't want the evaluation to turn into a bookkeeping rescue mission.",
+          "timestamp_seconds": 394.5
+        },
+        {
+          "turn": 33,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Then what would a good result look like, in terms you could both agree on?",
+          "timestamp_seconds": 418.0
+        },
+        {
+          "turn": 34,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Right now, a completed document set takes a median of nine business days to reach a reviewed return. I want that down to five. We also spend about six team hours a week reopening work because something changed or got missed. I'd want that time lower, not hidden in a different person's queue. Faster preparation doesn't help if review piles up.",
+          "timestamp_seconds": 425.1
+        },
+        {
+          "turn": 35,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "And no hiring promise in the business case. The acquisition might never happen. I'd be happy if the current team could finish the current work more predictably. Then we'd have a better basis for deciding whether to grow.",
+          "timestamp_seconds": 450.6
+        },
+        {
+          "turn": 36,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Makes sense. How would you organize an evaluation without making more work for everyone?",
+          "timestamp_seconds": 466.9
+        },
+        {
+          "turn": 37,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "I'd start with ten returns—",
+          "timestamp_seconds": 473.6
+        },
+        {
+          "turn": 38,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Twelve. We talked about each picking six. Eight personal and four business overall, all already completed so we can compare to known results. I can coordinate the documents, and an admin can prepare the packages. Then Morgan and I review separate batches and compare the time. We should use the same checklist so we aren't grading two different things.",
+          "timestamp_seconds": 476.7
+        },
+        {
+          "turn": 39,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Right, twelve. We will prepare those twelve for a free evaluation. That's the step we're agreeing to today. We aren't committing to a paid pilot yet. I'd like to see the workflow in this demo before setting the upload date, and Casey needs to check the data-handling requirements first.",
+          "timestamp_seconds": 501.4
+        },
+        {
+          "turn": 40,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Understood. If the test meets that bar, what annual volume would you want to discuss?",
+          "timestamp_seconds": 522.1
+        },
+        {
+          "turn": 41,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "I had 320 in mind, counting some of the acquisition—",
+          "timestamp_seconds": 529.2
+        },
+        {
+          "turn": 42,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Which we don't own. For the existing firm, 180 returns is our planning target for a first year. That isn't an annual purchase commitment. We both need to approve the commercial terms after the evaluation. Please use 180 as the possible scope, not 320 and definitely not 1,260.",
+          "timestamp_seconds": 534.3
+        },
+        {
+          "turn": 43,
+          "speaker": "Morgan",
+          "channel": "PROSPECT",
+          "text": "Agreed. No annual commitment today. Casey and I approve that together. I'm the person who would sign, but I'm not signing without her recommendation. Let's get the twelve-return evaluation right first.",
+          "timestamp_seconds": 554.6
+        },
+        {
+          "turn": 44,
+          "speaker": "Ross",
+          "channel": "ROSS",
+          "text": "Okay. I'll focus on revised documents, the admin handoff, and what each of you sees at review. That should give us something concrete to judge before we get into an annual proposal.",
+          "timestamp_seconds": 568.1
+        },
+        {
+          "turn": 45,
+          "speaker": "Casey",
+          "channel": "PROSPECT",
+          "text": "Good. Start with the revised-document example. That's where we'll learn whether this fits us.",
+          "timestamp_seconds": 582.0
+        }
+      ],
+      "answer_key": [
+        {
+          "field": "name",
+          "label": "Name",
+          "expected_answer": "Morgan Vale, primary contact; Casey Rowan, delivery partner",
+          "evidence": [
+            {
+              "turn": 2,
+              "speaker": "Morgan",
+              "quote": "I'm Morgan Vale, managing partner"
+            },
+            {
+              "turn": 7,
+              "speaker": "Casey",
+              "quote": "I'm Casey Rowan, the other partner."
+            }
+          ]
+        },
+        {
+          "field": "firm_name",
+          "label": "Firm",
+          "expected_answer": "Fernbridge Tax Partners",
+          "evidence": [
+            {
+              "turn": 2,
+              "speaker": "Morgan",
+              "quote": "managing partner at Fernbridge Tax Partners."
+            }
+          ]
+        },
+        {
+          "field": "location",
+          "label": "Location",
+          "expected_answer": "Spokane, Washington — main office; Casey temporarily in Boise, Idaho",
+          "evidence": [
+            {
+              "turn": 4,
+              "speaker": "Morgan",
+              "quote": "The main office in Spokane, Washington."
+            },
+            {
+              "turn": 10,
+              "speaker": "Casey",
+              "quote": "I'm in Boise, Idaho, today"
+            }
+          ]
+        },
+        {
+          "field": "timezone",
+          "label": "Timezone",
+          "expected_answer": "Pacific time — America/Los_Angeles; Casey personally on Mountain time during travel",
+          "evidence": [
+            {
+              "turn": 4,
+              "speaker": "Morgan",
+              "quote": "We're on Pacific time."
+            },
+            {
+              "turn": 10,
+              "speaker": "Casey",
+              "quote": "Mountain time for me personally, but our firm schedule is Pacific"
+            }
+          ]
+        },
+        {
+          "field": "total_returns",
+          "label": "Total returns",
+          "expected_answer": "1,260; corrected from about 1,200; excludes potential acquisition",
+          "evidence": [
+            {
+              "turn": 7,
+              "speaker": "Casey",
+              "quote": "1,260 total returns:"
+            },
+            {
+              "turn": 10,
+              "speaker": "Casey",
+              "quote": "Don't add the 280."
+            }
+          ]
+        },
+        {
+          "field": "personal_returns",
+          "label": "Personal returns",
+          "expected_answer": "1,020",
+          "evidence": [
+            {
+              "turn": 32,
+              "speaker": "Morgan",
+              "quote": "1,020 personal returns"
+            }
+          ]
+        },
+        {
+          "field": "business_returns",
+          "label": "Business returns",
+          "expected_answer": "240",
+          "evidence": [
+            {
+              "turn": 7,
+              "speaker": "Casey",
+              "quote": "240 business returns."
+            }
+          ]
+        },
+        {
+          "field": "primary_tax_software",
+          "label": "Primary tax software",
+          "expected_answer": "Drake; UltraTax is historical only",
+          "evidence": [
+            {
+              "turn": 23,
+              "speaker": "Casey",
+              "quote": "our current tax software is Drake."
+            },
+            {
+              "turn": 23,
+              "speaker": "Casey",
+              "quote": "no current returns are prepared there."
+            }
+          ]
+        },
+        {
+          "field": "tax_software_environment",
+          "label": "Desktop, hosted, or cloud environment",
+          "expected_answer": "Hosted desktop: Drake desktop in a remote Windows environment",
+          "evidence": [
+            {
+              "turn": 26,
+              "speaker": "Casey",
+              "quote": "Drake desktop hosted by Verito."
+            },
+            {
+              "turn": 26,
+              "speaker": "Casey",
+              "quote": "We connect to a Windows environment there."
+            }
+          ]
+        },
+        {
+          "field": "tax_software_host",
+          "label": "Hosting provider",
+          "expected_answer": "Verito",
+          "evidence": [
+            {
+              "turn": 26,
+              "speaker": "Casey",
+              "quote": "Verito is the hosting provider."
+            }
+          ]
+        },
+        {
+          "field": "client_portal",
+          "label": "Client portal",
+          "expected_answer": "Canopy",
+          "evidence": [
+            {
+              "turn": 21,
+              "speaker": "Casey",
+              "quote": "Canopy is the client portal."
+            }
+          ]
+        },
+        {
+          "field": "practice_management",
+          "label": "Practice management",
+          "expected_answer": "Financial Cents",
+          "evidence": [
+            {
+              "turn": 21,
+              "speaker": "Casey",
+              "quote": "We use Financial Cents for practice management"
+            }
+          ]
+        },
+        {
+          "field": "supporting_software",
+          "label": "Supporting software",
+          "expected_answer": "QuickBooks Online, Excel, Adobe Acrobat",
+          "evidence": [
+            {
+              "turn": 29,
+              "speaker": "Casey",
+              "quote": "QuickBooks Online for the business books, Excel for reconciliations, and Adobe Acrobat for document review."
+            }
+          ]
+        },
+        {
+          "field": "admins",
+          "label": "Admins",
+          "expected_answer": "2",
+          "evidence": [
+            {
+              "turn": 16,
+              "speaker": "Casey",
+              "quote": "There are two admins in addition to the preparation group."
+            }
+          ]
+        },
+        {
+          "field": "preparers",
+          "label": "Preparers",
+          "expected_answer": "6 during tax season, including both partners and the seasonal person; 5 year-round",
+          "evidence": [
+            {
+              "turn": 16,
+              "speaker": "Casey",
+              "quote": "Six preparers during tax season, including both of us and the seasonal person."
+            },
+            {
+              "turn": 16,
+              "speaker": "Casey",
+              "quote": "Five is our year-round preparation group."
+            }
+          ]
+        },
+        {
+          "field": "reviewers",
+          "label": "Reviewers",
+          "expected_answer": "2, Morgan and Casey; included in 6 preparers",
+          "evidence": [
+            {
+              "turn": 16,
+              "speaker": "Casey",
+              "quote": "Morgan and I are the two reviewers, and we're already in that six."
+            }
+          ]
+        },
+        {
+          "field": "cpas",
+          "label": "CPAs",
+          "expected_answer": "3",
+          "evidence": [
+            {
+              "turn": 18,
+              "speaker": "Casey",
+              "quote": "Three CPAs total: Morgan, me, and one senior preparer."
+            }
+          ]
+        },
+        {
+          "field": "minimum_commitment",
+          "label": "Annual commitment",
+          "expected_answer": "None agreed. Corrected conditional planning target: 180/year, not 320. Both partners must approve terms.",
+          "evidence": [
+            {
+              "turn": 42,
+              "speaker": "Casey",
+              "quote": "180 returns is our planning target for a first year."
+            },
+            {
+              "turn": 42,
+              "speaker": "Casey",
+              "quote": "That isn't an annual purchase commitment."
+            },
+            {
+              "turn": 43,
+              "speaker": "Morgan",
+              "quote": "No annual commitment today."
+            }
+          ]
+        },
+        {
+          "field": "pilot_commitment",
+          "label": "Pilot commitment",
+          "expected_answer": "12-return free evaluation agreed: 8 personal + 4 business; corrected from 10. Upload date and data-handling checks pending. No paid pilot agreed.",
+          "evidence": [
+            {
+              "turn": 38,
+              "speaker": "Casey",
+              "quote": "Eight personal and four business overall"
+            },
+            {
+              "turn": 39,
+              "speaker": "Morgan",
+              "quote": "We will prepare those twelve for a free evaluation."
+            },
+            {
+              "turn": 39,
+              "speaker": "Morgan",
+              "quote": "We aren't committing to a paid pilot yet."
+            }
+          ]
+        },
+        {
+          "field": "other_numbers",
+          "label": "Other numbers",
+          "expected_answer": "8 staff in season; possible acquisition of 280 returns is outside current scope; median turnaround 9 business days, target 5; about 6 team hours/week reopening work.",
+          "evidence": [
+            {
+              "turn": 16,
+              "speaker": "Casey",
+              "quote": "Eight people altogether during season."
+            },
+            {
+              "turn": 6,
+              "speaker": "Morgan",
+              "quote": "another 280 returns."
+            },
+            {
+              "turn": 34,
+              "speaker": "Casey",
+              "quote": "a median of nine business days"
+            },
+            {
+              "turn": 34,
+              "speaker": "Casey",
+              "quote": "I want that down to five."
+            },
+            {
+              "turn": 34,
+              "speaker": "Casey",
+              "quote": "about six team hours a week reopening work"
+            }
+          ]
+        },
+        {
+          "field": "notes",
+          "label": "Notes",
+          "expected_answer": "Revised-document/version-control problem; avoid moving prep effort into review. Both partners approve purchase; Morgan signs and Casey coordinates hosting and evaluation. Evaluate completed returns with a common checklist; acquisition is uncommitted.",
+          "evidence": [
+            {
+              "turn": 31,
+              "speaker": "Casey",
+              "quote": "I mind doing detective work to establish what information the software even saw."
+            },
+            {
+              "turn": 43,
+              "speaker": "Morgan",
+              "quote": "Casey and I approve that together."
+            },
+            {
+              "turn": 43,
+              "speaker": "Morgan",
+              "quote": "I'm the person who would sign"
+            },
+            {
+              "turn": 39,
+              "speaker": "Morgan",
+              "quote": "Casey needs to check the data-handling requirements first."
+            }
+          ]
+        }
+      ],
+      "interpretation_checks": [
+        "Replace about 1,200 with 1,260. Do not add 280 acquisition returns.",
+        "Use seasonal preparer count 6 for the planned season, retaining 5 as year-round context. Do not add reviewers or CPAs again.",
+        "Spokane is the firm location. Boise is a traveling participant location. Use the firm's Pacific timezone.",
+        "Current software is Drake, hosted by Verito; UltraTax is historical, and Drake Tax Online is explicitly denied.",
+        "Replace evaluation count 10 with 12. Replace potential annual scope 320 with 180. Neither number is a paid or signed commitment."
+      ],
+      "commercial_interpretation": {
+        "annual_contracted_returns": null,
+        "annual_planning_target_returns": 180,
+        "annual_status": "not_agreed",
+        "paid_pilot_contracted_returns": null,
+        "free_evaluation_returns": 12,
+        "pilot_status": "free_evaluation_agreed"
+      }
+    }
+  ]
+}

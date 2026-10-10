@@ -30,3 +30,7 @@ These are observed checks, not promises of eventual performance. Credentials wer
 4. If available, designate a real Google Meet audio recording plus transcript for final audio validation. Existing synthetic fixtures suffice to build and evaluate extraction overnight.
 
 Development continues independently of these actions. Cloud transcription, actual Meet capture behavior, and public distribution cannot be reported as verified until their respective checks pass.
+
+## Payment-method recheck
+
+After the user added a payment method, the explicit Realtime transcription session recheck still failed, now with `rate_limit_exceeded`. Text extraction has already passed. No successful audio transcription is claimed. GitHub login can be completed in Terminal with `gh auth login --hostname github.com --git-protocol https --web`. Developer ID/notarization remain distribution requirements for a smooth download; they do not prohibit sharing the source or an explicitly labeled development build.
