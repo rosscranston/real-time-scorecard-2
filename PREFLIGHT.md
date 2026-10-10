@@ -34,3 +34,7 @@ Development continues independently of these actions. Cloud transcription, actua
 ## Payment-method recheck
 
 After the user added a payment method, the explicit Realtime transcription session recheck still failed, now with `rate_limit_exceeded`. Text extraction has already passed. No successful audio transcription is claimed. GitHub login can be completed in Terminal with `gh auth login --hostname github.com --git-protocol https --web`. Developer ID/notarization remain distribution requirements for a smooth download; they do not prohibit sharing the source or an explicitly labeled development build.
+
+## Audio access cleared by actual test — October 10 ~00:07
+
+The implemented OpenAITranscriber successfully accepted a session, transcribed 7.58 seconds of synthetic macOS Samantha speech, and fed the transcript into Decisions/Responses. Software, team size and return count matched expected values. The prior quota/rate-limit failures are historical, not a current blocker for this tested request. Raw microphone/Meet capture is still untested. No real customer audio was used.

@@ -32,6 +32,15 @@ final class CloudExtractorTests: XCTestCase {
         XCTAssertTrue(result.candidates.isEmpty)
         XCTAssertEqual(result.warnings.count, 1)
     }
+    func testRepeatedCompleteOutputTextIsDecodedOnce() throws {
+        var object = try JSONSerialization.jsonObject(with: response(value: "Drake", id: UUID())) as! [String: Any]
+        var output = object["output"] as! [[String: Any]]
+        let content = output[0]["content"] as! [[String: Any]]
+        output[0]["content"] = content + content; object["output"] = output
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: object), configuration: config())
+        XCTAssertEqual(result.candidates.count, 1)
+    }
     func testAcceptedCandidateUsesLowerConfidence() throws {
         let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.81}]}"#.utf8)
         let result = try CloudExtractor.decode(decisions: decisions, responses: response(value: "Drake", id: UUID()), configuration: config())
@@ -43,6 +52,21 @@ final class CloudExtractorTests: XCTestCase {
         let result = try CloudExtractor.decode(decisions: decisions, responses: response(value: "Invalid option", id: UUID()), configuration: config())
         XCTAssertTrue(result.candidates.isEmpty)
         XCTAssertEqual(result.warnings.count, 1)
+    }
+    func testMultipleMentionedOptionsUseDecisionPrimaryWithoutStoppingQueue() throws {
+        var responseObject = try JSONSerialization.jsonObject(with: response(value: "Lacerte", id: UUID())) as! [String: Any]
+        var outputs = responseObject["output"] as! [[String: Any]]
+        var contents = outputs[0]["content"] as! [[String: Any]]
+        var payload = try JSONSerialization.jsonObject(with: Data((contents[0]["text"] as! String).utf8)) as! [String: Any]
+        var facts = payload["facts"] as! [[String: Any]]
+        var second = facts[0]; second["value"] = "Drake"
+        facts.append(second); payload["facts"] = facts
+        contents[0]["text"] = String(decoding: try JSONSerialization.data(withJSONObject: payload), as: UTF8.self)
+        outputs[0]["content"] = contents; responseObject["output"] = outputs
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: responseObject), configuration: config())
+        XCTAssertEqual(result.candidates.count, 1)
+        XCTAssertEqual(result.candidates.first?.value, .string("Drake"))
     }
     func testQuotaErrorPreventsRepeatedEndpointCalls() async throws {
         let transport = MockTransport(status: 429, payload: #"{"error":{"code":"credit_balance_exhausted"}}"#)

@@ -1,6 +1,6 @@
 # Real-time Scorecard 2
 
-This workspace contains the implementation plan and an independent Swift app under development. The core supports the JSON catalog, SQLite company state, correction rules, and a real OpenAI Decisions + Responses pipeline. A native interface now supports named calls without Calendar, inline corrections/locks/undo, history, transcript input, JSON import/export, Keychain setup, and synthetic replay. Audio capture and final release verification remain in progress; this is not yet a release build.
+This workspace contains the implementation plan and an independent Swift app under development. The core supports the JSON catalog, SQLite company state, correction rules, and a real OpenAI Decisions + Responses pipeline. A native interface now supports named calls without Calendar, inline corrections/locks/undo, history, transcript input, JSON import/export, Keychain setup, and synthetic replay. Audio capture is implemented but live-meeting and final release verification remain in progress; this is not yet a release build.
 
 ## Overnight execution
 
@@ -57,7 +57,7 @@ open "dist/Live Scorecard 2.app"
 
 The default build is ad-hoc signed, not notarized. Set SIGNING_IDENTITY explicitly for a certificate you control. Signing alone does not perform notarization.
 
-Enter an event name and press Start; firm name is optional. Calendar is optional in Settings, where Google can be added through macOS Internet Accounts. Automatic Calendar naming is deferred. Transcript input currently supports manual synthetic snippets and post-call debrief. Live audio integration is still being implemented.
+Enter an event name and press Start; firm name is optional. Calendar is optional in Settings, where Google can be added through macOS Internet Accounts. Automatic Calendar naming is deferred. Transcript input currently supports manual synthetic snippets and post-call debrief. Select OpenAI cloud, Apple Speech, or transcript-only input in Settings. OpenAI has passed a short synthetic audio roundtrip; actual browser/microphone capture still needs live validation.
 
 Paced replay of the supplied synthetic discovery scripts:
 

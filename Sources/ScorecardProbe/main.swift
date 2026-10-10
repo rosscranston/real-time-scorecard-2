@@ -13,10 +13,22 @@ private struct SyntheticRecordingTransport: HTTPTransport {
         return result
     }
 }
+private final class TranscriptCollector: @unchecked Sendable {
+    private let lock = NSLock()
+    private var events: [AudioTranscriptEvent] = []
+    private var errors: [String] = []
+    func append(_ event: AudioTranscriptEvent) { lock.withLock { events.append(event) } }
+    func fail(_ message: String) { lock.withLock { errors.append(message) } }
+    func result() -> ([AudioTranscriptEvent], [String]) { lock.withLock { (events, errors) } }
+}
 
 @main
 struct ScorecardProbe {
     @MainActor static func main() async {
+        if CommandLine.arguments.contains("--audio-smoke") {
+            await audioSmoke()
+            return
+        }
         if CommandLine.arguments.contains("--save-key") {
             do {
                 guard let key = CredentialStore.developerKey(directory: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)) else {
@@ -76,6 +88,48 @@ struct ScorecardProbe {
         }
     }
 
+    @MainActor static func audioSmoke() async {
+        do {
+            let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            guard let key = CredentialStore.developerKey(directory: root) else { throw OpenAIError.missingKey }
+            let pcm = try Data(contentsOf: root.appendingPathComponent("test-results/audio/discovery-smoke.pcm"))
+            let duration = Double(pcm.count) / 48000
+            guard duration > 1, duration <= 20 else { throw OpenAIError.invalidResponse }
+            let client = try OpenAIClient(key: key, ledgerURL: root.appendingPathComponent("private-data/api-test-usage.json"))
+            try await client.reserveAudioTest(seconds: duration)
+            let collector = TranscriptCollector()
+            let transcriber = OpenAITranscriber(key: key, role: .customer, origin: Date(),
+                keywords: ["Drake", "Drake Desktop"], onEvent: { collector.append($0) }, onError: { collector.fail($0) })
+            try await transcriber.start()
+            print("Audio session connected. Sending \(String(format: "%.2f", duration)) seconds of synthetic speech.")
+            try await transcriber.submit(AudioTurn(pcm16: pcm, startSeconds: 0, endSeconds: duration))
+            await transcriber.finish()
+            let (events, errors) = collector.result()
+            guard errors.isEmpty, !events.isEmpty else {
+                print("No complete transcription. \(errors.first ?? "")"); exit(1)
+            }
+            let text = events.sorted { $0.startSeconds < $1.startSeconds }.map(\.text).joined(separator: " ")
+            try text.write(to: root.appendingPathComponent("test-results/audio/transcribed.txt"), atomically: true, encoding: .utf8)
+            print("Synthetic audio transcript: \(text)")
+            let config = try ScorecardConfiguration.load(Data(contentsOf: root.appendingPathComponent("configurations/company-scorecard.draft.json")))
+            var company = CompanyScorecard(name: "Synthetic audio roundtrip", configuration: config)
+            let call = CallRecord(company: company, isReplay: true)
+            let segment = TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: text)
+            let job = ExtractionJob(company: company, callID: call.id, configuration: config, segments: [segment])
+            let result = try await CloudExtractor(client: client).extract(job: job, company: company, configuration: config)
+            for candidate in result.candidates {
+                _ = FactReducer.apply(candidate, job: job, currentSegments: [segment.id: segment], configuration: config, company: &company)
+            }
+            let expected: [String: JSONValue] = ["tax_software": .string("Drake Desktop"), "employee_count": .number(6), "number_of_returns": .number(800)]
+            let passed = expected.allSatisfy { company.facts[$0.key]?.value == $0.value }
+            print("Audio → transcript → scorecard: \(passed ? "PASS" : "FAIL") for software, team size and return count.")
+            exit(passed ? 0 : 1)
+        } catch {
+            print((error as? OpenAIError)?.localizedDescription ?? "Synthetic audio test failed.")
+            exit(1)
+        }
+    }
+
     @MainActor static func runReplay() async {
         func argument(_ flag: String, fallback: String) -> String {
             guard let index = CommandLine.arguments.firstIndex(of: flag),
@@ -92,12 +146,25 @@ struct ScorecardProbe {
             guard let script = pack.calls.first(where: { $0.id == id }) else { throw OpenAIError.invalidResponse }
             guard let key = CredentialStore.developerKey(directory: root) else { throw OpenAIError.missingKey }
             let config = try ScorecardConfiguration.load(Data(contentsOf: root.appendingPathComponent("configurations/company-scorecard.draft.json")))
-            let company = CompanyScorecard(name: "Replay: \(script.title)", configuration: config)
+            var company = CompanyScorecard(name: "Replay: \(script.title)", configuration: config)
             var call = CallRecord(company: company, isReplay: true)
             call.eventName = script.title
-            let reportDirectory = root.appendingPathComponent("test-results/\(id)-\(Int(Date().timeIntervalSince1970))")
+            let resumePath = argument("--resume", fallback: "")
+            let reportDirectory = resumePath.isEmpty ? root.appendingPathComponent("test-results/\(id)-\(Int(Date().timeIntervalSince1970))") : URL(fileURLWithPath: resumePath)
             try FileManager.default.createDirectory(at: reportDirectory, withIntermediateDirectories: true)
             let database = try ScorecardDatabase(url: reportDirectory.appendingPathComponent("replay.sqlite3"))
+            if !resumePath.isEmpty {
+                guard let previousCall = try database.calls().first, previousCall.eventName == script.title,
+                      let previousCompany = try database.company(id: previousCall.companyID, configurationID: config.id),
+                      previousCompany.configurationRevision == config.revision else { throw OpenAIError.invalidResponse }
+                call = previousCall; call.endedAt = nil; company = previousCompany
+                for filename in ["report.json", "measurements.json"] {
+                    let url = reportDirectory.appendingPathComponent(filename)
+                    if FileManager.default.fileExists(atPath: url.path) {
+                        try FileManager.default.copyItem(at: url, to: reportDirectory.appendingPathComponent("before-resume-\(Int(Date().timeIntervalSince1970))-\(filename)"))
+                    }
+                }
+            }
             let wireDirectory = reportDirectory.appendingPathComponent("synthetic-responses")
             try FileManager.default.createDirectory(at: wireDirectory, withIntermediateDirectories: true)
             let client = try OpenAIClient(key: key, transport: SyntheticRecordingTransport(directory: wireDirectory),
@@ -112,10 +179,12 @@ struct ScorecardProbe {
                 fflush(stdout)
             }
             let limit = Int(argument("--limit", fallback: "10000")) ?? 10000
-            let sentences = Array(script.sentences(callID: call.id).prefix(max(1, limit)))
+            let lastExistingSequence = session.segments.map(\.sequence).max() ?? 0
+            let sentences = Array(script.sentences(callID: call.id).filter { $0.sequence > lastExistingSequence }.prefix(max(1, limit)))
             print("Replay \(id): \(sentences.count) sentences, every \(interval)s, real Decisions + Responses.")
             print("Arrival-to-persisted-fact timing; excludes transcription and screen rendering.")
             fflush(stdout)
+            session.resume()
             let start = ContinuousClock.now
             for (index, var sentence) in sentences.enumerated() {
                 // Deadline is anchored to the producer, never to API completion.
@@ -136,6 +205,7 @@ struct ScorecardProbe {
                 "sentences_sent": session.segments.count, "sentences_processed": times.count,
                 "p95_seconds": p95, "within_5_seconds": times.filter { $0 <= 5 }.count,
                 "estimated_cost_usd": spend, "pending": session.pendingCount,
+                "resumed": !resumePath.isEmpty,
                 "error": session.errorMessage as Any? ?? NSNull(),
                 "facts": session.company.facts.mapValues { ["value": $0.display, "confidence": $0.confidence] as [String: Any] },
                 "scope": "Synthetic transcript arrival to SQLite commit; not audio-to-screen latency."

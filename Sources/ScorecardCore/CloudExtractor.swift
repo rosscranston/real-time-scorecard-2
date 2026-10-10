@@ -154,16 +154,25 @@ public struct CloudExtractor: Sendable {
         }
         let output = try JSONDecoder().decode(Output.self, from: responses)
         guard output.status == nil || output.status == "completed" else { throw OpenAIError.invalidResponse }
-        let text = output.output.flatMap { $0.content ?? [] }.filter { $0.type == "output_text" }.compactMap(\.text).joined()
+        let texts = output.output.flatMap { $0.content ?? [] }.filter { $0.type == "output_text" }.compactMap(\.text)
+        // A response may repeat the same complete structured output in separate
+        // content items. Concatenating them produces invalid JSON ({}{}).
+        // Conflicting complete documents are rejected rather than silently chosen.
+        let uniqueTexts = Set(texts)
+        guard uniqueTexts.count == 1, let text = uniqueTexts.first else { throw OpenAIError.invalidResponse }
         guard let data = text.data(using: .utf8), !data.isEmpty else { throw OpenAIError.invalidResponse }
         let facts = try ScorecardCoding.decoder().decode(Facts.self, from: data)
         var candidates: [FactCandidate] = [], warnings: [String] = []
         var seen = Set<String>()
-        for fact in facts.facts {
-            guard seen.insert(fact.fieldKey).inserted,
-                  let field = configuration.fields.first(where: { $0.key == fact.fieldKey && $0.isAutomatic }),
+        // The model may emit several mentioned products for a single-choice field.
+        // Decisions selects the primary option; discarded alternatives must not
+        // poison the whole transcript job or block the matching candidate.
+        for fact in facts.facts.sorted(by: { $0.confidence > $1.confidence }) {
+            guard let field = configuration.fields.first(where: { $0.key == fact.fieldKey && $0.isAutomatic }),
                   let segmentID = UUID(uuidString: fact.segmentId),
-                  fact.confidence.isFinite, (0...1).contains(fact.confidence) else { throw OpenAIError.invalidResponse }
+                  fact.confidence.isFinite, (0...1).contains(fact.confidence) else {
+                warnings.append("A candidate had invalid field, segment, or confidence metadata."); continue
+            }
             var confidence = fact.confidence
             if field.type == "select" || field.type == "boolean" {
                 guard let decision = decisionMap[field.key], decision.type == "choice",
@@ -181,6 +190,9 @@ public struct CloudExtractor: Sendable {
             catch {
                 warnings.append("Invalid typed value for \(field.label); field skipped.")
                 continue
+            }
+            guard seen.insert(fact.fieldKey).inserted else {
+                warnings.append("Extra candidate for \(field.label) retained only in transcript evidence."); continue
             }
             candidates.append(FactCandidate(fieldKey: fact.fieldKey, value: fact.value, confidence: confidence,
                                             segmentID: segmentID, quote: fact.quote, otherDetail: fact.otherDetail,

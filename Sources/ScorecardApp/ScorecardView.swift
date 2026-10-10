@@ -62,12 +62,15 @@ struct ScorecardView: View {
                 TextField("Event name", text: $store.eventName).textFieldStyle(.plain)
                 HStack {
                     TextField("Firm (optional)", text: $store.firmName).textFieldStyle(.plain)
-                    Button("Start") { store.start() }.disabled(store.eventName.trimmingCharacters(in: .whitespaces).isEmpty || store.busy)
+                    Button("Start") { store.start() }.disabled(store.eventName.trimmingCharacters(in: .whitespaces).isEmpty || store.busy || store.audioBusy)
                 }
             }
             Picker("Call type", selection: $store.callType) {
                 Text("Initial").tag("initial"); Text("Demo").tag("demo"); Text("Review").tag("review")
             }.labelsHidden().pickerStyle(.segmented)
+            if store.active && store.session?.call.isReplay != true {
+                Text(store.audioStatus).font(.system(size: 9, design: .monospaced)).foregroundStyle(.secondary)
+            }
         }
     }
     private func section(_ group: FieldGroup, configuration: ScorecardConfiguration) -> some View {

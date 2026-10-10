@@ -23,6 +23,15 @@ final class AppStore: ObservableObject {
     @Published var showInScreenSharing = false
     @Published var opacity = 1.0
     @Published var replaying = false
+    @Published var transcriptionProvider = "openai"
+    @Published var browserBundleID = "com.google.Chrome"
+    @Published var audioStatus = "Audio stopped"
+    @Published var audioRunning = false
+    @Published var audioBusy = false
+    private var audioCapture: LiveAudioCapture?
+    private var audioTask: Task<Void, Never>?
+    private var audioGeneration: UUID?
+    private var audioStopping = false
     private var database: ScorecardDatabase?
     private var client: OpenAIClient?
     private var replayTask: Task<Void, Never>?
@@ -45,16 +54,21 @@ final class AppStore: ObservableObject {
             companies = try db.companies(); history = try db.calls()
             showInScreenSharing = try db.preference(Bool.self, key: "showInScreenSharing") ?? false
             opacity = try db.preference(Double.self, key: "opacity") ?? 1
+            transcriptionProvider = try db.preference(String.self, key: "transcriptionProvider") ?? "openai"
+            browserBundleID = try db.preference(String.self, key: "browserBundleID") ?? "com.google.Chrome"
         } catch { message = error.localizedDescription }
     }
     func makeClient() throws -> OpenAIClient {
         if let client { return client }
-        let key = try CredentialStore.load() ?? CredentialStore.developerKey(
-            directory: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
-        guard let key else { throw OpenAIError.missingKey }
+        let key = try apiKey()
         let ledger = try ScorecardDatabase.defaultURL().deletingLastPathComponent().appendingPathComponent("api-usage.json")
         let result = try OpenAIClient(key: key, ledgerURL: ledger)
         client = result; connectionStatus = "API key available on this Mac"; return result
+    }
+    private func apiKey() throws -> String {
+        guard let key = try CredentialStore.load() ?? CredentialStore.developerKey(
+            directory: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)) else { throw OpenAIError.missingKey }
+        return key
     }
     func saveKey(_ key: String) {
         do { try CredentialStore.save(key); client = nil; connectionStatus = "Key saved in Keychain"; message = nil }
@@ -80,7 +94,7 @@ final class AppStore: ObservableObject {
         } catch { connectionStatus = error.localizedDescription }
     }
     func start(isReplay: Bool = false) {
-        guard !active, !busy, let configuration, let database else { return }
+        guard !active, !busy, !audioBusy, let configuration, let database else { return }
         let name = eventName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { message = "Name this event before starting."; return }
         do {
@@ -98,12 +112,102 @@ final class AppStore: ObservableObject {
             running.onChange = { [weak self] in self?.objectWillChange.send() }
             session = running; selectedCompany = company; message = nil
             try refreshHistory()
+            if !isReplay { startAudio() }
         } catch { message = error.localizedDescription }
     }
     func stop() {
         replayTask?.cancel(); replayTask = nil; replaying = false
+        stopAudio()
         do { try session?.finish(); try refreshHistory() }
         catch { message = error.localizedDescription }
+    }
+    func saveAudioSettings() {
+        do {
+            try database?.savePreference(transcriptionProvider, key: "transcriptionProvider")
+            try database?.savePreference(browserBundleID, key: "browserBundleID")
+        } catch { message = error.localizedDescription }
+    }
+    func startAudio() {
+        guard active, !audioBusy, !audioRunning, let running = session, let configuration else { return }
+        guard transcriptionProvider != "transcript" else { audioStatus = "Transcript input"; return }
+        audioBusy = true; audioStatus = "Connecting audio…"
+        let generation = UUID(); audioGeneration = generation
+        let callID = running.call.id
+        let origin = Date()
+        let sequenceBase = running.company.latestSequence + 1
+        let provider = transcriptionProvider
+        audioTask = Task { [weak self] in
+            guard let self else { return }
+            var capture: LiveAudioCapture?
+            do {
+                let onEvent: OpenAITranscriber.EventHandler = { [weak self] event in
+                    Task { @MainActor in
+                        guard let self, let current = self.session, current.call.id == callID else { return }
+                        let sequence = sequenceBase + Int(max(0, event.startSeconds) * 1000) * 2 + (event.role == .customer ? 1 : 0)
+                        var entry = TranscriptEntry(id: event.id, callID: callID, sequence: sequence,
+                            speaker: event.role, text: event.text, seconds: origin.timeIntervalSince(current.call.startedAt) + event.startSeconds,
+                            sentenceEndedAt: event.sentenceEndedAt)
+                        if let previous = current.segments.first(where: { $0.id == event.id }) {
+                            if previous.text == event.text { return }
+                            entry.revision = previous.revision + 1
+                        }
+                        do { try current.ingest(entry) } catch { self.message = error.localizedDescription }
+                    }
+                }
+                let onError: OpenAITranscriber.ErrorHandler = { [weak self] message in
+                    Task { @MainActor in
+                        guard let self, self.session?.call.id == callID, self.audioGeneration == generation else { return }
+                        self.message = message; self.audioStatus = "Audio interrupted · reconnect in Settings"
+                        self.stopAudio()
+                    }
+                }
+                let mic: any AudioChannel
+                let meeting: any AudioChannel
+                if provider == "apple" {
+                    mic = AppleSpeechChannel(source: .salesperson, origin: origin, onEvent: onEvent, onError: onError)
+                    meeting = AppleSpeechChannel(source: .customer, origin: origin, onEvent: onEvent, onError: onError)
+                } else {
+                    let key = try self.apiKey()
+                    let keywords = configuration.fields.flatMap { ($0.options ?? []) + ($0.aliases?.values.flatMap { $0 } ?? []) }
+                    mic = CloudSpeechChannel(key: key, role: .salesperson, origin: origin, keywords: keywords, onEvent: onEvent, onError: onError)
+                    meeting = CloudSpeechChannel(key: key, role: .customer, origin: origin, keywords: keywords, onEvent: onEvent, onError: onError)
+                }
+                let service = LiveAudioCapture(microphone: mic, meeting: meeting, onError: onError)
+                capture = service
+                try await mic.prepare()
+                try Task.checkCancellation()
+                try await meeting.prepare()
+                try Task.checkCancellation()
+                try await service.start(browserBundleID: self.browserBundleID, microphoneID: nil)
+                try Task.checkCancellation()
+                guard self.active, self.session?.call.id == callID else { throw CancellationError() }
+                self.audioCapture = service
+                self.audioRunning = true; self.audioStatus = provider == "apple" ? "Apple Speech" : "OpenAI audio"
+            } catch {
+                await capture?.stop()
+                if !(error is CancellationError) {
+                    self.audioStatus = "Audio unavailable"
+                    self.message = (error as? OpenAIError)?.localizedDescription ?? error.localizedDescription
+                }
+            }
+            if !self.audioStopping { self.audioBusy = false }
+        }
+    }
+    func stopAudio() {
+        guard !audioStopping, audioCapture != nil || audioBusy else { return }
+        audioStopping = true; audioGeneration = nil
+        audioTask?.cancel()
+        let startup = audioTask
+        audioBusy = true
+        Task { [weak self] in
+            await startup?.value
+            guard let self else { return }
+            let capture = self.audioCapture; self.audioCapture = nil
+            await capture?.stop()
+            self.audioRunning = false; self.audioBusy = false
+            self.audioStopping = false
+            if self.audioStatus == "OpenAI audio" || self.audioStatus == "Apple Speech" { self.audioStatus = "Audio stopped" }
+        }
     }
     func retry() async {
         if let client { await client.retryQuotaBlockedEndpoints() }

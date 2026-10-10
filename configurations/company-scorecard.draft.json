@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 2,
+  "revision": 3,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -364,7 +364,8 @@
           "extraction_route": "structured_extraction",
           "source_policy": "either",
           "unknown_value": null,
-          "integer": true
+          "integer": true,
+          "evidence_rule": "Actual annual tax-return volume for the entire current firm, across personal and business returns. Exclude proposed purchases, rollout targets, contracted quantities, pilots, evaluation samples, prospect client counts, database records, and potential acquisitions. A smaller proposed number of returns to process with the seller does NOT correct the firm annual volume. Sum personal + business only when both current annual counts are supported."
         },
         {
           "key": "individual_return_mix_pct",
@@ -385,7 +386,8 @@
           "extraction_route": "structured_extraction",
           "source_policy": "either",
           "unknown_value": null,
-          "integer": true
+          "integer": true,
+          "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Derive only from supported personal count and total count; never use pilot sample proportions."
         },
         {
           "key": "document_management",
@@ -465,7 +467,8 @@
           "automatic_extraction": true,
           "extraction_route": "decisions_choice",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "Single most likely primary supporting software. Exclude the main tax package. If several products are listed without a primary, favor the explicitly identified practice management system, then the first clearly used supporting product. Do not emit multiple answers for this field."
         },
         {
           "key": "employee_range",
@@ -532,7 +535,7 @@
           "source_policy": "either",
           "unknown_value": null,
           "added_by": "scorecard_adaptation",
-          "evidence_rule": "Current team headcount. Use midpoint only for a spoken range; retain the original range and mark the value estimated."
+          "evidence_rule": "Distinct current staff headcount across the firm, including the owner and admins when included. Preparers, reviewers, partners, CPAs and seasonal staff may overlap: never sum overlapping role counts. Use explicitly stated total where available. A spoken range may use its midpoint."
         },
         {
           "key": "hosting_provider",
@@ -561,7 +564,7 @@
               "Right Networks"
             ]
           },
-          "evidence_rule": "Name the actual hosting provider only when supported by evidence. Company-run server does not identify a provider. No external provider remains null with evidence rather than inventing a company."
+          "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence."
         }
       ]
     },
@@ -618,7 +621,8 @@
           "extraction_route": "structured_extraction",
           "source_policy": "salesperson",
           "unknown_value": null,
-          "currency": "USD"
+          "currency": "USD",
+          "evidence_rule": "US dollar contract/deal value for a purchase from the seller. Never firm revenue, annual return volume, or proposed quantities. Require currency/price context."
         },
         {
           "key": "pilot_amount",
@@ -637,7 +641,8 @@
           "extraction_route": "structured_extraction",
           "source_policy": "salesperson",
           "unknown_value": null,
-          "currency": "USD"
+          "currency": "USD",
+          "evidence_rule": "US dollar value of an agreed paid pilot, never a number of returns. A free evaluation or tentative pilot does not establish a paid dollar amount. Explicitly free may be represented as zero only when it refers to the agreed pilot/evaluation fee."
         },
         {
           "key": "varr",
@@ -658,7 +663,7 @@
           "source_policy": "either",
           "unknown_value": null,
           "currency": "USD",
-          "evidence_rule": "Capture only a stated binding recurring minimum and its period; exclude pilot fees. A transcript claim does not verify a signed agreement."
+          "evidence_rule": "Verified annual recurring revenue in US dollars for this deal, not customer firm revenue, return counts, targets or unagreed pricing."
         },
         {
           "key": "pilot_converted",

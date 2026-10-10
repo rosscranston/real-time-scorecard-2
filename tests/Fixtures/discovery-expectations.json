@@ -1,0 +1,161 @@
+{
+  "scope": "Mapped core fields from the supplied human-authored synthetic discovery answer keys. Partial rubric, not comprehensive all-field accuracy. Source pack never enters inference as an answer key.",
+  "unmapped_source_fields": [
+    "personal_returns",
+    "business_returns",
+    "practice_management",
+    "admins",
+    "preparers",
+    "reviewers",
+    "cpas",
+    "minimum_commitment",
+    "pilot_commitment",
+    "other_numbers"
+  ],
+  "manual_review": [
+    "notes/concerns summaries",
+    "other_software primary selection",
+    "next_action",
+    "promised_return",
+    "decision_maker_name",
+    "unlisted additional populated fields"
+  ],
+  "calls": {
+    "01-owner-story": {
+      "firm_name": {
+        "equals": "Sable Finch Tax Studio"
+      },
+      "main_contact_name": {
+        "equals": "Nina Mercer"
+      },
+      "location": {
+        "contains": [
+          "Madison",
+          "Wisconsin"
+        ]
+      },
+      "time_zone": {
+        "equals": "Central"
+      },
+      "number_of_returns": {
+        "equals": 684
+      },
+      "employee_count": {
+        "equals": 4
+      },
+      "tax_software": {
+        "equals": "Lacerte"
+      },
+      "hosting_deal": {
+        "equals": "Firm-managed server/network"
+      },
+      "hosting_provider": {
+        "absent": true
+      },
+      "document_management": {
+        "equals": "TaxDome"
+      },
+      "pilot_amount": {
+        "absent_or": 0
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "02-skeptical-operator": {
+      "firm_name": {
+        "equals": "Copper Kite Advisory"
+      },
+      "main_contact_name": {
+        "equals": "Eli Navarro"
+      },
+      "location": {
+        "contains": [
+          "Richmond",
+          "Virginia"
+        ]
+      },
+      "time_zone": {
+        "equals": "Eastern"
+      },
+      "number_of_returns": {
+        "equals": 1480
+      },
+      "employee_count": {
+        "equals": 10
+      },
+      "tax_software": {
+        "equals": "CCH Axcess"
+      },
+      "hosting_deal": {
+        "equals": "Tax software vendor cloud/online"
+      },
+      "hosting_provider": {
+        "equals": "Tax software vendor"
+      },
+      "document_management": {
+        "equals": "Other",
+        "other_detail": "ShareFile"
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "03-partners-corrections": {
+      "firm_name": {
+        "equals": "Fernbridge Tax Partners"
+      },
+      "main_contact_name": {
+        "equals": "Morgan Vale"
+      },
+      "location": {
+        "contains": [
+          "Spokane",
+          "Washington"
+        ],
+        "excludes": [
+          "Boise"
+        ]
+      },
+      "time_zone": {
+        "equals": "Pacific"
+      },
+      "number_of_returns": {
+        "equals": 1260
+      },
+      "employee_count": {
+        "equals": 8
+      },
+      "tax_software": {
+        "equals": "Drake Desktop"
+      },
+      "hosting_deal": {
+        "equals": "Verito"
+      },
+      "hosting_provider": {
+        "equals": "Verito"
+      },
+      "document_management": {
+        "equals": "Canopy"
+      },
+      "pilot_amount": {
+        "absent_or": 0
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    }
+  }
+}

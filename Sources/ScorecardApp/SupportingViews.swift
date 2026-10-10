@@ -20,6 +20,28 @@ struct ConnectionSettings: View {
                 Text(store.connectionStatus).font(.caption)
                 Text("Your key stays on this Mac. The connection test sends a short synthetic example.").font(.caption).foregroundStyle(.secondary)
             }
+            Section("Audio") {
+                Picker("Transcription", selection: $store.transcriptionProvider) {
+                    Text("OpenAI cloud").tag("openai")
+                    Text("Apple Speech on this Mac").tag("apple")
+                    Text("Transcript input only").tag("transcript")
+                }.disabled(store.audioRunning || store.audioBusy)
+                    .onChange(of: store.transcriptionProvider) { _, _ in store.saveAudioSettings() }
+                Picker("Meeting browser", selection: $store.browserBundleID) {
+                    Text("Google Chrome").tag("com.google.Chrome")
+                    Text("Safari").tag("com.apple.Safari")
+                    Text("Microsoft Edge").tag("com.microsoft.edgemac")
+                    Text("Firefox").tag("org.mozilla.firefox")
+                }.disabled(store.audioRunning || store.audioBusy)
+                    .onChange(of: store.browserBundleID) { _, _ in store.saveAudioSettings() }
+                Text(store.audioStatus).font(.caption)
+                HStack {
+                    Button("Connect audio") { store.startAudio() }.disabled(!store.active || store.audioRunning || store.audioBusy)
+                    Button("Stop audio") { store.stopAudio() }.disabled(!store.audioRunning)
+                }
+                Text("Capture starts only after Start. Use headphones to keep meeting audio out of your microphone. Apple Speech may download language assets when selected.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("Calendar · optional") {
                 HStack {
                     Button("Connect calendars") { Task { await store.connectCalendar() } }

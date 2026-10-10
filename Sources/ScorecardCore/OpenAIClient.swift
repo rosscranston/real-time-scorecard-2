@@ -72,6 +72,17 @@ public actor OpenAIClient {
         } else { ledger = UsageLedger() }
     }
     public func usage() -> UsageLedger { ledger }
+    public func reserveAudioTest(seconds: Double) throws {
+        guard seconds.isFinite, seconds > 0, seconds <= 20 else { throw OpenAIError.budget }
+        // Published gpt-live-transcribe rate: $0.017/minute. Reserve two minutes
+        // for one bounded <=20-second test, including connection/drain overhead.
+        let reservation = 0.034
+        guard ledger.chargedOrReservedUSD + reservation <= budgetUSD else { throw OpenAIError.budget }
+        ledger.chargedOrReservedUSD += reservation
+        ledger.requests.append(APIUsage(endpoint: "realtime_audio_test_reservation", model: "gpt-live-transcribe",
+            inputTokens: 0, outputTokens: 0, seconds: seconds, estimatedUSD: reservation))
+        try saveLedger()
+    }
     public func retryQuotaBlockedEndpoints() { quotaBlockedEndpoints.removeAll() }
     private func saveLedger() throws {
         if let ledgerURL {
