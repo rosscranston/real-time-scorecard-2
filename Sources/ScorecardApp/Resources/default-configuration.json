@@ -1,0 +1,1140 @@
+{
+  "schema_version": 1,
+  "id": "cranston-company-scorecard",
+  "revision": 1,
+  "status": "draft",
+  "title": "Company sales scorecard",
+  "max_fields": 50,
+  "source_catalog": {
+    "title": "Company fields you can set — Pipeline Timeline + Attio",
+    "as_of": "2026-10-09",
+    "field_count": 39
+  },
+  "integrations": {
+    "attio": {
+      "enabled": false,
+      "writeback_enabled": false
+    }
+  },
+  "defaults": {
+    "value_cardinality": "single",
+    "missing_value": null,
+    "unknown_display": "?",
+    "evidence_display": "collapsed",
+    "update_unlocked": "automatic",
+    "manual_edit_locks": true,
+    "locked_conflict": "propose_only",
+    "source_policy": "either",
+    "require_evidence": true,
+    "confidence": {
+      "tentative": 0.55,
+      "initial": 0.75,
+      "replacement": 0.9,
+      "calibrated": false
+    },
+    "numeric_range": "midpoint",
+    "integer_rounding": "half_up",
+    "retain_original_evidence": true,
+    "source_colors": {
+      "call": "green",
+      "calendar": "yellow",
+      "email": "blue"
+    },
+    "other_display": "Other: {detail}"
+  },
+  "groups": [
+    {
+      "id": "identity",
+      "label": "Identity",
+      "fields": [
+        {
+          "key": "firm_name",
+          "label": "Firm Name",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Attio company: name",
+              "Pipeline Timeline (this page)"
+            ],
+            "attio_field": "companies.name"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "domain",
+          "label": "Website domain",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Attio company: domains"
+            ],
+            "attio_field": "companies.domains",
+            "notes": "Used as the prospect key; free-mail contacts use their full email instead."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "decision_maker_name",
+          "label": "Decision Maker Name",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page) (People ★ Primary decision maker)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "main_contact_name",
+          "label": "Main contact",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page)",
+              "Attio person: name"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "main_contact_email",
+          "label": "Main contact email",
+          "type": "email",
+          "source_metadata": {
+            "type": "email",
+            "stored_in": [
+              "Attio person: email_addresses"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "phone",
+          "label": "Phone (Call in Quo)",
+          "type": "phone",
+          "source_metadata": {
+            "type": "phone",
+            "stored_in": [
+              "Pipeline Timeline (this page)",
+              "Attio person: phone_numbers"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "lead_champion",
+          "label": "Lead champion",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page) (People ⚑)"
+            ],
+            "notes": "Person who wants the deal to go forward even if someone else approves it."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "sales_lead",
+          "label": "Sales lead",
+          "type": "email",
+          "source_metadata": {
+            "type": "email",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ],
+            "notes": "Defaults to whoever organizes their invites; a teammate on cranston.ai."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "time_zone",
+          "label": "Time zone",
+          "type": "select",
+          "options": [
+            "Eastern",
+            "Central",
+            "Mountain",
+            "Pacific",
+            "Alaska",
+            "Hawaii",
+            "Atlantic",
+            "Outside US/Canada",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ],
+            "notes": "Auto from the Attio location when there is one."
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null
+        }
+      ]
+    },
+    {
+      "id": "firm_profile",
+      "label": "Firm profile",
+      "fields": [
+        {
+          "key": "tax_software",
+          "label": "Tax Software",
+          "type": "select",
+          "options": [
+            "Drake Desktop",
+            "Drake Online",
+            "Drake (edition unconfirmed)",
+            "Lacerte",
+            "ProConnect",
+            "ProSeries",
+            "UltraTax",
+            "CCH Axcess",
+            "CCH ProSystem fx",
+            "TaxSlayer Pro",
+            "ATX",
+            "TaxWise",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Attio deal + company",
+              "Pipeline Timeline (this page)"
+            ],
+            "attio_field": "deals.tax_software_systems / companies.tax_software_systems",
+            "notes": "Company field has no 'Drake (edition unconfirmed)'."
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null,
+          "aliases": {
+            "Drake (edition unconfirmed)": [
+              "Drake"
+            ],
+            "CCH Axcess": [
+              "CCH Access"
+            ],
+            "Lacerte": [
+              "La Certe"
+            ]
+          },
+          "evidence_rule": "Do not infer desktop or online edition from the bare name Drake."
+        },
+        {
+          "key": "hosting_deal",
+          "label": "Hosting environment",
+          "type": "select",
+          "options": [
+            "Local computer",
+            "Firm-managed server/network",
+            "Firm-managed VM/terminal server",
+            "Rightworks / Right Networks",
+            "Ace Cloud Hosting",
+            "Verito",
+            "CCI",
+            "Thomson Reuters Virtual Office",
+            "Tax software vendor cloud/online",
+            "Remote desktop/server — host unknown",
+            "Multiple environments",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.hosted_environment",
+            "notes": "Where the tax software runs. Used when the prospect has a deal."
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null,
+          "evidence_rule": "A firm-run server does not establish its physical location or external provider. Preserve that ambiguity in evidence. Do not assume on-premises."
+        },
+        {
+          "key": "hosting_company",
+          "label": "Hosting (company)",
+          "type": "select",
+          "options": [
+            "Local desktop/workstation",
+            "Firm-hosted server or remote desktop",
+            "Third-party hosted desktop",
+            "Cloud/browser-native",
+            "Hybrid",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Attio company"
+            ],
+            "attio_field": "companies.hosting_model",
+            "notes": "Used when there's a company but no deal."
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": false,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null,
+          "role": "reference_mapping"
+        },
+        {
+          "key": "number_of_returns",
+          "label": "Number of returns",
+          "type": "number",
+          "min": 0,
+          "source_metadata": {
+            "type": "number",
+            "stored_in": [
+              "Attio company",
+              "Pipeline Timeline (this page)"
+            ],
+            "attio_field": "companies.annual_return_volume_count"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "integer": true
+        },
+        {
+          "key": "individual_return_mix_pct",
+          "label": "Return mix — individual %",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "source_metadata": {
+            "type": "number",
+            "stored_in": [
+              "Attio company"
+            ],
+            "attio_field": "companies.return_mix_individual_pct"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "integer": true
+        },
+        {
+          "key": "document_management",
+          "label": "Document Management",
+          "type": "select",
+          "options": [
+            "TaxDome",
+            "Canopy",
+            "SurePrep",
+            "TaxCaddy",
+            "Soraban",
+            "CCH Axcess Suite",
+            "CCH AutoFlow",
+            "Dropbox",
+            "Microsoft 365 / OneDrive",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Attio company: software_stack"
+            ],
+            "attio_field": "companies.software_stack",
+            "notes": "No separate Attio field: these are the document/portal tools inside Software stack. Could become its own field if you want."
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "other_software",
+          "label": "Other software (Software stack)",
+          "type": "select",
+          "options": [
+            "Asana",
+            "Canopy",
+            "CCH Axcess Suite",
+            "CCH AutoFlow",
+            "Dropbox",
+            "Gusto",
+            "Juno",
+            "Kick AI",
+            "Microsoft 365 / OneDrive",
+            "Qount / Counto",
+            "QuickBooks Desktop",
+            "QuickBooks Online",
+            "Shopify",
+            "Soraban",
+            "SurePrep",
+            "TaxCaddy",
+            "TaxDome",
+            "TXF Intelligence",
+            "VCA",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Attio company",
+              "Pipeline Timeline (this page)"
+            ],
+            "attio_field": "companies.software_stack"
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "employee_range",
+          "label": "Employee range",
+          "type": "select",
+          "options": [
+            "1-10",
+            "11-50",
+            "51-250",
+            "251-1K",
+            "1K-5K",
+            "5K-10K",
+            "10K-50K",
+            "50K-100K",
+            "100K+",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Attio company"
+            ],
+            "attio_field": "companies.employee_range"
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": false,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null,
+          "role": "reference_mapping",
+          "evidence_rule": "Do not infer an exact headcount from a CRM bucket such as 1-10. A spoken approximate range can use the configured midpoint rule."
+        },
+        {
+          "key": "location",
+          "label": "Primary location",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Attio company"
+            ],
+            "attio_field": "companies.primary_location"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "employee_count",
+          "label": "Team size",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "added_by": "scorecard_adaptation",
+          "evidence_rule": "Current team headcount. Use midpoint only for a spoken range; retain the original range and mark the value estimated."
+        },
+        {
+          "key": "hosting_provider",
+          "label": "Hosting provider",
+          "type": "select",
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null,
+          "allow_other": true,
+          "added_by": "scorecard_adaptation",
+          "options": [
+            "Rightworks / Right Networks",
+            "Ace Cloud Hosting",
+            "Verito",
+            "CCI",
+            "Thomson Reuters Virtual Office",
+            "Tax software vendor",
+            "Other"
+          ],
+          "aliases": {
+            "Rightworks / Right Networks": [
+              "Rightworks",
+              "Right Networks"
+            ]
+          },
+          "evidence_rule": "Name the actual hosting provider only when supported by evidence. Company-run server does not identify a provider. No external provider remains null with evidence rather than inventing a company."
+        }
+      ]
+    },
+    {
+      "id": "deal",
+      "label": "Deal",
+      "fields": [
+        {
+          "key": "stage",
+          "label": "Stage",
+          "type": "select",
+          "options": [
+            "Lead",
+            "Prove Value",
+            "Contracting",
+            "Won 🎉",
+            "After October 15th",
+            "Limbo",
+            "Lost",
+            "self serve",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Attio deal: stage",
+              "Pipeline Timeline (this page) when there's no deal"
+            ],
+            "attio_field": "deals.stage"
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "salesperson",
+          "unknown_value": null
+        },
+        {
+          "key": "deal_value",
+          "label": "Deal value",
+          "type": "currency_usd",
+          "source_metadata": {
+            "type": "currency_usd",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.value"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "salesperson",
+          "unknown_value": null,
+          "currency": "USD"
+        },
+        {
+          "key": "pilot_amount",
+          "label": "Pilot amount",
+          "type": "currency_usd",
+          "source_metadata": {
+            "type": "currency_usd",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.pilot_amount"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "salesperson",
+          "unknown_value": null,
+          "currency": "USD"
+        },
+        {
+          "key": "varr",
+          "label": "vARR (verified ARR)",
+          "type": "currency_usd",
+          "source_metadata": {
+            "type": "currency_usd",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.varr",
+            "notes": "Binding recurring minimum from the signed agreement; excludes pilot fees."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "currency": "USD",
+          "evidence_rule": "Capture only a stated binding recurring minimum and its period; exclude pilot fees. A transcript claim does not verify a signed agreement."
+        },
+        {
+          "key": "pilot_converted",
+          "label": "Pilot converted",
+          "type": "boolean",
+          "source_metadata": {
+            "type": "boolean",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.pilot_converted"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null,
+          "decision_values": [
+            true,
+            false,
+            "unknown"
+          ],
+          "decision_unknown_mapping": {
+            "unknown": null
+          },
+          "evidence_rule": "Absence of a statement is unknown, not false; distinguish completed actions from plans."
+        },
+        {
+          "key": "sample_data_received",
+          "label": "Sample data received",
+          "type": "boolean",
+          "source_metadata": {
+            "type": "boolean",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.sample_data_received"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null,
+          "decision_values": [
+            true,
+            false,
+            "unknown"
+          ],
+          "decision_unknown_mapping": {
+            "unknown": null
+          },
+          "evidence_rule": "Absence of a statement is unknown, not false; distinguish completed actions from plans."
+        },
+        {
+          "key": "competitors",
+          "label": "Competitors",
+          "type": "select",
+          "options": [
+            "Juno",
+            "GruntWorks",
+            "InsteadAI",
+            "SurePrep",
+            "TaxGPT",
+            "Filed",
+            "Truss",
+            "Magnetic",
+            "TaxDome",
+            "Kick AI",
+            "TXF Intelligence",
+            "Taxfyle",
+            "K1x",
+            "Abacus",
+            "Automated Firm",
+            "April",
+            "Blue J",
+            "RayWorks",
+            "Manual process / status quo",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Attio deal",
+              "Pipeline Timeline (this page)"
+            ],
+            "attio_field": "deals.competitive_alternatives",
+            "notes": "SurePrep is kept on the page only; it isn't an Attio option yet."
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "loss_reason",
+          "label": "Loss reason",
+          "type": "select",
+          "options": [
+            "Price / budget",
+            "Chose competitor",
+            "Ghosted",
+            "Not ICP",
+            "Product gap",
+            "Below minimum",
+            "UltraTax Web Product not Supported",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "select",
+            "multiple": false,
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.loss_reason"
+          },
+          "multiple": false,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "salesperson",
+          "unknown_value": null
+        },
+        {
+          "key": "next_action",
+          "label": "Next action",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Attio deal",
+              "Pipeline Timeline (this page) (actions with due dates)"
+            ],
+            "attio_field": "deals.next_action"
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "salesperson",
+          "unknown_value": null
+        },
+        {
+          "key": "tags",
+          "label": "Tags",
+          "type": "select",
+          "options": [
+            "Ideal Lead, non-responsive",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.tags"
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "owner",
+          "label": "Deal owner",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Attio deal"
+            ],
+            "attio_field": "deals.owner",
+            "notes": "A workspace member (email or member id)."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null
+        }
+      ]
+    },
+    {
+      "id": "notes_status",
+      "label": "Notes & status (this page)",
+      "fields": [
+        {
+          "key": "concerns",
+          "label": "Concerns",
+          "type": "select",
+          "options": [
+            "SOC 2",
+            "Data security",
+            "Price",
+            "Tax software support",
+            "Hosting support",
+            "Accuracy",
+            "Busy season / timing",
+            "Needs decision maker",
+            "Already using a competitor",
+            "Other"
+          ],
+          "source_metadata": {
+            "type": "multi_select",
+            "multiple": true,
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "selection_policy": "most_likely_primary",
+          "retain_secondary_evidence": true,
+          "allow_other": true,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "decisions_choice",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "high_level_note",
+          "label": "High level note",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "salesperson",
+          "unknown_value": null
+        },
+        {
+          "key": "pilot_contract_signed",
+          "label": "Pilot contract signed (⭐)",
+          "type": "date",
+          "source_metadata": {
+            "type": "date",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "evidence_rule": "Use an unambiguous calendar date anchored to the call date. Keep proposed dates distinct from completed signing."
+        },
+        {
+          "key": "renewal_date",
+          "label": "Renewal date",
+          "type": "date",
+          "source_metadata": {
+            "type": "date",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null,
+          "evidence_rule": "Use an unambiguous calendar date anchored to the call date. Keep proposed dates distinct from completed signing."
+        },
+        {
+          "key": "contract_pdf",
+          "label": "Contract PDF",
+          "type": "url",
+          "source_metadata": {
+            "type": "url",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "cranston_organization",
+          "label": "Cranston organization",
+          "type": "url",
+          "source_metadata": {
+            "type": "url",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "promised_return",
+          "label": "Promised return (client to export)",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ],
+            "notes": "Client name plus an optional link to it in Cranston."
+          },
+          "multiple": false,
+          "visible": true,
+          "automatic_extraction": true,
+          "extraction_route": "structured_extraction",
+          "source_policy": "either",
+          "unknown_value": null
+        },
+        {
+          "key": "no_next_action_needed",
+          "label": "No next action needed",
+          "type": "boolean",
+          "source_metadata": {
+            "type": "boolean",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ],
+            "notes": "Grays out the row."
+          },
+          "multiple": false,
+          "visible": false,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null,
+          "decision_values": [
+            true,
+            false,
+            "unknown"
+          ],
+          "decision_unknown_mapping": {
+            "unknown": null
+          },
+          "evidence_rule": "Absence of a statement is unknown, not false; distinguish completed actions from plans.",
+          "role": "metadata_only"
+        },
+        {
+          "key": "hidden",
+          "label": "Hidden",
+          "type": "boolean",
+          "source_metadata": {
+            "type": "boolean",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ]
+          },
+          "multiple": false,
+          "visible": false,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null,
+          "decision_values": [
+            true,
+            false,
+            "unknown"
+          ],
+          "decision_unknown_mapping": {
+            "unknown": null
+          },
+          "evidence_rule": "Absence of a statement is unknown, not false; distinguish completed actions from plans.",
+          "role": "metadata_only"
+        },
+        {
+          "key": "combined_into",
+          "label": "Combined into",
+          "type": "string",
+          "source_metadata": {
+            "type": "string",
+            "stored_in": [
+              "Pipeline Timeline (this page)"
+            ],
+            "notes": "Key (domain or email) of the organization this one was merged into."
+          },
+          "multiple": false,
+          "visible": false,
+          "automatic_extraction": false,
+          "extraction_route": "manual",
+          "source_policy": "either",
+          "unknown_value": null,
+          "role": "metadata_only"
+        }
+      ]
+    }
+  ],
+  "layouts": {
+    "initial": {
+      "group_order": [
+        "identity",
+        "firm_profile",
+        "deal",
+        "notes_status"
+      ],
+      "priority_fields": [
+        "firm_name",
+        "main_contact_name",
+        "tax_software",
+        "hosting_deal",
+        "hosting_provider",
+        "number_of_returns",
+        "employee_count",
+        "concerns"
+      ]
+    },
+    "demo": {
+      "group_order": [
+        "firm_profile",
+        "notes_status",
+        "deal",
+        "identity"
+      ],
+      "priority_fields": [
+        "tax_software",
+        "hosting_deal",
+        "hosting_provider",
+        "concerns",
+        "competitors",
+        "document_management",
+        "number_of_returns"
+      ]
+    },
+    "review": {
+      "group_order": [
+        "deal",
+        "notes_status",
+        "firm_profile",
+        "identity"
+      ],
+      "priority_fields": [
+        "pilot_amount",
+        "concerns",
+        "next_action",
+        "decision_maker_name",
+        "pilot_converted",
+        "deal_value"
+      ]
+    }
+  },
+  "draft_notes": [
+    "This is a configuration design, not yet consumed by the Mac application or API test harness.",
+    "All source field IDs retained. Source examples removed from distributable draft; original kept under ignored private-data.",
+    "Original multi-select catalogs retained as single-primary choices to follow the agreed v1 UI.",
+    "Source CRM mappings are reference metadata only; external writes, record merges, and UI hiding cannot be triggered by transcript text.",
+    "GruntWorks is preserved as supplied; earlier conversation used GruntWorx. Canonical spelling remains to be reconciled before release.",
+    "39 imported fields plus exact team size and separate hosting provider gives 41 total, below the 50-field maximum.",
+    "Initial/demo/review priorities and visibility are suggested defaults, not approved new mockups."
+  ]
+}
