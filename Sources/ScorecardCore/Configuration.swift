@@ -202,7 +202,8 @@ public struct ScorecardConfiguration: Codable, Identifiable, Equatable, Sendable
                   !formula.inputs.contains(formula.target),
                   fields.first(where: { $0.key == formula.target })?.isNumeric == true,
                   formula.inputs.allSatisfy({ key in fields.first(where: { $0.key == key })?.isNumeric == true }),
-                  (0...6).contains(formula.decimalPlaces ?? 0) else {
+                  (0...6).contains(formula.decimalPlaces ?? 0),
+                  (formula.comparisonTolerance ?? 0).isFinite, (formula.comparisonTolerance ?? 0) >= 0 else {
                 throw ConfigurationError.invalid("Calculation references invalid numeric fields or precision.")
             }
         }

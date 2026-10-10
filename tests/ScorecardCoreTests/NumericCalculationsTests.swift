@@ -76,4 +76,61 @@ final class NumericCalculationsTests: XCTestCase {
         config.calculations?[0].inputs = ["missing", "business"]
         XCTAssertThrowsError(try config.validate())
     }
+    func testPercentageRoundingTolerancePreservesDirectAndLockedAnswers() throws {
+        var config = config()
+        var percent = FieldDefinition(key: "mix", label: "Individual percent", type: "number")
+        percent.min = 0; percent.max = 100; percent.integer = false
+        config.groups[0].fields.append(percent)
+        config.calculations?.append(NumericCalculation(id: "mix", target: "mix", inputs: ["personal", "business"],
+            operation: .percentOfSum, decimalPlaces: 2, comparisonTolerance: 0.05))
+        var company = CompanyScorecard(name: "Test", configuration: config)
+        set("personal", 528, company: &company); set("business", 156, company: &company)
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertEqual(company.facts["mix"]?.value, .number(77.19))
+        XCTAssertNotNil(company.facts["mix"]?.derivedFrom)
+        XCTAssertEqual(company.facts["mix"]?.evidence.first?.source, .calculated)
+
+        // The customer may give a one-decimal percentage; the app should not
+        // replace it or report a contradiction over hundredths of a point.
+        var direct = FactRecord(); direct.value = .number(77.2); direct.confidence = 0.99
+        direct.evidence = [Evidence(quote: "77.2 percent are personal", source: .call, sequence: 3)]
+        company.facts["mix"] = direct
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertEqual(company.facts["mix"]?.value, .number(77.2))
+        XCTAssertNil(company.facts["mix"]?.calculationConflict)
+        company.facts["mix"]?.locked = true
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertNil(company.facts["mix"]?.proposal)
+        XCTAssertTrue(company.facts["mix"]?.locked == true)
+
+        company.facts["mix"]?.value = .number(70)
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertEqual(company.facts["mix"]?.value, .number(70))
+        XCTAssertEqual(company.facts["mix"]?.proposal?.value, .number(77.19))
+        XCTAssertNotNil(company.facts["mix"]?.calculationConflict)
+
+        // A later correction close enough to the calculation removes only the
+        // calculated proposal/conflict, never the lock or stated value.
+        company.facts["mix"]?.value = .number(77.2)
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertNil(company.facts["mix"]?.proposal)
+        XCTAssertNil(company.facts["mix"]?.calculationConflict)
+        XCTAssertTrue(company.facts["mix"]?.locked == true)
+
+        config.calculations?[3].comparisonTolerance = nil
+        _ = NumericDeriver.recalculate(configuration: config, company: &company)
+        XCTAssertNotNil(company.facts["mix"]?.calculationConflict) // Other configurations remain strict.
+    }
+
+    func testComparisonToleranceSurvivesJSONAndRejectsInvalidValues() throws {
+        var config = config()
+        config.calculations?[0].comparisonTolerance = 0.05
+        let encoder = JSONEncoder(); encoder.keyEncodingStrategy = .convertToSnakeCase
+        let decoded = try ScorecardConfiguration.load(encoder.encode(config))
+        XCTAssertEqual(decoded.calculations?[0].comparisonTolerance, 0.05)
+        for invalid in [-0.01, Double.infinity, Double.nan] {
+            config.calculations?[0].comparisonTolerance = invalid
+            XCTAssertThrowsError(try config.validate())
+        }
+    }
 }

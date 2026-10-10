@@ -9,8 +9,16 @@ public struct NumericCalculation: Codable, Equatable, Sendable {
     public var inputs: [String]
     public var operation: Operation
     public var decimalPlaces: Int?
-    public init(id: String, target: String, inputs: [String], operation: Operation, decimalPlaces: Int? = nil) {
+    /// Absolute units tolerated when comparing direct/locked evidence with this
+    /// formula. Does not change the displayed value or calculation precision.
+    public var comparisonTolerance: Double?
+    public init(id: String, target: String, inputs: [String], operation: Operation, decimalPlaces: Int? = nil,
+                comparisonTolerance: Double? = nil) {
         self.id = id; self.target = target; self.inputs = inputs; self.operation = operation; self.decimalPlaces = decimalPlaces
+        self.comparisonTolerance = comparisonTolerance
+    }
+    func agrees(_ actual: Double, with calculated: Double) -> Bool {
+        abs(actual - calculated) <= (comparisonTolerance ?? 0.000001) + 0.000000001
     }
     func evaluate(_ a: Double, _ b: Double) -> Double? {
         let raw: Double
@@ -55,7 +63,8 @@ public enum NumericDeriver {
             let estimated = left.estimated || right.estimated
             var after = before
             if before.locked {
-                if before.value != value, confidence >= configuration.thresholds(for: field).replacement {
+                let agrees = before.value.number.map { formula.agrees($0, with: numeric) } ?? false
+                if !agrees, confidence >= configuration.thresholds(for: field).replacement {
                     let proposal = FactProposal(value: value, confidence: confidence, estimated: estimated, evidence: evidence)
                     if before.dismissedProposalFingerprint != proposal.fingerprint { after.proposal = proposal }
                 } else if before.proposal?.evidence.first?.source == .calculated { after.proposal = nil }
@@ -94,7 +103,7 @@ public enum NumericDeriver {
                   min(left.confidence, right.confidence) >= configuration.thresholds(for: field).tentative,
                   let result = formula.evaluate(a, b) else { continue }
             let invalid = (try? field.validated(.number(result))) == nil
-            let disagrees = base[formula.target]?.value.number.map { abs($0 - result) > 0.000001 } ?? false
+            let disagrees = base[formula.target]?.value.number.map { !formula.agrees($0, with: result) } ?? false
             if invalid || disagrees {
                 conflicts[formula.target] = "Values disagree: \(formula.operation.rawValue) of \(formula.inputs[0]) (\(left.display)) and \(formula.inputs[1]) (\(right.display)) gives \(JSONValue.number(result).display). Check the source values."
             }

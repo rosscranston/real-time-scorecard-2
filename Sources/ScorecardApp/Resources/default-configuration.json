@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 14,
+  "revision": 15,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -374,7 +374,7 @@
           "source_policy": "either",
           "unknown_value": null,
           "integer": true,
-          "evidence_rule": "Actual annual tax-return volume for the entire current firm, across personal and business returns. Exclude proposed purchases, rollout targets, contracted quantities, pilots, evaluation samples, prospect client counts, database records, and potential acquisitions. A smaller proposed number of returns to process with the seller does NOT correct the firm annual volume. Sum personal + business only when both current annual counts are supported."
+          "evidence_rule": "Actual annual tax-return volume for the entire current firm, across personal and business returns. Exclude proposed purchases, rollout targets, contracted quantities, pilots, evaluation samples, prospect client counts, database records, and potential acquisitions. A smaller proposed number of returns to process with the seller does NOT correct the firm annual volume. When only personal and business counts are spoken, extract those fields and leave total for the app calculation."
         },
         {
           "key": "individual_return_mix_pct",
@@ -396,7 +396,7 @@
           "source_policy": "either",
           "unknown_value": null,
           "integer": false,
-          "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Derive only from supported personal count and total count; never use pilot sample proportions."
+          "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Extract an explicitly spoken percentage (including an approximate percentage or range); otherwise extract the personal, business and total counts and leave this percentage to the app calculation. Never use pilot sample proportions."
         },
         {
           "key": "document_management",
@@ -1338,7 +1338,8 @@
         "number_of_returns"
       ],
       "operation": "percent",
-      "decimal_places": 2
+      "decimal_places": 2,
+      "comparison_tolerance": 0.05
     },
     {
       "id": "personal_mix_components",
@@ -1348,7 +1349,8 @@
         "business_returns"
       ],
       "operation": "percent_of_sum",
-      "decimal_places": 2
+      "decimal_places": 2,
+      "comparison_tolerance": 0.05
     },
     {
       "id": "personal_mix_complement",
@@ -1358,7 +1360,8 @@
         "number_of_returns"
       ],
       "operation": "complement_percent",
-      "decimal_places": 2
+      "decimal_places": 2,
+      "comparison_tolerance": 0.05
     }
   ]
 }

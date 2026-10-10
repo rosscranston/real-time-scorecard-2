@@ -65,6 +65,7 @@ public enum ExtractionRequests {
     }
     public static func responses(job: ExtractionJob, company: CompanyScorecard, configuration: ScorecardConfiguration) throws -> Data {
         let fields = configuration.fields.filter(\.isAutomatic)
+        let calculatedTargets = Set((configuration.calculations ?? []).map(\.target)).sorted().joined(separator: ", ")
         let definitions = fields.map { field in
             "\(field.key) | \(field.label) | \(field.type) | options: \((field.options ?? []).joined(separator: ", ")) | speaker: \(field.sourcePolicy ?? "either") | \(field.evidenceRule ?? "")"
         }.joined(separator: "\n")
@@ -107,7 +108,13 @@ public enum ExtractionRequests {
         Fixed options must match their canonical spellings. Use value Other with other_detail for a named
         unlisted option. Use numeric JSON values for quantities/USD, booleans for supported true/false;
         absence is unknown. If a number is a spoken range, use its midpoint and estimated=true; round
-        counts half up. No fabricated business/personal breakdown. Name evidence should actually identify
+        counts half up. No fabricated business/personal breakdown.
+        The application owns arithmetic for these fields: \(calculatedTargets.isEmpty ? "none" : calculatedTargets).
+        For those targets, return a number only when the speaker actually supplies that quantity
+        (including a spoken range midpoint). Do not compute totals, differences, or percentages from
+        other numbers yourself; extract the stated input fields and let the app calculate the result.
+        An explicitly stated percentage is still valid evidence and must not be dropped.
+        Mark approximate statements as estimated=true. Name evidence should actually identify
         the person/company. Keep notes concise. Use null only for an explicit supported retraction of an
         old answer and set retracts_previous=true; otherwise omit unknown fields.
         Confidence is tentative model confidence, not a verified probability of correctness.
