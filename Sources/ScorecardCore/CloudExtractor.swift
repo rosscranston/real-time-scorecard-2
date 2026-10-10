@@ -157,12 +157,20 @@ public struct CloudExtractor: Sendable {
     public func extract(job: ExtractionJob, company: CompanyScorecard, configuration: ScorecardConfiguration) async throws -> ExtractionResult {
         guard configuration.fields.contains(where: \.isAutomatic) else { return ExtractionResult(candidates: [], seconds: 0, warnings: []) }
         let start = Date()
-        let decisionsBody = try ExtractionRequests.decisions(job: job, company: company, configuration: configuration)
+        // Numeric scope checks need the actual proposed quantity and its quote.
+        // Decode them provisionally, then gate before exposing any candidates.
+        var provisionalConfiguration = configuration
+        provisionalConfiguration.groups = configuration.groups.map { group in
+            var copy = group
+            copy.fields = group.fields.map { field in var copy = field; copy.requiresEvidenceGate = nil; return copy }
+            return copy
+        }
+        let decisionsBody = try ExtractionRequests.decisions(job: job, company: company, configuration: provisionalConfiguration)
         let responsesBody = try ExtractionRequests.responses(job: job, company: company, configuration: configuration)
         async let decisions = decisionCall(decisionsBody)
         async let responses = client.post(endpoint: "responses", body: responsesBody)
         let (decisionData, responseData) = try await (decisions, responses)
-        let initial = try Self.decode(decisions: decisionData, responses: responseData, configuration: configuration)
+        let initial = try Self.decode(decisions: decisionData, responses: responseData, configuration: provisionalConfiguration)
         let segments = Dictionary(uniqueKeysWithValues: job.segments.map { ($0.id, $0) })
         let accepted = Set(initial.candidates.filter { candidate in
             guard let field = configuration.fields.first(where: { $0.key == candidate.fieldKey }) else { return false }
@@ -178,7 +186,7 @@ public struct CloudExtractor: Sendable {
             }
         }.prefix(4)
         guard !review.isEmpty else {
-            var result = initial; result.seconds = Date().timeIntervalSince(start); return result
+            return try await gateNumericCandidates(initial, job: job, company: company, configuration: configuration, start: start)
         }
         var focused = configuration
         let keys = Set(review.map(\.fieldKey))
@@ -206,8 +214,56 @@ public struct CloudExtractor: Sendable {
         // through the normal decoder. There is no recursive semantic retry.
         merged["answers"] = originalAnswers.filter { !keys.contains($0["name"] as? String ?? "") }
             + answers.filter { keys.contains($0["name"] as? String ?? "") }
-        return try Self.decode(decisions: JSONSerialization.data(withJSONObject: merged), responses: responseData,
-                               configuration: configuration, seconds: Date().timeIntervalSince(start))
+        let reviewed = try Self.decode(decisions: JSONSerialization.data(withJSONObject: merged), responses: responseData,
+                                       configuration: provisionalConfiguration)
+        return try await gateNumericCandidates(reviewed, job: job, company: company, configuration: configuration, start: start)
+    }
+    private func gateNumericCandidates(_ provisional: ExtractionResult, job: ExtractionJob, company: CompanyScorecard,
+                                       configuration: ScorecardConfiguration, start: Date) async throws -> ExtractionResult {
+        let keys = Set(configuration.fields.filter { $0.requiresEvidenceGate == true }.map(\.key))
+        var result = provisional
+        result.candidates.removeAll { keys.contains($0.fieldKey) }
+        let segments = Dictionary(uniqueKeysWithValues: job.segments.map { ($0.id, $0) })
+        let review = provisional.candidates.filter { candidate in
+            guard keys.contains(candidate.fieldKey) else { return false }
+            var snapshot = company
+            switch FactReducer.apply(candidate, job: job, currentSegments: segments, configuration: configuration, company: &snapshot) {
+            case .updated, .proposed: return true
+            case .rejected, .unchanged: return false
+            }
+        }
+        if !review.isEmpty {
+            var focused = configuration
+            let reviewKeys = Set(review.map(\.fieldKey))
+            focused.groups = configuration.groups.map { group in
+                var copy = group; copy.fields = group.fields.filter { reviewKeys.contains($0.key) }; return copy
+            }.filter { !$0.fields.isEmpty }
+            guard let body = try ExtractionRequests.decisions(job: job, company: company, configuration: focused),
+                  var request = try JSONSerialization.jsonObject(with: body) as? [String: Any],
+                  var questions = request["questions"] as? [[String: Any]] else { throw OpenAIError.invalidResponse }
+            for index in questions.indices {
+                guard let candidate = review.first(where: { $0.fieldKey == questions[index]["name"] as? String }) else { throw OpenAIError.invalidResponse }
+                questions[index]["instructions"] = "Verify this exact proposed answer: \(candidate.value == .null ? "explicit retraction" : candidate.value.display). Cited untrusted quote: \(candidate.quote). Segment: \(candidate.segmentID). Choose supported ONLY if this specific quantity belongs to the field defined below; otherwise choose __unknown__. " + (questions[index]["instructions"] as? String ?? "")
+            }
+            request["questions"] = questions
+            let data = try await client.post(endpoint: "decisions", body: JSONSerialization.data(withJSONObject: request), maxOutputTokens: 0)
+            struct GateResponse: Decodable {
+                struct Answer: Decodable { var name: String?; var type: String; var choice: String?; var confidence: Double? }
+                var answers: [Answer]
+            }
+            let answers = try JSONDecoder().decode(GateResponse.self, from: data).answers
+            for var candidate in review {
+                let matches = answers.filter { $0.name == candidate.fieldKey }
+                guard matches.count == 1, let gate = matches.first, gate.type == "choice", gate.choice == "supported",
+                      let confidence = gate.confidence, confidence.isFinite, (0...1).contains(confidence) else {
+                    result.warnings.append("Numeric scope was not established for \(candidate.fieldKey)."); continue
+                }
+                candidate.confidence = min(candidate.confidence, confidence)
+                result.candidates.append(candidate)
+            }
+        }
+        result.seconds = Date().timeIntervalSince(start)
+        return result
     }
     private func decisionCall(_ body: Data?) async throws -> Data? {
         guard let body else { return nil }

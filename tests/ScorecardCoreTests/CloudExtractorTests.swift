@@ -17,6 +17,23 @@ private struct InterruptedTransport: HTTPTransport {
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) { throw URLError(code) }
 }
 
+private actor NumericScopeTransport: HTTPTransport {
+    let response: Data
+    let supported: Bool
+    var checks = 0
+    init(response: Data, supported: Bool) { self.response = response; self.supported = supported }
+    func count() -> Int { checks }
+    func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        let data: Data
+        if request.url!.lastPathComponent == "responses" { data = response }
+        else {
+            checks += 1
+            data = try JSONSerialization.data(withJSONObject: ["answers": [["type": "choice", "name": "returns", "choice": supported ? "supported" : "__unknown__", "confidence": 0.99]]])
+        }
+        return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+    }
+}
+
 private actor FocusedReviewTransport: HTTPTransport {
     let responses: Data
     let reviewChoice: String
@@ -40,6 +57,28 @@ private actor FocusedReviewTransport: HTTPTransport {
 }
 
 final class CloudExtractorTests: XCTestCase {
+    func testFocusedNumericGateRunsOnceAndNeverSendsFabricatedEvidenceForReview() async throws {
+        var field = FieldDefinition(key: "returns", label: "Annual returns", type: "number")
+        field.requiresEvidenceGate = true
+        let config = ScorecardConfiguration(id: "scope", title: "Scope", groups: [FieldGroup(id: "profile", label: "Profile", fields: [field])])
+        let company = CompanyScorecard(name: "Synthetic", configuration: config)
+        let call = CallRecord(company: company)
+        let segment = TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "Our annual volume is 1280 returns.")
+        let job = ExtractionJob(company: company, callID: call.id, configuration: config, segments: [segment])
+        for (supported, quote) in [(false, segment.text), (true, segment.text), (true, "Invented quote")] {
+            let facts: [String: Any] = ["facts": [["field_key": "returns", "value": 1280, "confidence": 0.99,
+                "estimated": false, "segment_id": segment.id.uuidString, "quote": quote, "retracts_previous": false]]]
+            let text = String(decoding: try JSONSerialization.data(withJSONObject: facts), as: UTF8.self)
+            let response = try JSONSerialization.data(withJSONObject: ["status": "completed", "output": [["content": [["type": "output_text", "text": text]]]]])
+            let transport = NumericScopeTransport(response: response, supported: supported)
+            let client = try OpenAIClient(key: "fake-test-key", transport: transport)
+            let result = try await CloudExtractor(client: client).extract(job: job, company: company, configuration: config)
+            let checks = await transport.count()
+            XCTAssertEqual(checks, quote == segment.text ? 1 : 0)
+            XCTAssertEqual(result.candidates.count, supported && quote == segment.text ? 1 : 0)
+            XCTAssertTrue(result.reviewCandidates.isEmpty)
+        }
+    }
     func testNumericScopeGateRejectsSampleAndRequiresConfidentReplacement() throws {
         var field = FieldDefinition(key: "returns", label: "Annual firm returns", type: "number")
         field.requiresEvidenceGate = true
