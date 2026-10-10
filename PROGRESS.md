@@ -1,5 +1,14 @@
 # Progress
 
+## User-requested publication checkpoint — October10 approximately02:57 Pacific
+
+- User explicitly requested pushing the current app to GitHub. Preparing separatev0.1.1 alpha, preservingv0.1.0. Current implementation commit02b4530, catalog16;54Swift tests pass (51core+3audio), log `/tmp/scorecard-focused-scope-tests.log`.
+- Long worker56642 is terminal: third151/151,19/22mapped, p95all10.44s/changed15.21s. Incorrect total180/personal8/business4 came from planned purchase and pilot quantities. Manifest provenance corrected: first2e4def/catalog14; third15025/catalog15. Added manual review including incorrect derived percentage.
+- Broad numeric relevance gate5cac388 failed to permit some valid corrections; preserved result `test-results/short-numeric-broad-gate-batch.json`. Refined02b4530 gate checks exact numeric candidate+quote after local validation, one bounded Decisions request. Missing/refused/invalid answers cannot commit; no recursive scope retry.
+- **Worker84865 currently live**, sole paid CLI batch using immutable binary snapshot and input hashes. Manifest `test-results/short-timeout-batch.json`. First caseannual-versus-pilot5/7,11/11, p956.15s: total still1260 instead1280, resulting percentage wrong. Do not claim the fix complete. Remaining new-practice/corrections/negative-hosting runs follow; poll this handle, never duplicate it. Combined reservation before batch~$2.158 of$5.
+- Native app currently compiled from5cac388 and idle in Settings withcatalog16; sessionkey cleared on prior quit. Packaging must rebuild current02b4530 source before upload. Originalv0.1.0 ZIPs remain unchanged. Keep-awake42450 was previously live; Mac last observedAC80% at02:47.
+- Goal remains active; user publication request does not imply accuracy/live-Meet gates pass. After release, continue fixing observed annual-correction failure and verify current native build. Do not capture unattended microphone audio.
+
 ## Numerical correction and latency checkpoint — October 10, approximately02:41 Pacific
 
 Previous goal turn made concrete progress (native audio replay and clean-source verification); this turn also made concrete progress. Goal remains active, no blocked audit applies.
