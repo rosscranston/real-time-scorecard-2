@@ -96,7 +96,7 @@ struct ScorecardView: View {
     private func section(_ group: FieldGroup, configuration: ScorecardConfiguration) -> some View {
         let collapsed = store.company?.collapsedSections.contains(group.id) == true
         let count = store.company?.unreadFields[group.id]?.count ?? 0
-        let conflicts = group.fields.contains { store.company?.facts[$0.key]?.proposal != nil }
+        let conflicts = group.fields.contains { store.company?.facts[$0.key]?.proposal != nil || store.company?.facts[$0.key]?.calculationConflict != nil }
         return VStack(spacing: 0) {
             Button { store.collapse(group.id) } label: {
                 HStack(spacing: 6) {
@@ -194,15 +194,18 @@ struct ScorecardRow: View {
                                 .textSelection(.enabled).padding().frame(maxWidth: 400)
                         }
                 }
-                if record?.proposal != nil {
+                if record?.proposal != nil || record?.calculationConflict != nil {
                     Button("!") { proposalOpen.toggle() }.foregroundStyle(.orange)
                         .popover(isPresented: $proposalOpen) {
                             VStack(alignment: .leading, spacing: 10) {
-                                Text(record?.proposal?.value.display ?? "")
-                                ForEach(Array((record?.proposal?.evidence ?? []).enumerated()), id: \.offset) { _, evidence in Text(evidence.quote) }
-                                HStack {
-                                    Button("Accept & keep locked") { store.accept(field.key); proposalOpen = false }
-                                    Button("Dismiss") { store.dismiss(field.key); proposalOpen = false }
+                                if let conflict = record?.calculationConflict { Text(conflict) }
+                                if record?.proposal != nil {
+                                    Text(record?.proposal?.value.display ?? "")
+                                    ForEach(Array((record?.proposal?.evidence ?? []).enumerated()), id: \.offset) { _, evidence in Text(evidence.quote) }
+                                    HStack {
+                                        Button("Accept & keep locked") { store.accept(field.key); proposalOpen = false }
+                                        Button("Dismiss") { store.dismiss(field.key); proposalOpen = false }
+                                    }
                                 }
                             }.padding().frame(width: 320)
                         }

@@ -160,28 +160,33 @@ struct HistoryView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack { Text("CALL HISTORY").font(.headline); Spacer(); Button("Done") { dismiss() } }
-            List(store.history) { call in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text(call.eventName ?? call.companyName)
-                        Spacer()
-                        if call.isReplay { Text("REPLAY").foregroundStyle(.yellow) }
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach(store.history) { call in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(call.eventName ?? call.companyName)
+                                Spacer()
+                                if call.isReplay { Text("REPLAY").foregroundStyle(.yellow) }
+                            }
+                            Text("\(call.companyName) · \(call.startedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                            HStack {
+                                Button("Company answers") { store.openHistory(call) }.disabled(store.active || store.busy)
+                                Button("Transcript") { selectedCall = call }
+                                Menu("More") {
+                                    Button("Export company JSON…") { store.exportCompany(call) }
+                                    Button("Delete company and all calls…", role: .destructive) { deletingCall = call }
+                                        .disabled(store.active || store.busy || store.audioBusy)
+                                }
+                                if let pending = store.pendingCalls[call.id], pending > 0 {
+                                    Button("Resume \(pending) pending") { Task { await store.resumeHistory(call) } }
+                                        .disabled(store.active || store.busy || store.audioBusy)
+                                }
+                            }
+                        }.padding(.vertical, 5).accessibilityElement(children: .contain)
+                        Divider()
                     }
-                    Text("\(call.companyName) · \(call.startedAt.formatted())").font(.caption).foregroundStyle(.secondary)
-                    HStack {
-                        Button("Company answers") { store.openHistory(call) }.disabled(store.active || store.busy)
-                        Button("Transcript") { selectedCall = call }
-                        Menu("More") {
-                            Button("Export company JSON…") { store.exportCompany(call) }
-                            Button("Delete company and all calls…", role: .destructive) { deletingCall = call }
-                                .disabled(store.active || store.busy || store.audioBusy)
-                        }
-                        if let pending = store.pendingCalls[call.id], pending > 0 {
-                            Button("Resume \(pending) pending") { Task { await store.resumeHistory(call) } }
-                                .disabled(store.active || store.busy || store.audioBusy)
-                        }
-                    }
-                }.padding(.vertical, 5).accessibilityElement(children: .contain)
+                }
             }
         }.padding(20).frame(width: 560, height: 550)
             .onAppear { try? store.refreshHistory() }

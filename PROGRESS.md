@@ -1,5 +1,17 @@
 # Progress
 
+## Current checkpoint — October 10, approximately 01:41 Pacific
+
+This section supersedes older checkpoints. Goal remains active; native tests and release work are progressing.
+
+- Dedicated **public source repository published**: https://github.com/rosscranston/real-time-scorecard-2 . `origin/main` verified at `3655b228d0ce33b6ab7263a42abde8e76d3139b5`. Full-history privacy scan checked 133 blobs with zero findings; audit lives in ignored `private-data/git-publication-audit.json`. No release assets yet. Do not recreate the repository or push the old project.
+- Native UI observation recovered with a fresh app bind. Replayed values visibly appear in the accessibility tree. Settings reported transcript-to-save p95 **4.62s**, visible-row callback p95 **4.72s**, 18 visible observations. This is the first short synthetic replay, not live audio-to-screen.
+- Evidence stayed behind + and revealed the exact customer quote only when opened. Firm Profile collapse persisted across quitting, rebuilding, relaunching, and opening company answers in History. Stored full transcript verified readable.
+- Found History's List rows hid individual action buttons from accessibility. Replaced rows with a lazy scroll stack; Company answers, Transcript and More are now individually accessible and native navigation passed.
+- Added persisted optional calculation-conflict explanations. Contradictory direct numbers are preserved and marked !; invalid negative calculated values are never displayed. Conflicts clear when inputs agree. Updated numeric regression test; all **42 Swift tests pass** (`/tmp/scorecard-conflict-tests.log`). Release build passed (`/tmp/scorecard-history-release.log`). Native test temporarily changed total 1240 to locked 100: ! explained 980+260=1240; Undo restored 1240, unlocked, and cleared all conflict indicators.
+- Latest source changes (history/accessibility and arithmetic indicators) are not committed yet. Running app was rebuilt from these changes, with formatting-only edits afterward. Session .env key was cleared on quit; local Keychain remains available but may need explicit approval. Audio is stopped and no capture occurred.
+- Soak session 77138 remains live, approximately sentence 527/541 at 01:41; finish around 01:42. Current binary/configuration remain its originally loaded v8. Do not start another CLI paid probe until it exits. Next run all six short fixtures using latest 50-field v10, then rerun long cases to validate expanded catalog and prior rule fixes.
+
 ## Current checkpoint — October 10, approximately 01:32 Pacific
 
 This section supersedes the earlier checkpoint below. The prior goal turn made concrete release fixes and packaged commit 736f7a8. This turn continues implementation and verification; the goal is active.

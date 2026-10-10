@@ -56,6 +56,7 @@ public struct FactRecord: Codable, Equatable, Sendable {
     public var clearedThroughSequence: Int = -1
     public var updatedAt: Date = Date()
     public var derivedFrom: [String: Int]?
+    public var calculationConflict: String?
     public var display: String {
         if value == .string("Other"), let detail = otherDetail { return "Other: \(detail)" }
         return value.display

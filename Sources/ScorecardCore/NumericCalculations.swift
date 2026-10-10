@@ -84,6 +84,28 @@ public enum NumericDeriver {
             FactReducer.markChanged(key, configuration: configuration, company: &company)
             events.append(ChangeEvent(company: company, fieldKey: key, action: "calculation_inputs_missing", before: before, after: after))
         }
+        // Report contradictory direct evidence without choosing which spoken
+        // input was wrong. Invalid results never become displayed numbers.
+        var conflicts: [String: String] = [:]
+        for formula in formulas {
+            guard let field = configuration.fields.first(where: { $0.key == formula.target }),
+                  let left = base[formula.inputs[0]], let right = base[formula.inputs[1]],
+                  let a = left.value.number, let b = right.value.number,
+                  min(left.confidence, right.confidence) >= configuration.thresholds(for: field).tentative,
+                  let result = formula.evaluate(a, b) else { continue }
+            let invalid = (try? field.validated(.number(result))) == nil
+            let disagrees = base[formula.target]?.value.number.map { abs($0 - result) > 0.000001 } ?? false
+            if invalid || disagrees {
+                conflicts[formula.target] = "Values disagree: \(formula.operation.rawValue) of \(formula.inputs[0]) (\(left.display)) and \(formula.inputs[1]) (\(right.display)) gives \(JSONValue.number(result).display). Check the source values."
+            }
+        }
+        for key in Set(company.facts.keys).union(conflicts.keys) {
+            let before = company.facts[key] ?? FactRecord()
+            guard before.calculationConflict != conflicts[key] else { continue }
+            var after = before; after.calculationConflict = conflicts[key]
+            company.facts[key] = after
+            events.append(ChangeEvent(company: company, fieldKey: key, action: "calculation_conflict", before: before, after: after))
+        }
         return events
     }
 }
