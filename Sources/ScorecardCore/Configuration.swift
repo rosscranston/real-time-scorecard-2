@@ -31,6 +31,7 @@ public struct FieldDefinition: Codable, Identifiable, Equatable, Sendable {
     public var multiple: Bool?
     public var allowOther: Bool?
     public var allowTentativeNamedOther: Bool?
+    public var requiresEvidenceGate: Bool?
     public var evidenceRule: String?
     public var confidence: ConfidenceThresholds?
     public var sourceMetadata: [String: JSONValue]?
@@ -179,6 +180,9 @@ public struct ScorecardConfiguration: Codable, Identifiable, Equatable, Sendable
                 }
             }
             if let min = f.min, let max = f.max, min > max { throw ConfigurationError.invalid("Invalid numeric bounds.") }
+            if f.requiresEvidenceGate == true && !f.isNumeric {
+                throw ConfigurationError.invalid("Evidence gates currently apply to numeric fields only.")
+            }
             guard ["either", "salesperson", "customer"].contains(f.sourcePolicy ?? "either") else {
                 throw ConfigurationError.invalid("Unknown speaker policy.")
             }

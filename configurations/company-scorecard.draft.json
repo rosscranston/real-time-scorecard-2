@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 15,
+  "revision": 16,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
   "source_catalog": {
-    "title": "Company fields you can set — Pipeline Timeline + Attio",
+    "title": "Company fields you can set \u2014 Pipeline Timeline + Attio",
     "as_of": "2026-10-09",
     "field_count": 39
   },
@@ -92,7 +92,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People ★ Primary decision maker)"
+              "Pipeline Timeline (this page) (People \u2605 Primary decision maker)"
             ]
           },
           "multiple": false,
@@ -164,7 +164,7 @@
           "source_metadata": {
             "type": "string",
             "stored_in": [
-              "Pipeline Timeline (this page) (People ⚑)"
+              "Pipeline Timeline (this page) (People \u2691)"
             ],
             "notes": "Person who wants the deal to go forward even if someone else approves it."
           },
@@ -295,7 +295,7 @@
             "CCI",
             "Thomson Reuters Virtual Office",
             "Tax software vendor cloud/online",
-            "Remote desktop/server — host unknown",
+            "Remote desktop/server \u2014 host unknown",
             "Multiple environments",
             "Other"
           ],
@@ -374,11 +374,12 @@
           "source_policy": "either",
           "unknown_value": null,
           "integer": true,
-          "evidence_rule": "Actual annual tax-return volume for the entire current firm, across personal and business returns. Exclude proposed purchases, rollout targets, contracted quantities, pilots, evaluation samples, prospect client counts, database records, and potential acquisitions. A smaller proposed number of returns to process with the seller does NOT correct the firm annual volume. When only personal and business counts are spoken, extract those fields and leave total for the app calculation."
+          "evidence_rule": "Actual annual tax-return volume for the entire current firm, across personal and business returns. Exclude proposed purchases, rollout targets, contracted quantities, pilots, evaluation samples, prospect client counts, database records, and potential acquisitions. A smaller proposed number of returns to process with the seller does NOT correct the firm annual volume. When only personal and business counts are spoken, extract those fields and leave total for the app calculation.",
+          "requires_evidence_gate": true
         },
         {
           "key": "individual_return_mix_pct",
-          "label": "Return mix — individual %",
+          "label": "Return mix \u2014 individual %",
           "type": "number",
           "min": 0,
           "max": 100,
@@ -396,7 +397,8 @@
           "source_policy": "either",
           "unknown_value": null,
           "integer": false,
-          "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Extract an explicitly spoken percentage (including an approximate percentage or range); otherwise extract the personal, business and total counts and leave this percentage to the app calculation. Never use pilot sample proportions."
+          "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Extract an explicitly spoken percentage (including an approximate percentage or range); otherwise extract the personal, business and total counts and leave this percentage to the app calculation. Never use pilot sample proportions.",
+          "requires_evidence_gate": true
         },
         {
           "key": "document_management",
@@ -601,7 +603,8 @@
           "automatic_extraction": true,
           "source_policy": "either",
           "evidence_rule": "Current annual individual/personal/1040 return count for the whole firm. Exclude pilot samples, proposed purchase volumes and future acquisitions.",
-          "added_by": "scorecard_numeric_requirements"
+          "added_by": "scorecard_numeric_requirements",
+          "requires_evidence_gate": true
         },
         {
           "key": "business_returns",
@@ -613,7 +616,8 @@
           "automatic_extraction": true,
           "source_policy": "either",
           "evidence_rule": "Current annual business return count for the whole firm, including partnership and corporate returns. Exclude pilot samples, proposed purchase volumes and future acquisitions.",
-          "added_by": "scorecard_numeric_requirements"
+          "added_by": "scorecard_numeric_requirements",
+          "requires_evidence_gate": true
         },
         {
           "key": "admins",
@@ -672,7 +676,7 @@
           "visible": true,
           "automatic_extraction": true,
           "source_policy": "either",
-          "evidence_rule": "The prospect firm’s annual revenue in USD, not Cranston deal value, software spending, revenue of a client, or revenue per employee. Prefer current actual revenue; explicitly qualified estimates may be tentative. Preserve spoken ranges in evidence and use their midpoint. Do not convert a non-USD amount without an explicit conversion.",
+          "evidence_rule": "The prospect firm\u2019s annual revenue in USD, not Cranston deal value, software spending, revenue of a client, or revenue per employee. Prefer current actual revenue; explicitly qualified estimates may be tentative. Preserve spoken ranges in evidence and use their midpoint. Do not convert a non-USD amount without an explicit conversion.",
           "added_by": "approved_numeric_and_staff_requirements",
           "currency": "USD"
         },
@@ -685,7 +689,7 @@
           "visible": true,
           "automatic_extraction": true,
           "source_policy": "either",
-          "evidence_rule": "The prospect’s stated typical or average price charged to clients per tax return, in USD. Exclude vendor software prices, proposed Cranston pricing, hourly rates, and total firm revenue. If distinct fees exist, use the explicitly identified primary/typical return category and preserve that qualification in evidence; do not average unrelated categories. Use the midpoint of a stated range.",
+          "evidence_rule": "The prospect\u2019s stated typical or average price charged to clients per tax return, in USD. Exclude vendor software prices, proposed Cranston pricing, hourly rates, and total firm revenue. If distinct fees exist, use the explicitly identified primary/typical return category and preserve that qualification in evidence; do not average unrelated categories. Use the midpoint of a stated range.",
           "added_by": "approved_numeric_and_staff_requirements",
           "currency": "USD"
         },
@@ -733,7 +737,7 @@
             "Lead",
             "Prove Value",
             "Contracting",
-            "Won 🎉",
+            "Won \ud83c\udf89",
             "After October 15th",
             "Limbo",
             "Lost",
@@ -1076,7 +1080,7 @@
         },
         {
           "key": "pilot_contract_signed",
-          "label": "Pilot contract signed (⭐)",
+          "label": "Pilot contract signed (\u2b50)",
           "type": "date",
           "source_metadata": {
             "type": "date",
