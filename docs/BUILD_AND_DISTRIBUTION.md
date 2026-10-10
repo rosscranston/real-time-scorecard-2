@@ -19,6 +19,7 @@ The app has a separate bundle identifier (`ai.cranston.live-scorecard-2`) and lo
 ## First launch
 
 1. Open Settings, enter your API key, Save to Keychain, then Test text APIs.
+   A rebuilt ad-hoc app may need macOS authorization to read a key saved by an earlier build. If Start reports this, use Test text APIs and approve the Keychain prompt; the interface remains responsive while it waits.
 2. Choose OpenAI cloud transcription and your meeting browser. Use headphones to separate the microphone from remote voices.
 3. Enter an event name and, optionally, a stable firm name. Press Start. Calendar is optional.
 4. macOS may request Microphone and Screen & System Audio Recording access. These permissions are needed for live capture. Transcript-only mode and synthetic replay do not require them.

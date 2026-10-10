@@ -82,7 +82,7 @@ struct ScorecardView: View {
                 TextField("Event name", text: $store.eventName).textFieldStyle(.plain)
                 HStack {
                     TextField("Firm (optional)", text: $store.firmName).textFieldStyle(.plain)
-                    Button("Start") { store.start() }.disabled(store.eventName.trimmingCharacters(in: .whitespaces).isEmpty || store.busy || store.audioBusy)
+                    Button(store.starting ? "Connecting…" : "Start") { Task { await store.start() } }.disabled(store.eventName.trimmingCharacters(in: .whitespaces).isEmpty || store.busy || store.audioBusy || store.starting || store.credentialBusy)
                 }
             }
             Picker("Call type", selection: $store.callType) {
@@ -175,6 +175,7 @@ struct ScorecardRow: View {
                     .help(field.label)
                 if editing {
                     TextField("", text: $draft).textFieldStyle(.plain).focused($focused)
+                        .task { await Task.yield(); if !Task.isCancelled { focused = true } }
                         .onSubmit { commitEdit() }
                         .onExitCommand { editing = false }
                         .onKeyPress(.upArrow) { commitEdit(); navigate(-1); return .handled }

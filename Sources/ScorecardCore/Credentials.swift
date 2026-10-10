@@ -1,10 +1,13 @@
 import Foundation
 import Security
+import LocalAuthentication
 
 public enum CredentialStore {
+    private static let operationLock = NSLock()
     private static let service = "ai.cranston.live-scorecard-2"
     private static let account = "openai-api-key"
     public static func save(_ key: String) throws {
+        operationLock.lock(); defer { operationLock.unlock() }
         let key = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty, !key.contains(where: \.isWhitespace) else { throw OpenAIError.missingKey }
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
@@ -19,19 +22,46 @@ public enum CredentialStore {
         }
         guard status == errSecSuccess else { throw DatabaseError(message: "Keychain could not save the key (status \(status)).") }
     }
-    public static func load() throws -> String? {
+    public static func load(allowInteraction: Bool = true) throws -> String? {
+        operationLock.lock(); defer { operationLock.unlock() }
+        // Ad-hoc macOS builds use the file-based Keychain. LAContext alone does
+        // not suppress its ACL prompts, so preserve/restore the legacy process
+        // flag inside the same lock used by all credential operations.
+        var previousInteraction: DarwinBoolean = true
+        var changedInteraction = false
+        if !allowInteraction {
+            let readStatus = SecKeychainGetUserInteractionAllowed(&previousInteraction)
+            guard readStatus == errSecSuccess else {
+                throw DatabaseError(message: "Cannot check Keychain authorization. Try Test text APIs in Settings.")
+            }
+            let status = SecKeychainSetUserInteractionAllowed(false)
+            guard status == errSecSuccess else {
+                throw DatabaseError(message: "Cannot read Keychain without authorization. Try Test text APIs in Settings.")
+            }
+            changedInteraction = true
+        }
+        defer {
+            if changedInteraction { SecKeychainSetUserInteractionAllowed(previousInteraction.boolValue) }
+        }
+        let context = LAContext()
+        context.interactionNotAllowed = !allowInteraction
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrService as String: service, kSecAttrAccount as String: account,
-                                    kSecReturnData as String: true, kSecMatchLimit as String: kSecMatchLimitOne]
+                                    kSecReturnData as String: true, kSecMatchLimit as String: kSecMatchLimitOne,
+                                    kSecUseAuthenticationContext as String: context]
         var result: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }
+        if status == errSecInteractionNotAllowed || status == errSecAuthFailed {
+            throw DatabaseError(message: "Saved key needs macOS authorization. Open Settings and choose Test text APIs, then approve the Keychain prompt.")
+        }
         guard status == errSecSuccess, let data = result as? Data else {
             throw DatabaseError(message: "Keychain could not read the key (status \(status)).")
         }
         return String(data: data, encoding: .utf8)
     }
     public static func remove() throws {
+        operationLock.lock(); defer { operationLock.unlock() }
         let status = SecItemDelete([kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrService as String: service, kSecAttrAccount as String: account] as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {

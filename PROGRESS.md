@@ -1,78 +1,91 @@
 # Progress
 
-## Completed
+## Current checkpoint — October 10, 01:16 Pacific
 
-- Collected UI/product requirements and supplied criteria catalog.
-- Created a 41-field draft configuration from the 39-field source; original preserved privately.
-- Created .env key setup, Git exclusions, synthetic Decisions test, and five passing offline harness tests.
-- Verified live Decisions access and Responses structured extraction.
-- Identified OpenAI cloud-audio quota failure, power requirement, and public-distribution gaps.
-- Replaced ElevenLabs with OpenAI in the plan and advanced the deadline to October 10 at 08:00 Pacific.
-- Prepared OVERNIGHT_PLAN.md and PREFLIGHT.md.
-- Built the prior native app successfully in 7.88 seconds using a separate temporary build directory.
-- Created the independent Swift package, native app target, reusable core, and native CLI probe.
-- Implemented dynamic configuration loading/validation/round-trip export, aliases, numeric/enum validation, and call-layout ordering.
-- Implemented SQLite persistence for company truth, configuration revisions, calls, transcript revisions, job queue, preferences, and atomic change events.
-- Implemented manual-edit locks, proposed replacements, acceptance retaining locks, undo version protection, clear watermarks, source policies/debrief, stale-job rejection, company/config isolation, and distinct collapsed field counts.
-- Implemented Keychain credentials and explicit developer .env loading without bundling secrets.
-- Implemented parallel Decisions + Responses extraction with canonical-option agreement, exact quote validation in the reducer, quota circuit breaking, no redirect credential forwarding, and a persisted estimated spending ledger.
-- Verified 18 Swift tests passing.
-- Verified the actual native pipeline with one synthetic excerpt: 4/4 expected fields correct, 3.52 seconds transcript-to-candidates, zero warnings, estimated cost $0.000713.
-- Power was subsequently observed as AC Power (battery still discharging at that instant); keep external power connected.
+The native app, extraction core, configuration editor, company persistence, and release tooling are implemented. The overnight goal remains active. Deadline: 08:00 Pacific. No sub-agents are authorized.
 
-## Current stage (01:00 Pacific)
+### Verification completed
 
-40 Swift tests pass (latest /tmp/scorecard-tests.log at00:58) and8 Python tests pass. Release Swift build succeeds after an escalated retry: sandbox blocked Xcode dSYM generation; the ordinary build was not an application failure. Native release bundle exists in dist, but rebuild again from the final committed source before packaging.
+- 40 Swift tests pass (`/tmp/scorecard-keychain-tests.log`, 01:16); 8 Python harness/release-scanner tests passed earlier.
+- Release compilation succeeds. Xcode dSYM generation needs an escalated build in this environment; this is a sandbox constraint.
+- Commit `c856f89` was packaged successfully. Both ZIPs passed credential/private-data/path scans and the app passed ad-hoc signature verification.
+- Exported source rebuilt successfully in `/tmp/scorecard-release-check-c856f89/RealTimeScorecard2-0.1.0`; log `/tmp/scorecard-clean-build.log`.
+- The extracted app launched outside the source folder and loaded its bundled configuration and saved settings. Its resource accessor contains no developer-directory fallback.
+- Native UI verified: manual Start without Calendar (earlier build), live text extraction, inline edits/autolock, undo, field settings/version save, arrow navigation/lock shortcut, persistent history, retention/spending controls, and Command-F search after the focus fix described below.
+- Two generated 7.58-second speech → OpenAI transcription → extraction smoke tests passed; latest used the revised reconnect adapter. Expected Drake Desktop, team 6, and 800 returns were recovered. This is not a live Meet test.
 
-New work since checkpointa438bda:
-- Audio connection protocol plus bounded reconnect: retain at most12 unfinished turns; two reconnects per channel lifetime, original client IDs/timestamps, old-connection generation rejection, duplicate completion suppression, eight-second final drain. Quota/auth/budget/protocol errors do not retry. Four disconnect/drain/queue tests and an audio-budget-before-upload test pass.
-- Actual7.58-second generated audio → OpenAI → transcript → software/team/returns passed again with the revised transport. Not a live Meet test.
-- Audio uploads reserve estimated cost before sending (including retransmission). Settings shows text/audio spending, current-call timing, cumulative local allowance(default$5), and80%warning. No billing changes/purchases.
-- Local transcript retention defaults30days; cleanup on launch preserves company facts/evidence/history and calls with pending work. History supports companyJSON export and confirmed company deletion. Offline retention/deletion test passes.
-- Visible-row update callback timing added (not physical display scan-out), brief update highlight, Command-F search, native typing undo, configurable lock shortcut. Evidence/proposal/edit state resets on context changes; editing captures context identity to prevent stale edits entering another company.
-- Added5 shorter synthetic call fixtures from the old project's labeled synthetic set, stripped inference input of answer keys/source notes. CLI --short selects them; rubrics map supported canonical fields.
-- Added --soak-minutes45:541 sentences at5second intervals over45minutes, fixed arrival deadlines. Reports add CPU time/peakRSS, configrevision/hash, and update-batch latency distribution.
-- Added MIT LICENSE, THIRD_PARTY_NOTICES, architecture/build/distribution docs, clean-commit release packaging, ZIP credential/runtime-data scan and checksums. Scanner tests reject fake credentials without echoing them, private files, and unsafe paths. Actual ZIP generation/scans/clean install still pending.
+### Release-test fixes in this checkpoint
 
-Current catalogrevision9 (43fields/35automatic). Revision6 tightened hosting provider vs generic cloud; revision7/Other description distinguishes named unlisted products from unknown; revision8 reconciles user-specified GruntWorx with GruntWorks alias and cleans stale draftnotes; revision9 prevents generic closing remarks replacing a substantive high-level note. Current soak intentionally holds its loaded revision8; only the note rule changed afterward. Short-fixture tests still need to run on revision9.
+1. Reading a Keychain item created by the CLI blocked the packaged app's main thread while macOS waited for authorization. A process sample identified `SecItemCopyMatching` as the blocker. All app credential operations now run off the main actor. Start and history recovery show a connecting state and prevent duplicate starts. Start uses noninteractive reads; explicit Settings → Test text APIs may request authorization. Legacy file-based Keychain reads additionally preserve/restore the process interaction flag under a shared lock because LAContext alone did not suppress the ACL prompt. Verified that Start promptly returned an authorization error and the UI stayed responsive. Error -25293 is now mapped to an actionable Settings message. No Keychain ACL was weakened or bypassed.
+2. Command-F selected a field but did not focus its editor. The editor now requests focus after mounting. Native verification: search “team,” type 7, Return → team 7 locked. Command-Z was then invoked to restore the prior value; recheck the resulting value when reopening the section.
+3. Restored the saved audio preference to **OpenAI cloud**. No microphone/browser capture was started.
 
-## Current live worker
+The latest app is running from `dist/Live Scorecard 2.app`. Configuration v9 is selected. Its saved CLI-created key may still need the user's macOS authorization in Settings. Do not confuse this local credential-access gate with API billing: Decisions, Responses, and cloud transcription have all succeeded through the test harness. New users enter their own key in Settings.
 
-**Exec session77138 is the45minute paid soak**, started~00:56. Command: .build/debug/ScorecardProbe --replay --call03-partners-corrections --interval5 --soak-minutes45. Log /tmp/scorecard-soak-45.log.541sentences; should finish~01:41. Poll this same handle; do not start another API process writing the shared test ledger. It uses final-answer parsing, explicitOtherdescription, catalog8. The full first/second/third calls listed below have ended. Other build/test handles are terminal.
+**Existing ZIPs are now stale** because the credential/focus fixes postdate c856f89. Regenerate from the next clean committed revision before publishing.
 
-Keep-awake session42450 still bounded to08:00; do not duplicate. Power RESOLVED: Mac nowAC,54%,charging at00:53. Earlier discharge warning was delivered and no longer applies.
+## Implemented components
 
-## Current replay evidence
+- Native SwiftUI black/green compact resizable panel; yellow question marks, low-confidence red, provenance dots, collapsed sections with distinct changed-field counts, evidence behind +, locked proposals, hover values, keyboard editing and search.
+- JSON configuration up to 50 fields, dynamic groups/layouts, enum aliases and Other details, speaker policies, thresholds, import/export/versioning and field editor. Current catalog v9: 43 fields, 35 automatic.
+- SQLite company truth, history/transcripts, call-type layouts, pending jobs, immutable change events, manual locks/proposals/undo, source/evidence validation, stale-job rejection, clear watermarks and configuration isolation.
+- Concurrent OpenAI Decisions classification and strict Responses extraction; final-answer-only parsing, enum agreement, confidence gating, exact quote validation, coalescing, bounded retry and quota circuit breaking.
+- Numeric midpoint handling and JSON formulas for total/personal/business counts and percentages, avoiding circular calculations.
+- OpenAI cloud transcription with independent meeting/microphone channels, bounded pending audio turns, two reconnects, original IDs/timing, duplicate suppression, final drain, and estimated spending reservation before upload. Apple Speech remains an explicit optional selection; no ElevenLabs.
+- Optional Calendar access via macOS Internet Accounts; manual event and firm naming works independently. Automatic calendar naming deferred.
+- Keychain and ignored developer .env credentials; estimated local API allowance, raw transcript retention, company export/deletion, pending-history recovery without audio.
+- MIT license, architecture/distribution docs, clean-commit packaging, credential/runtime-data ZIP scans, checksums and source-commit manifest.
 
-- Call1 latest: test-results/01-owner-story-1791618558,127/127,15/15 mapped checks, all127≤5sec,p952.54s,estimated$0.10863. Annual firm684 preserved instead of proposedpurchase240. ProcessCPU4.57sec across379wallsec, peakRSS26.1MB for CLI only, not UI/Meet performance. Five additional populated fields reviewed/inneedofreview; high_level_note was a generic closing remark, now addressed by catalog9 but not yet revalidated.
-- Call2 latest: test-results/02-skeptical-operator-1791618099,141/141,14/15,p952.49s. Missing document portalShareFile: Responses had validOther+detail, Decisions confusedOtherwithunknown/lowconfidence. Improved explicitOtherdescription and document-portal rule after run; must verify with short cases and/or targeted follow-up. Five extra populated fields need semantic review.
-- Call3 latest standalone: test-results/03-partners-corrections-1791617468,151/151,14/15,p952.42s. Location andDrakeedition fixes passed. Hosting remained genericvendorcloud because the firstcloudstatement was overinterpreted and providerrefinement wasn't emitted into both fields. Fixed catalog6 and currently exercising it in45minute soak. Four extra fields need review.
-- Earlier call3 test-results/03-partners-corrections-1791616869:13/15,p955.54s. That run treated intermediatecommentary as schemaoutput and retried; final_answer phase parser fixed it and the latest2.42srun proved the speed improvement.
-- Earlier call1recovered run and call2incomplete runs remain historical diagnostics; never count as completed latencypasses.
+## Live processes — do not duplicate
 
-Rubric is explicit supported final-field checks, not exhaustive precision/recall across every intermediate commitment. Do not claim95%all-answer precision from these partial checks. Raw synthetic response bodies remain ignored undertest-results. Total test ledger was~$0.716 at00:55, wellbelow$5, plus tinyseparate nativeUIledger. No simultaneous test-ledger writers.
+**Exec session 77138:** 45-minute paid soak, started approximately 00:56; expected finish approximately 01:41.
 
-## UI and connectivity status
+```sh
+.build/debug/ScorecardProbe --replay --call 03-partners-corrections --interval 5 --soak-minutes 45
+```
 
-Actual UI verified in prior turn: manualevent→StartwithoutCalendar, four live text values, inlineediting/autolock/undo, Settings fieldeditorvalues/aliases/thresholds and savingrevision, keyboard800→Down→team6→Return→CommandShiftLunlock. New retention/budget/search/context-reset controls compile but still need UIinspection. Window privacy policy remains requested; actual Meet sharemode test unverified.
+Log: `/tmp/scorecard-soak-45.log`. It schedules 541 sentences at fixed five-second deadlines. Last seen beyond sentence 198, processing normally. It loaded catalog v8; v9 only changes the high-level-note rule. The process continues using its already-loaded binary despite subsequent builds.
 
-Current open native app may still be the previous running build. Local app data is synthetic; selectedcompany has800returnslocked,team6unlocked. Transcription preference is temporarilytranscript-only; restoreOpenAIcloud and selectlatestbundledcatalog before finalhandoff. Key is in Keychain andignored.env. Never print it.
+**Exec session 42450:** bounded `caffeinate` through approximately 08:00. Mac last observed on AC and charging. Do not duplicate.
 
-GitHubauth VERIFIED rosscranston. Read-only check: rosscranston/real-time-scorecard-2 does NOTexist; suitablededicateddestination. No remotepublication yet. Oldparentrepositorymustnotbepushed. DeveloperID/notarization unavailable; share clearly labeled ad-hocAppleSiliconbuild or source.
+All release/build/test sessions in this checkpoint are terminal. Do not run another paid probe until session 77138 ends: the test spending ledger is not cross-process locked. Native UI uses a separate ledger; combine both when assessing the $5 overnight cap.
+
+## Replay evidence
+
+| Run | Sentences | Mapped final checks | Transcript pipeline p95 | Notes |
+| --- | --- | --- | --- | --- |
+| `01-owner-story-1791618558` | 127/127 | 15/15 | 2.54 s | All sentences ≤5 s. Annual 684 preserved instead of purchase 240. Estimated $0.10863. CLI CPU 4.57 s / 379 s wall, peak RSS 26.1 MB. |
+| `02-skeptical-operator-1791618099` | 141/141 | 14/15 | 2.49 s | Missing ShareFile document portal; explicit Other description/rule refined after this run. Needs revalidation. |
+| `03-partners-corrections-1791617468` | 151/151 | 14/15 | 2.42 s | Location and Drake edition correct. Hosting generic cloud needed Verito refinement; rule fixed in v6, now exercised by soak. |
+
+Directories are under ignored `test-results/`. These are supported final-field checks, not exhaustive precision/recall of every intermediate answer. Extra populated fields need semantic review. The call-1 high-level note degraded to a generic closing remark; v9 addresses it but needs revalidation. Earlier incomplete/recovered runs are historical diagnostics, not latency passes.
+
+Five shorter synthetic fixtures are ready in `tests/Fixtures/synthetic-short-calls.json`; inference inputs contain no answer keys. Expectations are in `tests/Fixtures/discovery-expectations.json`. Run them sequentially after the soak using `--short --call <id>`. IDs can be read from the fixture; do not invent them. Test ledger was approximately $0.716 before the soak, comfortably below $5; read current totals before more paid work.
+
+## External gates and distribution
+
+- GitHub CLI authentication verified as `rosscranston`. Dedicated `rosscranston/real-time-scorecard-2` did not exist on read-only check. No remote or public release yet. User authorized publication of a clean dedicated repository/release.
+- Never push the old parent repository at `/Users/rossgates/AI/codex-migration/projects/live-call-scorecard-2`; it includes unrelated private data.
+- Developer ID/notarization unavailable. Share clearly labeled ad-hoc Apple Silicon app plus source; managed Macs may need administrator approval.
+- Actual Meet permissions, browser/microphone capture, screen-sharing exclusion and audio-to-screen p95 are still unverified. Do not capture unattended room audio or claim synthetic replay proves these gates.
+- Local app Keychain authorization may need the user after changing an ad-hoc binary. The new UI stays responsive and gives an explicit Settings action.
 
 ## Next actions
 
-1. While77138soak runs, commit current work, run scripts/package-release.sh (may need escalation forXcode dSYM), inspect archive scans and perform clean-source rebuild/moved-app launch. Do not claim finalartifacts until actuallyverified. Regenerate after any subsequent fixes.
-2. Native UIinspection of new controls, dynamicconfigswitch duringcall, pendingrecovery, longvalue/evidence/collapsebehavior and resizedlayout. RestoreOpenAIdefault afterward. No unattended live-room microphone capture; synthetic/filetests only. RealMeetpermissions/capture/sharing require usertrial and remain explicitpendinggates.
-3. Aftersoakterminal, evaluate and run five shortcases sequentially (--short withIDs in tests/Fixtures/synthetic-short-calls.json). Verify Other/midpoints/negation/forecast/newfirm and review extra populatedvalues. Consider targetedmissingShareFile andhostingrefinement checks, notendlessfullreruns. Report actualconfigrevision.
-4. Finish release README/FINAL_REPORT, cleanGitHubsource and releaseassets, appZIP/sourceZIP/SHA256SUMS/sourcecommit. Sourcearchive must correspond to committedbinaryinputs. No secrets/customerdata/diagnosticfiles.
-5. Completion audit allrequirements; fullgoal staysactive while functionality/requiredverification remains. External actualMeettrial may remain pending; don'tclaim complete based only on syntheticbenchmarks.
+1. Commit this checkpoint, rebuild/scan archives from that exact commit, and repeat moved-app startup with the corrected build. Retain accurate ad-hoc/alpha labeling.
+2. Finish native checks where possible without live audio: collapsed persistence, evidence/long-value behavior, configuration switching, recovery, and resizing. Stale error text now clears when opening a company. OpenAI cloud preference is already restored.
+3. After soak completion, evaluate it, then run five short cases sequentially. Revalidate ShareFile Other, Verito hosting, note stability, numeric midpoint/negation/new-practice cases. Review unscored populated facts and report the evaluation scope honestly.
+4. Write FINAL_REPORT.md with actual artifacts, checksums, build/test/replay results, cost and incomplete gates. Publish clean dedicated GitHub source and release assets if auth still works.
+5. Keep the goal active while required work remains; final delivery must state the real Meet/signing/credential-approval limitations explicitly.
 
-## Commands
+## Useful commands
 
-- env CLANG_MODULE_CACHE_PATH=/tmp/scorecard2-clang SWIFT_MODULECACHE_PATH=/tmp/scorecard2-swift swift test --disable-sandbox
-- PYTHONPYCACHEPREFIX=/tmp/scorecard-python-cache python3 -m unittest discover -s tests -v
-- bash scripts/build-app.sh release
-- bash scripts/package-release.sh (requirescleancommittedsource; generatesdistZIPs/checksums/sourcecommit)
-- python3 scripts/evaluate-replay.py test-results/<run>
-- Usage: ignoredprivate-data/api-test-usage.json. NoAPIkeys in output.
+```sh
+env CLANG_MODULE_CACHE_PATH=/tmp/scorecard2-clang SWIFT_MODULECACHE_PATH=/tmp/scorecard2-swift swift test --disable-sandbox
+PYTHONPYCACHEPREFIX=/tmp/scorecard-python-cache python3 -m unittest discover -s tests -v
+bash scripts/build-app.sh release
+bash scripts/package-release.sh
+python3 scripts/evaluate-replay.py test-results/<run>
+```
+
+The app's runtime and the probe's diagnostics are ignored. Never print .env, Keychain contents or API headers.

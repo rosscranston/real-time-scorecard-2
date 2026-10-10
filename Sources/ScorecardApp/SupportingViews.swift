@@ -11,12 +11,12 @@ struct ConnectionSettings: View {
             Section("OpenAI") {
                 SecureField("API key", text: $key)
                 HStack {
-                    Button("Save to Keychain") { store.saveKey(key); key = "" }.disabled(key.isEmpty)
-                    Button("Remove saved key") { store.removeKey() }
+                    Button("Save to Keychain") { let enteredKey = key; key = ""; Task { await store.saveKey(enteredKey) } }.disabled(key.isEmpty || store.credentialBusy || store.starting || testing)
+                    Button("Remove saved key") { Task { await store.removeKey() } }.disabled(store.credentialBusy || store.starting || testing)
                     Button(testing ? "Testing…" : "Test text APIs") {
                         testing = true
                         Task { await store.testConnection(); testing = false }
-                    }.disabled(testing)
+                    }.disabled(testing || store.credentialBusy || store.starting)
                 }
                 Text(store.connectionStatus).font(.caption)
                 Text("Your key stays on this Mac. The connection test sends a short synthetic example.").font(.caption).foregroundStyle(.secondary)
@@ -71,7 +71,7 @@ struct ConnectionSettings: View {
                     .onChange(of: store.opacity) { _, _ in store.saveAppearance() }
             }
             Section("Testing") {
-                Button("Replay synthetic conversation JSON…") { store.replayFile() }.disabled(store.active || store.busy)
+                Button("Replay synthetic conversation JSON…") { Task { await store.replayFile() } }.disabled(store.active || store.busy)
                 Text("Replay sends one sentence every five seconds to OpenAI and uses your API credits.").font(.caption).foregroundStyle(.secondary)
             }
             Section("Keyboard shortcuts") {
@@ -175,7 +175,7 @@ struct HistoryView: View {
                                 .disabled(store.active || store.busy || store.audioBusy)
                         }
                         if let pending = store.pendingCalls[call.id], pending > 0 {
-                            Button("Resume \(pending) pending") { store.resumeHistory(call) }
+                            Button("Resume \(pending) pending") { Task { await store.resumeHistory(call) } }
                                 .disabled(store.active || store.busy || store.audioBusy)
                         }
                     }

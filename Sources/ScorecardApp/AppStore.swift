@@ -17,6 +17,9 @@ final class AppStore: ObservableObject {
     @Published var firmName = ""
     @Published var callType = "initial"
     @Published var message: String?
+    @Published var credentialBusy = false
+    @Published var starting = false
+    private var sessionKey: String?
     @Published var connectionStatus = "Add a key or test the saved connection"
     @Published var calendarStatus = "Optional · not connected"
     @Published var showTranscript = false
@@ -80,29 +83,56 @@ final class AppStore: ObservableObject {
             }
         } catch { message = error.localizedDescription }
     }
-    func makeClient() throws -> OpenAIClient {
+    func makeClient(allowKeychainInteraction: Bool = false) async throws -> OpenAIClient {
         if let client { return client }
-        let key = try apiKey()
+        let key = try await apiKey(allowInteraction: allowKeychainInteraction)
+        if let client { return client }
         let ledger = try ScorecardDatabase.defaultURL().deletingLastPathComponent().appendingPathComponent("api-usage.json")
         let result = try OpenAIClient(key: key, ledgerURL: ledger, budgetUSD: apiBudgetUSD)
         client = result; connectionStatus = "API key available on this Mac"; return result
     }
-    private func apiKey() throws -> String {
-        guard let key = try CredentialStore.load() ?? CredentialStore.developerKey(
-            directory: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)) else { throw OpenAIError.missingKey }
-        return key
+    private func apiKey(allowInteraction: Bool = false) async throws -> String {
+        if let sessionKey { return sessionKey }
+        let directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        connectionStatus = "Reading saved key · macOS may ask for access"
+        // Security.framework can wait for authorization. Never block the main actor.
+        do {
+            let key = try await Task.detached(priority: .userInitiated) {
+                try CredentialStore.load(allowInteraction: allowInteraction) ?? CredentialStore.developerKey(directory: directory)
+            }.value
+            guard let key else { throw OpenAIError.missingKey }
+            sessionKey = key
+            return key
+        } catch {
+            connectionStatus = error.localizedDescription
+            throw error
+        }
     }
-    func saveKey(_ key: String) {
-        do { try CredentialStore.save(key); client = nil; connectionStatus = "Key saved in Keychain"; message = nil }
-        catch { message = error.localizedDescription }
+
+    func saveKey(_ key: String) async {
+        guard !credentialBusy else { return }
+        credentialBusy = true
+        connectionStatus = "Saving key · approve the macOS Keychain prompt if shown"
+        defer { credentialBusy = false }
+        do {
+            try await Task.detached(priority: .userInitiated) { try CredentialStore.save(key) }.value
+            sessionKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
+            client = nil; connectionStatus = "Key saved in Keychain"; message = nil
+        } catch { connectionStatus = error.localizedDescription; message = error.localizedDescription }
     }
-    func removeKey() {
-        do { try CredentialStore.remove(); client = nil; connectionStatus = "Key removed" }
-        catch { message = error.localizedDescription }
+    func removeKey() async {
+        guard !credentialBusy else { return }
+        credentialBusy = true
+        connectionStatus = "Removing saved key…"
+        defer { credentialBusy = false }
+        do {
+            try await Task.detached(priority: .userInitiated) { try CredentialStore.remove() }.value
+            sessionKey = nil; client = nil; connectionStatus = "Key removed"
+        } catch { connectionStatus = error.localizedDescription; message = error.localizedDescription }
     }
     func testConnection() async {
         do {
-            let client = try makeClient()
+            let client = try await makeClient(allowKeychainInteraction: true)
             await client.retryQuotaBlockedEndpoints()
             guard let config = configuration else { return }
             let company = CompanyScorecard(name: "Synthetic connection test", configuration: config)
@@ -115,12 +145,17 @@ final class AppStore: ObservableObject {
             connectionStatus = String(format: "Text APIs connected · %.2fs", result.seconds)
         } catch { connectionStatus = error.localizedDescription }
     }
-    func start(isReplay: Bool = false) {
-        guard !active, !busy, !audioBusy, let configuration, let database else { return }
+    func start(isReplay: Bool = false) async {
+        guard !active, !busy, !audioBusy, !starting, !credentialBusy, let configuration, let database else { return }
+        starting = true
+        defer { starting = false }
         let name = eventName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { message = "Name this event before starting."; return }
         do {
-            let client = try makeClient()
+            let client = try await makeClient()
+            guard self.configuration == configuration else {
+                message = "Configuration changed while connecting. Press Start again."; return
+            }
             let firm = firmName.trimmingCharacters(in: .whitespacesAndNewlines)
             let companyName = firm.isEmpty ? name : firm
             var company = try database.companies().first {
@@ -197,8 +232,8 @@ final class AppStore: ObservableObject {
                     mic = AppleSpeechChannel(source: .salesperson, origin: origin, onEvent: onEvent, onError: onError)
                     meeting = AppleSpeechChannel(source: .customer, origin: origin, onEvent: onEvent, onError: onError)
                 } else {
-                    let key = try self.apiKey()
-                    let billing = try self.makeClient()
+                    let key = try await self.apiKey()
+                    let billing = try await self.makeClient()
                     let onUsage: OpenAITranscriber.UsageHandler = { seconds in try await billing.recordAudioUpload(seconds: seconds) }
                     let keywords = configuration.fields.flatMap { ($0.options ?? []) + ($0.aliases?.values.flatMap { $0 } ?? []) }
                     mic = CloudSpeechChannel(key: key, role: .salesperson, origin: origin, keywords: keywords,
@@ -308,7 +343,7 @@ final class AppStore: ObservableObject {
         do {
             guard let company = try database.company(id: call.companyID, configurationID: call.configurationID),
                   let config = configurations.filter({ $0.id == call.configurationID }).max(by: { $0.revision < $1.revision }) else { return }
-            configuration = config; selectedCompany = company; session = nil
+            configuration = config; selectedCompany = company; session = nil; message = nil
             scorecardViewID = UUID()
             firmName = company.name; eventName = call.eventName ?? company.name; showHistory = false
         } catch { message = error.localizedDescription }
@@ -316,15 +351,17 @@ final class AppStore: ObservableObject {
     func transcript(for call: CallRecord) -> [TranscriptEntry] {
         (try? database?.segments(callID: call.id, companyID: call.companyID)) ?? []
     }
-    func resumeHistory(_ call: CallRecord) {
-        guard !active, !busy, !audioBusy, let database else { return }
+    func resumeHistory(_ call: CallRecord) async {
+        guard !active, !busy, !audioBusy, !starting, !credentialBusy, let database else { return }
+        starting = true
+        defer { starting = false }
         do {
             guard let company = try database.company(id: call.companyID, configurationID: call.configurationID),
                   let config = configurations.first(where: {
                       $0.id == company.configurationID && $0.revision == company.configurationRevision
                   }) else { throw DatabaseError(message: "The saved call configuration is unavailable.") }
             let running = try ExtractionSession(company: company, call: call, configuration: config,
-                database: database, extractor: CloudExtractor(client: makeClient()))
+                database: database, extractor: CloudExtractor(client: await makeClient()))
             running.onChange = { [weak self] in self?.objectWillChange.send() }
             configuration = config; selectedCompany = company; session = running
             scorecardViewID = UUID()
@@ -453,15 +490,15 @@ final class AppStore: ObservableObject {
     var lockShortcutModifiers: EventModifiers {
         lockShortcut == "controlOptionL" ? [.control, .option] : [.command, .shift]
     }
-    func replayFile() {
-        guard !active, !busy else { return }
+    func replayFile() async {
+        guard !active, !busy, !starting else { return }
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let pack = try ScorecardCoding.decoder().decode(SyntheticCallPack.self, from: Data(contentsOf: url))
             guard let script = pack.calls.first else { throw ConfigurationError.invalid("No synthetic calls in this file.") }
             eventName = script.title; firmName = "Replay \(script.id) \(Date().formatted(date: .omitted, time: .standard))"
-            start(isReplay: true)
+            await start(isReplay: true)
             guard let running = session, active else { return }
             let sentences = script.sentences(callID: running.call.id, startingSequence: running.company.latestSequence + 1)
             replaying = true
