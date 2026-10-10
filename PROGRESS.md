@@ -1,5 +1,13 @@
 # Progress
 
+## Live process update — October 10, 02:16 Pacific
+
+- Committed tested source as **e4defc5cb5599a0d3785776413c81bb0157f2a78**. Working tree was clean before this process note.
+- **Exec session56642 is live:** three long catalog14 replays, sequential, five-second arrivals, started02:13. Logs `test-results/v14-long-01-owner-story.log`, `v14-long-02-skeptical-operator.log`, `v14-long-03-partners-corrections.log`; manifest `test-results/long-v14-batch.json` is written after each finishes. Estimated total duration35minutes, finish around02:48. Last observed first call beyond sentence12. Poll this handle, never restart due to observation timeout. No second CLI writer to the probe usage ledger while it runs.
+- Native release app rebuilt successfully from e4defc5 at02:15; `/tmp/scorecard-v14-release.log`. Build session30173 is terminal. The old native app was quit through UI after verifying it was inactive; the new app has not yet been launched. Packaged ZIPs still stale; no release upload.
+- Keep-awake session42450 revalidated live at02:14. Mac on AC,80%. Do not duplicate the assertion.
+- Useful independent next work: launch catalog14 native app, choose its configuration and import session .env explicitly if Keychain requires authorization; replay a one-call synthetic pack to test collapsed counts/visible updates. For further audio-path verification, consider a bounded native synthetic-audio-file replay through CloudSpeechChannel/VAD and UI, bypassing physical microphone/capture. This is a possible test approach, not an implemented feature. LiveAudioCapture currently always requests microphone access and captures it, so do NOT start it unattended to test speaker playback. Actual Meet capture/share checks remain pending.
+
 ## Current checkpoint — October 10, approximately 02:13 Pacific
 
 The previous goal turn made concrete progress (native history/arithmetic fixes and replay evidence). This turn also makes concrete progress; no blocked audit applies. Deadline remains 08:00 Pacific.

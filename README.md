@@ -4,6 +4,8 @@ A native macOS sales-call scorecard with OpenAI Decisions classification, struct
 
 This is an alpha build. Real Google Meet capture modes and screen-sharing exclusion still require live verification. See [build and distribution](docs/BUILD_AND_DISTRIBUTION.md) and [architecture](docs/ARCHITECTURE.md). Source is provided under the [MIT license](LICENSE).
 
+**Hackathon download:** [v0.1.0 release](https://github.com/rosscranston/real-time-scorecard-2/releases/tag/v0.1.0) · [verified results and quick demo](FINAL_REPORT.md). The Mac binary requires Apple Silicon and macOS 26 or later and is not notarized.
+
 ## Overnight execution
 
 See `OVERNIGHT_PLAN.md` for the October 10, 08:00 Pacific target and `PREFLIGHT.md` for verified blockers. Cloud transcription uses OpenAI; ElevenLabs is excluded.
