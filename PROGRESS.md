@@ -14,6 +14,12 @@ The prior goal turn was concrete progress: published a verified hackathon alpha.
 - Estimatedprobe cost was~$1.64 before firstlongfinished; native ledger~$0.020 afteraudio. Recheck both ledgers before additional paid tests; total remains well below$5. Keep-awake session42450 is the existing assertion through08:00; revalidate, do not duplicate.
 - Next: review5unscored firstlongfacts against source evidence, collect remaininglongresults, verify native stop/finish behavior and additional audio cases if justified, then update finalreport with exact scope and package a separately versioned follow-up only when verified. Actual Meet capture/sharing, broad precision/recall, and real audio-to-screen timing remain open; optional aliaslearning/fullshortcutcustomization remain deferred.
 
+### Follow-up evidence at02:29
+
+- Audio replay implementation committed as8a1488d; final focused audio tests also pass after the timing-label/stopped-status changes (`/tmp/scorecard-audio-final-tests.log`, session51978terminal). Native executable still predates those final string changes. No public release assets changed. Keep-awake42450 confirmedlive02:28.
+- Reviewed the five unscored final facts from firstlongcall; concerns, decisionauthority, note, and supportingsoftware have direct customer evidence. Percentage77.2 is a reasonable rounded approximation of528/684, **but exposes an unresolved defect**: the extractor emitted an inferred percentage as if direct/unestimated, while deterministic calculation gives77.19, generating a distracting `calculationConflict` for the0.01difference. See ignored `test-results/01-owner-story-1791623637/manual-review.json` and factpayload. Next investigate source/derived ownership and precision tolerance; do not simply call this field exact or the conflict valid. Prefer deterministic calculation for percentages inferred solely from counts, while preserving genuinely stated percentages. No code change for this issue yet.
+- The three slow measurements were92(19.31s),93(14.33s),94(9.19s); durablejob92 has one retry and safe errorSummary that OpenAI could not be reached. Subsequent batch completed. Remaining long worker56642 continues; don't rerun firstcall merely for a better number.
+
 ## Live process update — October 10, 02:16 Pacific
 
 - Committed tested source as **e4defc5cb5599a0d3785776413c81bb0157f2a78**. Working tree was clean before this process note.
