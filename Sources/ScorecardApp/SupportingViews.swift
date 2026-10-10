@@ -79,11 +79,30 @@ struct ConnectionSettings: View {
                     Text("⌘⇧L · recommended").tag("commandShiftL")
                     Text("⌃⌥L").tag("controlOptionL")
                 }.onChange(of: store.lockShortcut) { _, _ in store.saveAppearance() }
-                Text("↑ / ↓ selects and edits the next field. Return saves; Escape cancels. ⌘Z or ⌃Z undoes the last manual change.")
+                Text("↑ / ↓ selects and edits the next field. Return saves; Escape cancels. ⌘F finds a field. ⌘Z or ⌃Z undoes typing or the last saved manual change.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Section("Local data") {
+                Picker("Raw transcript retention", selection: $store.transcriptRetentionDays) {
+                    Text("7 days").tag(7); Text("30 days").tag(30); Text("90 days").tag(90); Text("Keep indefinitely").tag(0)
+                }.onChange(of: store.transcriptRetentionDays) { _, _ in store.saveRetention() }
+                Text("Cleanup runs on launch for finished calls with no pending work. Company answers and evidence stay until you delete the company in History. Local deletion does not delete provider-held processing records.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Section("API usage") {
+                Text(store.usageSummary).font(.caption).textSelection(.enabled)
+                HStack {
+                    TextField("Cumulative local allowance · USD", value: $store.apiBudgetUSD, format: .number)
+                        .disabled(store.active || store.busy)
+                    Button("Save allowance") { store.saveBudget() }.disabled(store.active || store.busy)
+                    Button("Refresh") { Task { await store.refreshUsage() } }
+                }
+                Text("Estimated spending since installation, including OpenAI audio. Changing the allowance does not buy credits or alter billing. Reservations may overstate actual usage; check OpenAI billing for final charges.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             if let message = store.message { Text(message).foregroundStyle(.orange) }
         }.formStyle(.grouped).frame(width: 580, height: 650)
+            .task { await store.refreshUsage() }
             .sheet(item: $editingConfiguration) { config in
                 ConfigurationEditor(configuration: config).environmentObject(store)
             }
@@ -135,6 +154,7 @@ struct HistoryView: View {
     @EnvironmentObject var store: AppStore
     @Environment(\.dismiss) var dismiss
     @State private var selectedCall: CallRecord?
+    @State private var deletingCall: CallRecord?
     var body: some View {
         VStack(alignment: .leading) {
             HStack { Text("CALL HISTORY").font(.headline); Spacer(); Button("Done") { dismiss() } }
@@ -149,15 +169,30 @@ struct HistoryView: View {
                     HStack {
                         Button("Company answers") { store.openHistory(call) }.disabled(store.active || store.busy)
                         Button("Transcript") { selectedCall = call }
+                        Menu("More") {
+                            Button("Export company JSON…") { store.exportCompany(call) }
+                            Button("Delete company and all calls…", role: .destructive) { deletingCall = call }
+                                .disabled(store.active || store.busy || store.audioBusy)
+                        }
                         if let pending = store.pendingCalls[call.id], pending > 0 {
                             Button("Resume \(pending) pending") { store.resumeHistory(call) }
                                 .disabled(store.active || store.busy || store.audioBusy)
                         }
                     }
-                }.padding(.vertical, 5)
+                }.padding(.vertical, 5).accessibilityElement(children: .contain)
             }
         }.padding(20).frame(width: 560, height: 550)
             .onAppear { try? store.refreshHistory() }
+            .confirmationDialog("Delete this company and every associated call?", isPresented: Binding(
+                get: { deletingCall != nil }, set: { if !$0 { deletingCall = nil } }), titleVisibility: .visible) {
+                Button("Delete permanently", role: .destructive) {
+                    if let call = deletingCall { store.deleteCompany(call.companyID) }
+                    deletingCall = nil
+                }
+                Button("Cancel", role: .cancel) { deletingCall = nil }
+            } message: {
+                Text("This removes \(deletingCall?.companyName ?? "the company"), its answers, transcripts, evidence, pending jobs, and all call history from this Mac.")
+            }
             .sheet(item: $selectedCall) { call in
                 VStack(alignment: .leading) {
                     HStack { Text(call.eventName ?? call.companyName); Spacer(); Button("Done") { selectedCall = nil } }

@@ -8,7 +8,7 @@ public enum OpenAIError: Error, LocalizedError, Equatable {
         case .authentication: return "OpenAI rejected this key or this project's permissions."
         case .quota: return "OpenAI reports exhausted credits/quota. Check API billing, then retry explicitly."
         case .rateLimited: return "OpenAI is rate-limiting requests. Pending transcript work is retained."
-        case .budget: return "The configured API testing allowance has been reached."
+        case .budget: return "The configured local API allowance has been reached."
         case .invalidResponse: return "The model response failed validation. Existing answers were preserved."
         case .server(let status): return "OpenAI request failed (HTTP \(status))."
         case .network: return "OpenAI could not be reached. Pending transcript work is retained."
@@ -72,6 +72,17 @@ public actor OpenAIClient {
         } else { ledger = UsageLedger() }
     }
     public func usage() -> UsageLedger { ledger }
+    public func recordAudioUpload(seconds: Double) throws {
+        guard seconds.isFinite, seconds > 0 else { throw OpenAIError.invalidResponse }
+        // Reserve one extra second per turn, and retain reservations if transport
+        // success is uncertain. Replayed audio is reserved again.
+        let estimate = (seconds + 1) / 60 * 0.017
+        guard ledger.chargedOrReservedUSD + estimate <= budgetUSD else { throw OpenAIError.budget }
+        ledger.chargedOrReservedUSD += estimate
+        ledger.requests.append(APIUsage(endpoint: "realtime_audio_estimate", model: "gpt-live-transcribe",
+            inputTokens: 0, outputTokens: 0, seconds: seconds, estimatedUSD: estimate))
+        try saveLedger()
+    }
     public func reserveAudioTest(seconds: Double) throws {
         guard seconds.isFinite, seconds > 0, seconds <= 20 else { throw OpenAIError.budget }
         // Published gpt-live-transcribe rate: $0.017/minute. Reserve two minutes

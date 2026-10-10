@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 5,
+  "revision": 9,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -313,7 +313,7 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "A firm-run server does not establish its physical location or external provider. Preserve that ambiguity in evidence. Do not assume on-premises."
+          "evidence_rule": "Where the current tax software runs. A generic statement in the cloud does NOT establish vendor-hosted online software. If an explicitly named external provider matches an allowed option, select that provider here as well as in hosting_provider. A newly named provider refines any generic cloud/unknown answer and is a change to BOTH fields. A firm-run server does not establish physical location or external provider; retain ambiguity rather than assuming on-premises. Once a provider is known, generic references to its remote Windows environment do not erase its identity."
         },
         {
           "key": "hosting_company",
@@ -422,7 +422,8 @@
           "automatic_extraction": true,
           "extraction_route": "decisions_choice",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "The current client portal or document-management tool used to exchange tax documents with clients. A specifically named client portal outside the options is Other with the named product as detail; it is not unknown. Do not confuse the practice-management/job-tracking product with the document portal when the prospect distinguishes their roles."
         },
         {
           "key": "other_software",
@@ -750,7 +751,7 @@
           "type": "select",
           "options": [
             "Juno",
-            "GruntWorks",
+            "GruntWorx",
             "InsteadAI",
             "SurePrep",
             "TaxGPT",
@@ -788,7 +789,12 @@
           "automatic_extraction": true,
           "extraction_route": "decisions_choice",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "aliases": {
+            "GruntWorx": [
+              "GruntWorks"
+            ]
+          }
         },
         {
           "key": "loss_reason",
@@ -938,7 +944,8 @@
           "automatic_extraction": true,
           "extraction_route": "structured_extraction",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "One concise, substantive company need, operational constraint, buying condition, or agreed next step. Preserve a useful note when later speech is generic agreement, pleasantries, seller reassurance, or meeting logistics. Do not replace a concrete business fact with a vague closing remark such as we can work through the rest together."
         },
         {
           "key": "pilot_contract_signed",
@@ -1159,13 +1166,13 @@
     }
   },
   "draft_notes": [
-    "This is a configuration design, not yet consumed by the Mac application or API test harness.",
-    "All source field IDs retained. Source examples removed from distributable draft; original kept under ignored private-data.",
-    "Original multi-select catalogs retained as single-primary choices to follow the agreed v1 UI.",
-    "Source CRM mappings are reference metadata only; external writes, record merges, and UI hiding cannot be triggered by transcript text.",
-    "GruntWorks is preserved as supplied; earlier conversation used GruntWorx. Canonical spelling remains to be reconciled before release.",
-    "39 imported fields plus exact team size and separate hosting provider gives 41 total, below the 50-field maximum.",
-    "Initial/demo/review priorities and visibility are suggested defaults, not approved new mockups."
+    "Runtime catalog consumed by the native app and the OpenAI Decisions/Responses pipeline.",
+    "All 39 source field IDs are retained; source contact examples are excluded from distribution.",
+    "Single-primary choices follow the approved first-version interface. Hidden metadata fields are not automatically extracted.",
+    "CRM mappings are metadata only; this app does not write to Attio or publish transcripts.",
+    "43 fields including exact team size, hosting provider, personal return count and business return count; maximum 50.",
+    "GruntWorx is the canonical user-specified spelling; GruntWorks is retained as an alias.",
+    "Initial/demo/review priorities can be changed by importing a revised layout JSON."
   ],
   "calculations": [
     {

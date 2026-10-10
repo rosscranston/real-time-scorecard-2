@@ -172,6 +172,199 @@
       "business_returns": {
         "equals": 240
       }
+    },
+    "call-01-straightforward": {
+      "main_contact_name": {
+        "equals": "Maya Chen"
+      },
+      "firm_name": {
+        "equals": "Chen Tax & Advisory"
+      },
+      "location": {
+        "equals": "Austin, Texas"
+      },
+      "number_of_returns": {
+        "equals": 1240
+      },
+      "personal_returns": {
+        "equals": 980
+      },
+      "business_returns": {
+        "equals": 260
+      },
+      "hosting_provider": {
+        "contains": [
+          "Rightworks"
+        ]
+      },
+      "document_management": {
+        "equals": "Other",
+        "other_detail": "SmartVault"
+      },
+      "tax_software": {
+        "equals": "UltraTax"
+      },
+      "other_software": {
+        "equals": "Canopy"
+      },
+      "hosting_deal": {
+        "equals": "Rightworks / Right Networks"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "call-02-historical-software": {
+      "main_contact_name": {
+        "equals": "Daniel Ortiz"
+      },
+      "firm_name": {
+        "equals": "Ortiz Accounting"
+      },
+      "location": {
+        "equals": "Fresno, California"
+      },
+      "number_of_returns": {
+        "equals": 600
+      },
+      "personal_returns": {
+        "equals": 500
+      },
+      "business_returns": {
+        "equals": 100
+      },
+      "document_management": {
+        "equals": "TaxDome"
+      },
+      "tax_software": {
+        "equals": "ProSeries"
+      },
+      "other_software": {
+        "equals": "TaxDome"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "call-03-corrections": {
+      "main_contact_name": {
+        "equals": "Priya Shah"
+      },
+      "firm_name": {
+        "equals": "Redwood CPA Group"
+      },
+      "location": {
+        "equals": "Portland, Oregon"
+      },
+      "number_of_returns": {
+        "equals": 940
+      },
+      "personal_returns": {
+        "equals": 700
+      },
+      "business_returns": {
+        "equals": 240
+      },
+      "hosting_provider": {
+        "equals": "Other",
+        "other_detail": "Cetrom"
+      },
+      "tax_software": {
+        "equals": "CCH Axcess"
+      },
+      "hosting_deal": {
+        "equals": "Other",
+        "other_detail": "Cetrom"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "call-04-short-answers": {
+      "main_contact_name": {
+        "equals": "Elena Brooks"
+      },
+      "firm_name": {
+        "equals": "Brooks Tax Lab"
+      },
+      "location": {
+        "equals": "Phoenix, Arizona"
+      },
+      "number_of_returns": {
+        "equals": 800
+      },
+      "personal_returns": {
+        "equals": 650
+      },
+      "business_returns": {
+        "equals": 150
+      },
+      "tax_software": {
+        "equals": "Other",
+        "other_detail": "TaxShark"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
+    },
+    "call-05-new-practice": {
+      "main_contact_name": {
+        "equals": "Avery Kim"
+      },
+      "firm_name": {
+        "equals": "Harbor Ledger CPAs"
+      },
+      "location": {
+        "equals": "Riverside, California"
+      },
+      "number_of_returns": {
+        "equals": 75
+      },
+      "personal_returns": {
+        "equals": 60
+      },
+      "business_returns": {
+        "equals": 15
+      },
+      "tax_software": {
+        "equals": "Drake Desktop"
+      },
+      "other_software": {
+        "equals": "Canopy"
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
     }
   }
 }

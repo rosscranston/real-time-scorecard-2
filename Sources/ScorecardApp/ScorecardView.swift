@@ -5,9 +5,18 @@ struct ScorecardView: View {
     @EnvironmentObject var store: AppStore
     @State private var selectedField: String?
     @State private var editTarget: String?
+    @State private var searching = false
+    @State private var findQuery = ""
+    @FocusState private var searchFocused: Bool
     var body: some View {
         VStack(spacing: 0) {
             header.padding(12)
+            if searching {
+                TextField("Find a field", text: $findQuery).textFieldStyle(.plain)
+                    .focused($searchFocused).padding(.horizontal, 12).padding(.bottom, 8)
+                    .onSubmit { findField() }
+                    .onExitCommand { searching = false }
+            }
             Divider().overlay(scoreGreen.opacity(0.25))
             if let config = store.configuration {
                 ScrollViewReader { proxy in
@@ -43,11 +52,17 @@ struct ScorecardView: View {
         .background(WindowPolicy(showInSharing: store.showInScreenSharing, opacity: store.opacity))
         .sheet(isPresented: $store.showTranscript) { TranscriptView().environmentObject(store) }
         .sheet(isPresented: $store.showHistory) { HistoryView().environmentObject(store) }
+        .onChange(of: store.scorecardViewID) { _, _ in
+            selectedField = nil; editTarget = nil; searching = false
+        }
         .onKeyPress(.upArrow) { moveSelection(-1); return .handled }
         .onKeyPress(.downArrow) { moveSelection(1); return .handled }
         .background {
-            Button("") { if let selectedField { store.toggleLock(selectedField) } }
-                .keyboardShortcut("l", modifiers: store.lockShortcutModifiers).hidden()
+            Group {
+                Button("") { if let selectedField { store.toggleLock(selectedField) } }
+                    .keyboardShortcut("l", modifiers: store.lockShortcutModifiers)
+                Button("") { searching = true; searchFocused = true }.keyboardShortcut("f")
+            }.hidden()
         }
     }
     private var header: some View {
@@ -111,6 +126,16 @@ struct ScorecardView: View {
         selectedField = fields[max(0, min(fields.count - 1, current + delta))].key
         editTarget = selectedField
     }
+    private func findField() {
+        guard let config = store.configuration, !findQuery.isEmpty else { return }
+        for group in config.orderedGroups(for: store.callType) {
+            if let field = group.fields.first(where: { $0.isVisible && $0.label.localizedCaseInsensitiveContains(findQuery) }) {
+                if store.company?.collapsedSections.contains(group.id) == true { store.collapse(group.id) }
+                searching = false; selectedField = field.key; editTarget = field.key
+                return
+            }
+        }
+    }
 }
 
 struct ScorecardRow: View {
@@ -123,9 +148,12 @@ struct ScorecardRow: View {
     var navigate: (Int) -> Void
     @State private var editing = false
     @State private var draft = ""
+    @State private var editContext: UUID?
     @State private var evidenceOpen = false
     @State private var proposalOpen = false
     @State private var hover = false
+    @State private var justUpdated = false
+    @State private var highlightTask: Task<Void, Never>?
     @FocusState private var focused: Bool
     private var record: FactRecord? { store.company?.facts[field.key] }
     private var fact: FactRecord? { FactReducer.displayedFact(record, field: field) }
@@ -144,6 +172,7 @@ struct ScorecardRow: View {
             HStack(spacing: 5) {
                 Circle().fill(sourceColor).frame(width: 4, height: 4).help(fact?.evidence.first?.source.rawValue ?? "")
                 Text(field.label.uppercased()).foregroundStyle(.gray).lineLimit(1).frame(maxWidth: 105, alignment: .leading)
+                    .help(field.label)
                 if editing {
                     TextField("", text: $draft).textFieldStyle(.plain).focused($focused)
                         .onSubmit { commitEdit() }
@@ -184,7 +213,7 @@ struct ScorecardRow: View {
                 Button(evidenceOpen ? "−" : "+") { evidenceOpen.toggle() }
                     .foregroundStyle(.gray).disabled(record?.evidence.isEmpty ?? true).help("Evidence")
             }.padding(.vertical, 6).padding(.horizontal, 3)
-                .background(selected ? scoreGreen.opacity(0.10) : .clear)
+                .background(selected ? scoreGreen.opacity(0.10) : (justUpdated ? scoreGreen.opacity(0.07) : .clear))
                 .contentShape(Rectangle()).onTapGesture { select(); beginEdit() }
             if evidenceOpen {
                 ForEach(Array((record?.evidence ?? []).enumerated()), id: \.offset) { _, evidence in
@@ -200,6 +229,20 @@ struct ScorecardRow: View {
             if selected { beginEdit() }
         }
         .onAppear { if editRequested { beginEdit() } }
+        .onChange(of: record?.version) { old, current in
+            guard let current, old != current else { return }
+            store.recordVisibleUpdate(field.key, version: current)
+            justUpdated = true; highlightTask?.cancel()
+            highlightTask = Task {
+                try? await Task.sleep(for: .milliseconds(800))
+                if !Task.isCancelled { justUpdated = false }
+            }
+        }
+        .onDisappear { highlightTask?.cancel() }
+        .onChange(of: store.scorecardViewID) { _, _ in
+            evidenceOpen = false; proposalOpen = false; editing = false; focused = false; hover = false
+            highlightTask?.cancel(); justUpdated = false
+        }
         .contextMenu {
             Button("Edit") { select(); beginEdit() }
             Button(record?.locked == true ? "Unlock" : "Lock") { store.toggleLock(field.key) }
@@ -209,10 +252,14 @@ struct ScorecardRow: View {
             Button("Clear") { store.mutate { company, config in [FactReducer.clear(fieldKey: field.key, configuration: config, company: &company)] } }
         }.disabled(store.company == nil)
     }
-    private func beginEdit() { draft = fact?.display ?? ""; editing = true; focused = true }
+    private func beginEdit() {
+        editContext = store.scorecardViewID
+        draft = fact?.display ?? ""; editing = true; focused = true
+    }
     private func commitEdit() {
         guard editing else { return }
         editing = false
+        guard editContext == store.scorecardViewID else { return }
         // Merely navigating through a field must not create a lock or clear it.
         guard draft != (fact?.display ?? "") else { return }
         store.edit(field, text: draft)

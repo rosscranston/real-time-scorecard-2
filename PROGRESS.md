@@ -20,56 +20,59 @@
 - Verified the actual native pipeline with one synthetic excerpt: 4/4 expected fields correct, 3.52 seconds transcript-to-candidates, zero warnings, estimated cost $0.000713.
 - Power was subsequently observed as AC Power (battery still discharging at that instant); keep external power connected.
 
-## Current stage (00:31 Pacific)
+## Current stage (01:00 Pacific)
 
-The independent native app builds and launches. 34 Swift tests pass, including numeric dependencies, confidence/locks, out-of-order audio completion, bounded retries, and configuration switches while a request is in flight. Five earlier Python harness tests also passed. Latest test output: /tmp/scorecard-tests.log.
+40 Swift tests pass (latest /tmp/scorecard-tests.log at00:58) and8 Python tests pass. Release Swift build succeeds after an escalated retry: sandbox blocked Xcode dSYM generation; the ordinary build was not an application failure. Native release bundle exists in dist, but rebuild again from the final committed source before packaging.
 
-Implemented since the previous checkpoint:
-- Catalog revision 5: 43 fields, 35 automatically extracted; personal/business return counts and six JSON-defined numeric formulas. Calculations require two direct/locked inputs, retain evidence, respect locks, and avoid circular derivation.
-- Three-attempt bounded retries for malformed final responses, network failures, and HTTP 5xx. Quota/auth/budget/rate-limit failures remain explicit stops. Attempts persist across restarts.
-- Immediate configuration switching: transactional replacement queue, archived previous configs/facts, generation check that rejects late old-config results. Removed fields do not enter model context.
-- History exposes Resume pending jobs, without starting capture. Settings edits allowed values, aliases, source policies, visibility/extraction rules and confidence thresholds, then saves an exportable revision.
-- Keyboard navigation saves/locks edited field and focuses the next. Mere navigation does not lock or clear values. Configurable lock shortcut. Verified Down from number of returns after typing 800, typing 6 in team size, Return, then Command-Shift-L unlock.
-- UI settings revision save and manual Start without Calendar verified. App initially appeared unresponsive through CUA; process sample showed it idle/responsive, and rebinding cua.getApp fixed automation. Not an app hang.
-- Bundled config update preserves a user-created revision with the same number instead of failing initialization.
+New work since checkpointa438bda:
+- Audio connection protocol plus bounded reconnect: retain at most12 unfinished turns; two reconnects per channel lifetime, original client IDs/timestamps, old-connection generation rejection, duplicate completion suppression, eight-second final drain. Quota/auth/budget/protocol errors do not retry. Four disconnect/drain/queue tests and an audio-budget-before-upload test pass.
+- Actual7.58-second generated audio → OpenAI → transcript → software/team/returns passed again with the revised transport. Not a live Meet test.
+- Audio uploads reserve estimated cost before sending (including retransmission). Settings shows text/audio spending, current-call timing, cumulative local allowance(default$5), and80%warning. No billing changes/purchases.
+- Local transcript retention defaults30days; cleanup on launch preserves company facts/evidence/history and calls with pending work. History supports companyJSON export and confirmed company deletion. Offline retention/deletion test passes.
+- Visible-row update callback timing added (not physical display scan-out), brief update highlight, Command-F search, native typing undo, configurable lock shortcut. Evidence/proposal/edit state resets on context changes; editing captures context identity to prevent stale edits entering another company.
+- Added5 shorter synthetic call fixtures from the old project's labeled synthetic set, stripped inference input of answer keys/source notes. CLI --short selects them; rubrics map supported canonical fields.
+- Added --soak-minutes45:541 sentences at5second intervals over45minutes, fixed arrival deadlines. Reports add CPU time/peakRSS, configrevision/hash, and update-batch latency distribution.
+- Added MIT LICENSE, THIRD_PARTY_NOTICES, architecture/build/distribution docs, clean-commit release packaging, ZIP credential/runtime-data scan and checksums. Scanner tests reject fake credentials without echoing them, private files, and unsafe paths. Actual ZIP generation/scans/clean install still pending.
 
-App bundle in dist is a launchable ad-hoc debug build with the new settings/keyboard/audio, but it predates the final-answer phase parser and revision-5 definitions. Rebuild for delivery. Local UI is on a synthetic history company with returns800 locked and team6 unlocked; transcription preference is temporarily transcript-only for testing. Restore OpenAI cloud before final handoff. Local UI saved config revision5 is the older catalog4 content; bundled revision5 will safely become revision6 on launch, and existing selection remains preserved.
+Current catalogrevision9 (43fields/35automatic). Revision6 tightened hosting provider vs generic cloud; revision7/Other description distinguishes named unlisted products from unknown; revision8 reconciles user-specified GruntWorx with GruntWorks alias and cleans stale draftnotes; revision9 prevents generic closing remarks replacing a substantive high-level note. Current soak intentionally holds its loaded revision8; only the note rule changed afterward. Short-fixture tests still need to run on revision9.
 
-## Audio and connectivity
+## Current live worker
 
-OpenAI text and AUDIO access are verified. At ~00:07 the adapter transcribed generated 7.58-second Samantha speech, then passed software=Drake Desktop, employee_count=6, number_of_returns=800 through the real core pipeline. Files in test-results/audio. This does not verify real Meet/audio-to-screen latency. Earlier quota/rate-limit blocker is resolved for this request.
+**Exec session77138 is the45minute paid soak**, started~00:56. Command: .build/debug/ScorecardProbe --replay --call03-partners-corrections --interval5 --soak-minutes45. Log /tmp/scorecard-soak-45.log.541sentences; should finish~01:41. Poll this same handle; do not start another API process writing the shared test ledger. It uses final-answer parsing, explicitOtherdescription, catalog8. The full first/second/third calls listed below have ended. Other build/test handles are terminal.
 
-Audio implementation: selected-browser plus microphone ScreenCaptureKit channels, bounded streams, PCM conversion, client voice turns, gpt-live-transcribe WebSocket, stable client IDs through out-of-order acknowledgments, final transcript ingestion. Apple Speech is explicitly optional. No ElevenLabs/local LLM. Automatic audio reconnect and actual capture/start/stop lifecycle still need work; explicit reconnect exists. Never silently claim lost audio succeeded.
+Keep-awake session42450 still bounded to08:00; do not duplicate. Power RESOLVED: Mac nowAC,54%,charging at00:53. Earlier discharge warning was delivered and no longer applies.
 
-GitHub CLI authentication now VERIFIED for rosscranston with repo/workflow scope. No remote/repo published yet. Developer ID/notarization remain unavailable; source and explicitly labeled ad-hoc app can be shared.
+## Current replay evidence
 
-Power risk: at 00:31 Mac reported AC but 33% battery, discharging, estimated2:16 remaining. User warned in commentary to check stronger charger/cable. Bounded caffeinate process session42450 remains; do not duplicate. Power is a real overnight risk, not a reason to stop independent work.
+- Call1 latest: test-results/01-owner-story-1791618558,127/127,15/15 mapped checks, all127≤5sec,p952.54s,estimated$0.10863. Annual firm684 preserved instead of proposedpurchase240. ProcessCPU4.57sec across379wallsec, peakRSS26.1MB for CLI only, not UI/Meet performance. Five additional populated fields reviewed/inneedofreview; high_level_note was a generic closing remark, now addressed by catalog9 but not yet revalidated.
+- Call2 latest: test-results/02-skeptical-operator-1791618099,141/141,14/15,p952.49s. Missing document portalShareFile: Responses had validOther+detail, Decisions confusedOtherwithunknown/lowconfidence. Improved explicitOtherdescription and document-portal rule after run; must verify with short cases and/or targeted follow-up. Five extra populated fields need semantic review.
+- Call3 latest standalone: test-results/03-partners-corrections-1791617468,151/151,14/15,p952.42s. Location andDrakeedition fixes passed. Hosting remained genericvendorcloud because the firstcloudstatement was overinterpreted and providerrefinement wasn't emitted into both fields. Fixed catalog6 and currently exercising it in45minute soak. Four extra fields need review.
+- Earlier call3 test-results/03-partners-corrections-1791616869:13/15,p955.54s. That run treated intermediatecommentary as schemaoutput and retried; final_answer phase parser fixed it and the latest2.42srun proved the speed improvement.
+- Earlier call1recovered run and call2incomplete runs remain historical diagnostics; never count as completed latencypasses.
 
-## Replay results and current worker
+Rubric is explicit supported final-field checks, not exhaustive precision/recall across every intermediate commitment. Do not claim95%all-answer precision from these partial checks. Raw synthetic response bodies remain ignored undertest-results. Total test ledger was~$0.716 at00:55, wellbelow$5, plus tinyseparate nativeUIledger. No simultaneous test-ledger writers.
 
-Call1 recovered full127 sentences in test-results/01-owner-story-1791615393, but old rubric12/13: proposed purchase240 incorrectly replaced actual684. Old revision2 definitions. Initial parser problems recovered; not an uninterrupted latency pass. Needs fresh replay after definition fixes.
+## UI and connectivity status
 
-Call2 test-results/02-skeptical-operator-1791616259 stopped37/39 on differing intermediate/final documents, p952.57 before stop. Worker45191 ended. Needs fresh full replay with latest parser/catalog.
+Actual UI verified in prior turn: manualevent→StartwithoutCalendar, four live text values, inlineediting/autolock/undo, Settings fieldeditorvalues/aliases/thresholds and savingrevision, keyboard800→Down→team6→Return→CommandShiftLunlock. New retention/budget/search/context-reset controls compile but still need UIinspection. Window privacy policy remains requested; actual Meet sharemode test unverified.
 
-Call3 test-results/03-partners-corrections-1791616869 completed151/151, zero pending/error,13/15 mapped checks; p955.54s and142/151 within5seconds (94.0%, targetnotmet). Failures: firm location replaced with participant visiting Boise; software remained Drake edition-unconfirmed despite later desktop clarification. Other software changed from practice management to accounting; manually review unscored fields. Five malformed-looking responses were actually commentary plus final_answer messages; parser now selects final_answer phase per official Responses API. That fix should eliminate unnecessary retries; regression test added. More specific location/software/practice-management rules and previous-answer evidence context added, catalogrev5. Never assume improvements passed without new result.
+Current open native app may still be the previous running build. Local app data is synthetic; selectedcompany has800returnslocked,team6unlocked. Transcription preference is temporarilytranscript-only; restoreOpenAIcloud and selectlatestbundledcatalog before finalhandoff. Key is in Keychain andignored.env. Never print it.
 
-CURRENT LIVE RUN: exec session8174, .build/debug/ScorecardProbe --replay --call 03-partners-corrections --interval3. Log /tmp/scorecard-replay-03b.log. Uses latest parser and catalog5. Poll it; do not start duplicate API runs sharing ledger. Previous run68098 and test16293 ended. Latest Swift tests48029 completed34/34. Other stale handles need not be polled.
-
-Synthetic rubric now15 checks percall including personal/business counts. scripts/evaluate-replay.py writes scoped evaluation, not all-field precision. Original answer keys never enter inference. Raw synthetic responses are ignored/private; do not publish diagnostics. Test ledger private-data/api-test-usage.json is far below$5 but avoid concurrent writers.
+GitHubauth VERIFIED rosscranston. Read-only check: rosscranston/real-time-scorecard-2 does NOTexist; suitablededicateddestination. No remotepublication yet. Oldparentrepositorymustnotbepushed. DeveloperID/notarization unavailable; share clearly labeled ad-hocAppleSiliconbuild or source.
 
 ## Next actions
 
-1. Finish current03 rerun and evaluate; fresh02 then01. Review additional populated facts and cross-sentence correctness. No fabrication of comprehensive accuracy or audio-to-screen SLO.
-2. Finish bounded audio reconnect/lifecycle verification, pending recovery UI test, config switch UI test, and any remaining requirement gaps. Inspect PROJECT_PLAN/OVERNIGHT_PLAN and current source.
-3. Actual capture/permissions with synthetic audio where feasible; real Google Meet and sharing exclusion remain unverified. Calendar optional connection implemented; automatic naming explicitly next version.
-4. Start meaningful45-minute soak soon; prefer completing independent packaging while it runs. Keep battery/deadline risk in mind.
-5. Release packaging, license, source/secret scan, clean GitHub repository/release, source/appZIP/checksums, reproducible verification, FINAL_REPORT by08:00. No Developer ID means label app non-notarized. Do not push old parentrepo/private files.
+1. While77138soak runs, commit current work, run scripts/package-release.sh (may need escalation forXcode dSYM), inspect archive scans and perform clean-source rebuild/moved-app launch. Do not claim finalartifacts until actuallyverified. Regenerate after any subsequent fixes.
+2. Native UIinspection of new controls, dynamicconfigswitch duringcall, pendingrecovery, longvalue/evidence/collapsebehavior and resizedlayout. RestoreOpenAIdefault afterward. No unattended live-room microphone capture; synthetic/filetests only. RealMeetpermissions/capture/sharing require usertrial and remain explicitpendinggates.
+3. Aftersoakterminal, evaluate and run five shortcases sequentially (--short withIDs in tests/Fixtures/synthetic-short-calls.json). Verify Other/midpoints/negation/forecast/newfirm and review extra populatedvalues. Consider targetedmissingShareFile andhostingrefinement checks, notendlessfullreruns. Report actualconfigrevision.
+4. Finish release README/FINAL_REPORT, cleanGitHubsource and releaseassets, appZIP/sourceZIP/SHA256SUMS/sourcecommit. Sourcearchive must correspond to committedbinaryinputs. No secrets/customerdata/diagnosticfiles.
+5. Completion audit allrequirements; fullgoal staysactive while functionality/requiredverification remains. External actualMeettrial may remain pending; don'tclaim complete based only on syntheticbenchmarks.
 
-## Verification
+## Commands
 
 - env CLANG_MODULE_CACHE_PATH=/tmp/scorecard2-clang SWIFT_MODULECACHE_PATH=/tmp/scorecard2-swift swift test --disable-sandbox
-- bash scripts/build-app.sh debug (or release)
+- PYTHONPYCACHEPREFIX=/tmp/scorecard-python-cache python3 -m unittest discover -s tests -v
+- bash scripts/build-app.sh release
+- bash scripts/package-release.sh (requirescleancommittedsource; generatesdistZIPs/checksums/sourcecommit)
 - python3 scripts/evaluate-replay.py test-results/<run>
-- API key remains ignored.env and native Keychain; never print keys.
-
-Official phase documentation: https://developers.openai.com/api/reference/resources/responses/methods/create
+- Usage: ignoredprivate-data/api-test-usage.json. NoAPIkeys in output.

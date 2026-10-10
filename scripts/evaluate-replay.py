@@ -40,9 +40,10 @@ result = {
     "unmapped_source_fields": rubric["unmapped_source_fields"],
     "manual_review_required": rubric["manual_review"],
     "latency_pass": not report.get("resumed", False) and report.get("error") is None and
-        report["pending"] == 0 and report["sentences_processed"] == report["sentences_sent"] and report["p95_seconds"] <= 5,
+        report["pending"] == 0 and report["sentences_processed"] == report["sentences_sent"] and report["p95_seconds"] <= 5
+        and report.get("update_p95_seconds", report["p95_seconds"]) <= 5,
     "scope": rubric["scope"],
 }
 (args.directory / "evaluation.json").write_text(json.dumps(result, indent=2) + "\n")
 print(f"Mapped checks: {result['passed']}/{result['total']}; {len(unscored)} populated fields still require review.")
-print("Latency gate:", "PASS" if result["latency_pass"] else "NOT MET / recovery run")
+print("Latency gate:", "PASS" if result["latency_pass"] else "NOT MET (incomplete, resumed, or above five seconds)")

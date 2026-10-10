@@ -237,4 +237,29 @@ public final class ScorecardDatabase: @unchecked Sendable {
             }
         }
     }
+    /// Prune only raw transcript/job payloads from ended calls. Current facts and
+    /// their evidence remain; pending extraction makes the entire call ineligible.
+    @discardableResult
+    public func pruneTranscripts(olderThan cutoff: Date) throws -> Int {
+        try synchronized {
+            let protectedCalls = Set(try pendingJobs().map(\.callID))
+            let expired = Set(try calls().filter {
+                $0.endedAt.map { $0 < cutoff } == true && !protectedCalls.contains($0.id)
+            }.map(\.id))
+            guard !expired.isEmpty else { return 0 }
+            let segments = try read(TranscriptEntry.self, kind: "segment").filter { expired.contains($0.callID) }
+            let jobs = try read(ExtractionJob.self, kind: "job").filter { expired.contains($0.callID) }
+            try transaction {
+                for (kind, ids) in [("segment", segments.map(\.id)), ("job", jobs.map(\.id))] {
+                    for id in ids {
+                        let s = try statement("DELETE FROM entities WHERE kind=? AND id=?")
+                        defer { sqlite3_finalize(s) }
+                        bind(kind, 1, s); bind(id.uuidString, 2, s)
+                        guard sqlite3_step(s) == SQLITE_DONE else { throw failure() }
+                    }
+                }
+            }
+            return segments.count
+        }
+    }
 }

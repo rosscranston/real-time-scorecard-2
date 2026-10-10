@@ -1,6 +1,8 @@
 # Real-time Scorecard 2
 
-This workspace contains the implementation plan and an independent Swift app under development. The core supports the JSON catalog, SQLite company state, correction rules, and a real OpenAI Decisions + Responses pipeline. A native interface now supports named calls without Calendar, inline corrections/locks/undo, history, transcript input, JSON import/export, Keychain setup, and synthetic replay. Audio capture is implemented but live-meeting and final release verification remain in progress; this is not yet a release build.
+A native macOS sales-call scorecard with OpenAI Decisions classification, structured fact extraction, and cloud transcription. It supports named calls without Calendar, a JSON-driven interface, company memory, locked manual corrections, evidence, history, replay, and Keychain setup. Each installer supplies their own API key.
+
+This is an alpha build. Real Google Meet capture modes and screen-sharing exclusion still require live verification. See [build and distribution](docs/BUILD_AND_DISTRIBUTION.md) and [architecture](docs/ARCHITECTURE.md). Source is provided under the [MIT license](LICENSE).
 
 ## Overnight execution
 
@@ -67,3 +69,19 @@ swift build --disable-sandbox --product ScorecardProbe
 ```
 
 Intervals must be 3–30 seconds. Sentence arrivals continue independently of API completion. Reports and synthetic response diagnostics are saved under ignored test-results; the test spending ledger is under ignored private-data. The native Settings replay button loads the same JSON pack and uses five-second intervals. Its UI replay uses the app's own API usage ledger. Use Settings to save your key, or explicitly run ScorecardProbe --save-key to copy your development key into the local app Keychain entry. Neither method includes a key in the app bundle.
+
+## Configuration and controls
+
+Settings → Edit fields changes allowed values, aliases, speaker rules, visibility, and confidence thresholds. Saving creates a new revision; Export JSON includes those edits. Imported JSON can also define call-type ordering and supported numeric calculations. Configurations can switch during a call while retaining prior answers.
+
+Click a field to edit. Edited values lock automatically; arrow keys save and move to the next field. Command-Shift-L toggles a lock, Command-F finds a field, and Command-Z/Control-Z undo typing or a saved manual change. Evidence stays behind +. Unknown values show only a yellow question mark. Collapsed sections remain collapsed and count distinct changed fields.
+
+Settings includes spending estimates, a local API allowance, and raw transcript retention. Company exports and deletion are available in History. Interrupted extraction jobs can resume there without starting audio capture.
+
+For the bounded 45-minute synthetic stress run:
+
+```sh
+.build/debug/ScorecardProbe --replay --call 03-partners-corrections --interval 5 --soak-minutes 45
+```
+
+This repeats the same synthetic conversation, uses API credits, and measures the core pipeline; it is not a real meeting or a fresh accuracy evaluation. The five shorter synthetic fixtures use `--short --call call-01-straightforward` (and the other IDs in the short-fixture JSON).

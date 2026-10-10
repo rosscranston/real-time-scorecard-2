@@ -24,6 +24,12 @@ final class AppStore: ObservableObject {
     @Published var showInScreenSharing = false
     @Published var opacity = 1.0
     @Published var lockShortcut = "commandShiftL"
+    @Published var transcriptRetentionDays = 30
+    @Published var apiBudgetUSD = 5.0
+    @Published var usageSummary = "Usage has not been loaded"
+    @Published var scorecardViewID = UUID()
+    private var renderedVersions: [String: Int] = [:]
+    private var renderLatencies: [Double] = []
     @Published var replaying = false
     @Published var transcriptionProvider = "openai"
     @Published var browserBundleID = "com.google.Chrome"
@@ -67,13 +73,18 @@ final class AppStore: ObservableObject {
             lockShortcut = try db.preference(String.self, key: "lockShortcut") ?? "commandShiftL"
             transcriptionProvider = try db.preference(String.self, key: "transcriptionProvider") ?? "openai"
             browserBundleID = try db.preference(String.self, key: "browserBundleID") ?? "com.google.Chrome"
+            transcriptRetentionDays = try db.preference(Int.self, key: "transcriptRetentionDays") ?? 30
+            apiBudgetUSD = try db.preference(Double.self, key: "apiBudgetUSD") ?? 5
+            if transcriptRetentionDays > 0 {
+                try db.pruneTranscripts(olderThan: Date().addingTimeInterval(-Double(transcriptRetentionDays) * 86400))
+            }
         } catch { message = error.localizedDescription }
     }
     func makeClient() throws -> OpenAIClient {
         if let client { return client }
         let key = try apiKey()
         let ledger = try ScorecardDatabase.defaultURL().deletingLastPathComponent().appendingPathComponent("api-usage.json")
-        let result = try OpenAIClient(key: key, ledgerURL: ledger)
+        let result = try OpenAIClient(key: key, ledgerURL: ledger, budgetUSD: apiBudgetUSD)
         client = result; connectionStatus = "API key available on this Mac"; return result
     }
     private func apiKey() throws -> String {
@@ -122,6 +133,8 @@ final class AppStore: ObservableObject {
                                                 database: database, extractor: CloudExtractor(client: client))
             running.onChange = { [weak self] in self?.objectWillChange.send() }
             session = running; selectedCompany = company; message = nil
+            scorecardViewID = UUID()
+            renderedVersions = [:]; renderLatencies = []
             try refreshHistory()
             if !isReplay { startAudio() }
         } catch { message = error.localizedDescription }
@@ -174,14 +187,24 @@ final class AppStore: ObservableObject {
                 }
                 let mic: any AudioChannel
                 let meeting: any AudioChannel
+                let onStatus: OpenAITranscriber.ErrorHandler = { [weak self] status in
+                    Task { @MainActor in
+                        guard let self, self.session?.call.id == callID, self.audioGeneration == generation else { return }
+                        self.audioStatus = status
+                    }
+                }
                 if provider == "apple" {
                     mic = AppleSpeechChannel(source: .salesperson, origin: origin, onEvent: onEvent, onError: onError)
                     meeting = AppleSpeechChannel(source: .customer, origin: origin, onEvent: onEvent, onError: onError)
                 } else {
                     let key = try self.apiKey()
+                    let billing = try self.makeClient()
+                    let onUsage: OpenAITranscriber.UsageHandler = { seconds in try await billing.recordAudioUpload(seconds: seconds) }
                     let keywords = configuration.fields.flatMap { ($0.options ?? []) + ($0.aliases?.values.flatMap { $0 } ?? []) }
-                    mic = CloudSpeechChannel(key: key, role: .salesperson, origin: origin, keywords: keywords, onEvent: onEvent, onError: onError)
-                    meeting = CloudSpeechChannel(key: key, role: .customer, origin: origin, keywords: keywords, onEvent: onEvent, onError: onError)
+                    mic = CloudSpeechChannel(key: key, role: .salesperson, origin: origin, keywords: keywords,
+                                             onEvent: onEvent, onError: onError, onStatus: onStatus, onUsage: onUsage)
+                    meeting = CloudSpeechChannel(key: key, role: .customer, origin: origin, keywords: keywords,
+                                                 onEvent: onEvent, onError: onError, onStatus: onStatus, onUsage: onUsage)
                 }
                 let service = LiveAudioCapture(microphone: mic, meeting: meeting, onError: onError)
                 capture = service
@@ -253,6 +276,22 @@ final class AppStore: ObservableObject {
     func undo() {
         mutate { company, config in FactReducer.undo(configuration: config, company: &company).map { [$0] } ?? [] }
     }
+    func undoFromKeyboard() {
+        if let editor = NSApp.keyWindow?.firstResponder as? NSTextView, editor.isFieldEditor {
+            editor.undoManager?.undo()
+        } else { undo() }
+    }
+    func recordVisibleUpdate(_ key: String, version: Int) {
+        guard renderedVersions[key] != version, let session,
+              let fact = session.company.facts[key],
+              let evidence = fact.evidence.first(where: { $0.callID == session.call.id }),
+              let segment = session.segments.first(where: { $0.id == evidence.segmentID }),
+              let end = segment.sentenceEndedAt else { return }
+        renderedVersions[key] = version
+        // This observes SwiftUI's update callback, not physical display scan-out.
+        renderLatencies.append(max(0, Date().timeIntervalSince(end)))
+        if renderLatencies.count > 10000 { renderLatencies.removeFirst(renderLatencies.count - 10000) }
+    }
     func collapse(_ group: String) {
         mutate { company, _ in
             FactReducer.setCollapsed(!company.collapsedSections.contains(group), sectionID: group, company: &company); return []
@@ -270,6 +309,7 @@ final class AppStore: ObservableObject {
             guard let company = try database.company(id: call.companyID, configurationID: call.configurationID),
                   let config = configurations.filter({ $0.id == call.configurationID }).max(by: { $0.revision < $1.revision }) else { return }
             configuration = config; selectedCompany = company; session = nil
+            scorecardViewID = UUID()
             firmName = company.name; eventName = call.eventName ?? company.name; showHistory = false
         } catch { message = error.localizedDescription }
     }
@@ -287,6 +327,7 @@ final class AppStore: ObservableObject {
                 database: database, extractor: CloudExtractor(client: makeClient()))
             running.onChange = { [weak self] in self?.objectWillChange.send() }
             configuration = config; selectedCompany = company; session = running
+            scorecardViewID = UUID()
             eventName = call.eventName ?? company.name; firmName = company.name
             message = nil; showHistory = false
             // Recover text only. Audio capture always requires a separate explicit start.
@@ -296,6 +337,62 @@ final class AppStore: ObservableObject {
     func refreshHistory() throws {
         history = try database?.calls() ?? []; companies = try database?.companies() ?? []
         pendingCalls = Dictionary(grouping: try database?.pendingJobs() ?? [], by: \.callID).mapValues(\.count)
+    }
+    func saveRetention() {
+        do { try database?.savePreference(transcriptRetentionDays, key: "transcriptRetentionDays") }
+        catch { message = error.localizedDescription }
+    }
+    func saveBudget() {
+        guard !active, !busy else { message = "Finish processing before changing the allowance."; return }
+        guard apiBudgetUSD.isFinite, apiBudgetUSD >= 0.01, apiBudgetUSD <= 1000 else {
+            message = "Set an allowance between $0.01 and $1,000."; return
+        }
+        do {
+            try database?.savePreference(apiBudgetUSD, key: "apiBudgetUSD")
+            client = nil; message = nil
+        } catch { message = error.localizedDescription }
+    }
+    func refreshUsage() async {
+        do {
+            let usage: UsageLedger
+            if let client { usage = await client.usage() }
+            else {
+                let url = try ScorecardDatabase.defaultURL().deletingLastPathComponent().appendingPathComponent("api-usage.json")
+                usage = FileManager.default.fileExists(atPath: url.path)
+                    ? try JSONDecoder().decode(UsageLedger.self, from: Data(contentsOf: url)) : UsageLedger()
+            }
+            let audio = usage.requests.filter { $0.endpoint.hasPrefix("realtime_audio") }.reduce(0) { $0 + $1.estimatedUSD }
+            let times = session?.measurements.map(\.totalSeconds).sorted() ?? []
+            let latency = times.isEmpty ? "No call measurements" :
+                String(format: "p95 transcript-to-save %.2fs", times[min(times.count - 1, Int(ceil(Double(times.count) * 0.95)) - 1)])
+            usageSummary = String(format: "$%.3f estimated/reserved total · $%.3f audio · $%.2f allowance remaining",
+                usage.chargedOrReservedUSD, audio, max(0, apiBudgetUSD - usage.chargedOrReservedUSD)) + "\n" + latency
+            if !renderLatencies.isEmpty {
+                let sorted = renderLatencies.sorted()
+                usageSummary += String(format: "\nVisible-row update callback p95 %.2fs (%d observations)",
+                    sorted[min(sorted.count - 1, Int(ceil(Double(sorted.count) * 0.95)) - 1)], sorted.count)
+            }
+            if usage.chargedOrReservedUSD >= apiBudgetUSD * 0.8 { usageSummary += "\nAt least 80% of the local allowance is used." }
+        } catch { usageSummary = "Usage ledger unavailable; requests remain protected by the allowance." }
+    }
+    func exportCompany(_ call: CallRecord) {
+        do {
+            guard let company = try database?.company(id: call.companyID, configurationID: call.configurationID) else { return }
+            let panel = NSSavePanel(); panel.allowedContentTypes = [.json]
+            panel.nameFieldStringValue = "company-scorecard.json"
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            try encoder.encode(company).write(to: url, options: .atomic)
+        } catch { message = error.localizedDescription }
+    }
+    func deleteCompany(_ id: UUID) {
+        guard !active, !busy, !audioBusy else { return }
+        do {
+            try database?.deleteCompany(id)
+            if company?.id == id { session = nil; selectedCompany = nil; eventName = ""; firmName = "" }
+            try refreshHistory()
+        } catch { message = error.localizedDescription }
     }
     func importConfiguration() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]; panel.allowsMultipleSelection = false
@@ -314,6 +411,7 @@ final class AppStore: ObservableObject {
         if let session { try session.switchConfiguration(config) }
         try database?.savePreference("\(config.id):\(config.revision)", key: "activeConfiguration")
         configuration = config
+        scorecardViewID = UUID()
         if session == nil, let selectedCompany {
             self.selectedCompany = try database?.company(id: selectedCompany.id, configurationID: config.id)
                 ?? CompanyScorecard(id: selectedCompany.id, name: selectedCompany.name, configuration: config)

@@ -18,9 +18,12 @@ actor CloudSpeechChannel: AudioChannel {
     private let target = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 24000, channels: 1, interleaved: true)!
     private var failed = false
     init(key: String, role: SpeakerRole, origin: Date, keywords: [String],
-         onEvent: @escaping OpenAITranscriber.EventHandler, onError: @escaping OpenAITranscriber.ErrorHandler) {
+         onEvent: @escaping OpenAITranscriber.EventHandler, onError: @escaping OpenAITranscriber.ErrorHandler,
+         onStatus: @escaping OpenAITranscriber.ErrorHandler = { _ in },
+         onUsage: @escaping OpenAITranscriber.UsageHandler = { _ in }) {
         self.origin = origin; self.onError = onError
-        transcriber = OpenAITranscriber(key: key, role: role, origin: origin, keywords: keywords, onEvent: onEvent, onError: onError)
+        transcriber = OpenAITranscriber(key: key, role: role, origin: origin, keywords: keywords,
+                                       onEvent: onEvent, onError: onError, onStatus: onStatus, onUsage: onUsage)
     }
     func prepare() async throws { try await transcriber.start() }
     func consume(_ buffer: AVAudioPCMBuffer, capturedAt: Date) async {

@@ -13,8 +13,8 @@ struct ScorecardApplication: App {
         .defaultSize(width: 340, height: 850)
         .commands {
             CommandGroup(replacing: .undoRedo) {
-                Button("Undo scorecard edit") { store.undo() }.keyboardShortcut("z")
-                Button("Undo scorecard edit (Control-Z)") { store.undo() }.keyboardShortcut("z", modifiers: .control)
+                Button("Undo") { store.undoFromKeyboard() }.keyboardShortcut("z")
+                Button("Undo (Control-Z)") { store.undoFromKeyboard() }.keyboardShortcut("z", modifiers: .control)
             }
         }
         Settings { ConnectionSettings().environmentObject(store).preferredColorScheme(.dark) }

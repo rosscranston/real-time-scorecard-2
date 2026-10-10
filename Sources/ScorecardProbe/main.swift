@@ -1,4 +1,6 @@
 import Foundation
+import Darwin
+import CryptoKit
 import ScorecardCore
 
 // Replay-only diagnostics. Never record request headers, keys, or live customer data.
@@ -140,7 +142,10 @@ struct ScorecardProbe {
             let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             let interval = Double(argument("--interval", fallback: "5")) ?? 5
             guard interval >= 3, interval <= 30 else { throw OpenAIError.invalidResponse }
-            let packURL = root.appendingPathComponent("tests/Fixtures/synthetic-discovery-calls.json")
+            let soakMinutes = Int(argument("--soak-minutes", fallback: "0")) ?? 0
+            guard [0, 45].contains(soakMinutes) else { throw OpenAIError.invalidResponse }
+            let packURL = root.appendingPathComponent(CommandLine.arguments.contains("--short")
+                ? "tests/Fixtures/synthetic-short-calls.json" : "tests/Fixtures/synthetic-discovery-calls.json")
             let pack = try ScorecardCoding.decoder().decode(SyntheticCallPack.self, from: Data(contentsOf: packURL))
             let id = argument("--call", fallback: "01-owner-story")
             guard let script = pack.calls.first(where: { $0.id == id }) else { throw OpenAIError.invalidResponse }
@@ -150,6 +155,7 @@ struct ScorecardProbe {
             var call = CallRecord(company: company, isReplay: true)
             call.eventName = script.title
             let resumePath = argument("--resume", fallback: "")
+            guard soakMinutes == 0 || resumePath.isEmpty else { throw OpenAIError.invalidResponse }
             let reportDirectory = resumePath.isEmpty ? root.appendingPathComponent("test-results/\(id)-\(Int(Date().timeIntervalSince1970))") : URL(fileURLWithPath: resumePath)
             try FileManager.default.createDirectory(at: reportDirectory, withIntermediateDirectories: true)
             let database = try ScorecardDatabase(url: reportDirectory.appendingPathComponent("replay.sqlite3"))
@@ -180,12 +186,24 @@ struct ScorecardProbe {
             }
             let limit = Int(argument("--limit", fallback: "10000")) ?? 10000
             let lastExistingSequence = session.segments.map(\.sequence).max() ?? 0
-            let sentences = Array(script.sentences(callID: call.id).filter { $0.sequence > lastExistingSequence }.prefix(max(1, limit)))
+            let original = script.sentences(callID: call.id)
+            var sentences = Array(original.filter { $0.sequence > lastExistingSequence }.prefix(max(1, limit)))
+            if soakMinutes > 0 {
+                guard !original.isEmpty else { throw OpenAIError.invalidResponse }
+                let count = Int(Double(soakMinutes * 60) / interval) + 1
+                sentences = (0..<count).map { index in
+                    var segment = original[index % original.count]
+                    segment.id = UUID(); segment.sequence = index + 1; segment.seconds = Double(index) * interval
+                    return segment
+                }
+                print("SOAK: repeating synthetic conversation for 45 minutes; final partial-cycle facts are not an accuracy benchmark.")
+            }
             print("Replay \(id): \(sentences.count) sentences, every \(interval)s, real Decisions + Responses.")
             print("Arrival-to-persisted-fact timing; excludes transcription and screen rendering.")
             fflush(stdout)
             session.resume()
             let start = ContinuousClock.now
+            let wallStart = Date()
             for (index, var sentence) in sentences.enumerated() {
                 // Deadline is anchored to the producer, never to API completion.
                 try await ContinuousClock().sleep(until: start + .milliseconds(Int64(Double(index) * interval * 1000)))
@@ -198,14 +216,28 @@ struct ScorecardProbe {
             await session.waitUntilIdle()
             try session.finish()
             let times = session.measurements.map(\.totalSeconds).sorted()
+            let updateTimes = session.measurements.filter { $0.updates > 0 }.map(\.totalSeconds).sorted()
             let p95 = times.isEmpty ? 0 : times[min(times.count - 1, Int(ceil(Double(times.count) * 0.95)) - 1)]
             let spend = await client.usage().chargedOrReservedUSD - initialSpend
+            var resources = rusage()
+            getrusage(RUSAGE_SELF, &resources)
+            let cpuSeconds = Double(resources.ru_utime.tv_sec + resources.ru_stime.tv_sec)
+                + Double(resources.ru_utime.tv_usec + resources.ru_stime.tv_usec) / 1_000_000
             let results: [String: Any] = [
                 "call": id, "interval_seconds": interval,
+                "configuration_id": config.id, "configuration_revision": config.revision,
+                "configuration_sha256": SHA256.hash(data: try ScorecardCoding.encoder().encode(config)).map { String(format: "%02x", $0) }.joined(),
                 "sentences_sent": session.segments.count, "sentences_processed": times.count,
                 "p95_seconds": p95, "within_5_seconds": times.filter { $0 <= 5 }.count,
+                "updates_measured": updateTimes.count,
+                "update_p95_seconds": updateTimes.isEmpty ? 0 : updateTimes[min(updateTimes.count - 1, Int(ceil(Double(updateTimes.count) * 0.95)) - 1)],
+                "updates_within_5_seconds": updateTimes.filter { $0 <= 5 }.count,
                 "estimated_cost_usd": spend, "pending": session.pendingCount,
                 "resumed": !resumePath.isEmpty,
+                "soak_minutes_requested": soakMinutes,
+                "wall_seconds": Date().timeIntervalSince(wallStart),
+                "process_cpu_seconds": cpuSeconds,
+                "process_peak_rss_bytes": resources.ru_maxrss,
                 "error": session.errorMessage as Any? ?? NSNull(),
                 "facts": session.company.facts.mapValues { ["value": $0.display, "confidence": $0.confidence] as [String: Any] },
                 "scope": "Synthetic transcript arrival to SQLite commit; not audio-to-screen latency."

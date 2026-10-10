@@ -1,0 +1,468 @@
+{
+  "calls": [
+    {
+      "id": "call-01-straightforward",
+      "title": "Maya Chen - straightforward established firm",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Before we jump in, what name should I put on my notes, and what is the name of your firm?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "I'm Maya Chen, and the firm is Chen Tax & Advisory.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Where are you calling in from today?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We're based in Austin, Texas.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many total returns do you file in a year, and how does that split between personal and business returns?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We file 1,240 total returns: 980 personal returns and 260 business returns.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What do you use for tax software, and is it desktop, cloud, or hosted?",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We use UltraTax on desktop, hosted by Rightworks.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What do you use for a client portal, practice management, and other supporting software?",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "SmartVault is our client portal, Canopy is our practice management, and our other tools are QuickBooks Online, SurePrep, and GruntWorx.",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many admins, preparers, reviewers, and CPAs are on the team?",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We have 2 admins, 6 preparers, 2 reviewers, and 4 CPAs.",
+          "timestamp_seconds": 55
+        },
+        {
+          "turn": 13,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "For the trial, our minimum commitment is 100 returns, and the price is $40 per return.",
+          "timestamp_seconds": 60
+        }
+      ]
+    },
+    {
+      "id": "call-02-historical-software",
+      "title": "Daniel Ortiz - historical and seller software distractors",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Hey Daniel. I have Ortiz Accounting from the calendar. Is that still the correct firm name?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Yes, I'm Daniel Ortiz, and Ortiz Accounting is correct.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Where are you calling in from?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Fresno, California.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Our product can export to Lacerte, Drake, CCH Axcess, and UltraTax. What do you use for tax software?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "At my old firm we had Lacerte, but Ortiz Accounting uses ProSeries desktop now.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many returns do you file annually?",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We file 600 total returns, with 500 personal returns and 100 business returns.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What portal, practice management, and other software do you use?",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "TaxDome handles our client portal and practice management. QuickBooks Online is the other supporting software we use.",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "You mentioned three people overall. How many are admins, preparers, reviewers, and CPAs?",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "There is 1 admin, 2 preparers, 1 reviewer, and 2 CPAs.",
+          "timestamp_seconds": 55
+        }
+      ]
+    },
+    {
+      "id": "call-03-corrections",
+      "title": "Priya Shah - corrections, evaluation language, and minimum questions",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Can I confirm your name, firm, and location for my notes?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "I'm Priya Shah with Redwood CPA Group, based in Portland, Oregon.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many total returns do you file?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "About 900 total returns.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "And what is the personal and business split?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Let me correct the total: it is 940 total returns, made up of 700 personal returns and 240 business returns.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What do you use for tax software?",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We're evaluating Drake, but we currently use CCH Axcess hosted by Cetrom.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What other software supports the workflow?",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We also use QuickBooks Online, Adobe Acrobat, and DocuSign.",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Our minimum commitment is 100 returns.",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Is the minimum 50 returns?",
+          "timestamp_seconds": 55
+        },
+        {
+          "turn": 13,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "No, the minimum is 100 returns.",
+          "timestamp_seconds": 60
+        }
+      ]
+    },
+    {
+      "id": "call-04-short-answers",
+      "title": "Elena Brooks - short contextual answers and demo-number noise",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What is your name and practice name?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Elena Brooks. Brooks Tax Lab.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Where are you calling in from?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Phoenix, Arizona.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many total returns, personal returns, and business returns do you file?",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "About 800 total. 650 personal. 150 business.",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What do you use for tax software?",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "TaxShark cloud.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "What other supporting tools do you use?",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "QuickBooks Online, Microsoft 365, and DocuSign.",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "The demo itself is just three steps. Processing can take 20 minutes, and this sample has 15 documents.",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "The trial minimum is 100 returns and the price is $40 per return.",
+          "timestamp_seconds": 55
+        }
+      ]
+    },
+    {
+      "id": "call-05-new-practice",
+      "title": "Avery and Jordan - new practice versus prior employer",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "I have Avery Kim and Jordan Lee on the call. What are you calling the new practice?",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "I'm Avery Kim, my partner is Jordan Lee, and our new firm is Harbor Ledger CPAs.",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Where is Harbor Ledger based?",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We're based in Riverside, California.",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "At Deloitte we each worked on around 250 returns, but those are not Harbor Ledger clients.",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many returns will Harbor Ledger itself file in the first year?",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Harbor Ledger expects 75 total returns: 60 personal returns and 15 business returns.",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Our demo connects to Drake, CCH Axcess, and UltraTax. Which tax software will Harbor Ledger actually use?",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We use Drake desktop. Canopy is practice management, and QuickBooks Online plus GruntWorx are our supporting tools.",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many admins, preparers, reviewers, and CPAs will the new firm have?",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "We have 0 admins, 0 preparers, 2 reviewers, and 2 CPAs.",
+          "timestamp_seconds": 50
+        },
+        {
+          "turn": 12,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Let me share my screen. The platform is three steps and this sample return has 20 documents.",
+          "timestamp_seconds": 55
+        }
+      ]
+    }
+  ]
+}
