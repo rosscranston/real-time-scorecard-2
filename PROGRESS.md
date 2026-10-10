@@ -1,5 +1,14 @@
 # Progress
 
+## v0.1.1 publication complete — October10 approximately02:59 Pacific
+
+- User-requested push completed. Public release https://github.com/rosscranston/real-time-scorecard-2/releases/tag/v0.1.1 is not draft, is an alpha prerelease, exact packaged source **83a6b647802bdd8618ffebbdf3876106be399bb4**. All six assets verified uploaded and ZIP digests match local checksums. Originalv0.1.0 unchanged.
+- App ZIP SHA256 `f83982607eaf57363877bf887b30389c046c4e73fcf361bd0ba5562e8e345519`; source ZIP `6c4ed73f667773928b9b07798355074928b614099ad5fe0ce0e52d108ec7d2e3`. Package scan passed, buildsession9370terminal, releaseupload40040terminal, push41119terminal. Native packagedapp launched via its dist path; idle home, no audio capture. Version0.1.1/build2/catalog16. No new native API replay of exact-candidate gate yet.
+- **Paid worker84865 terminal. No paid CLI batch is running.** Frozen-source02b4530/catalog16/three-second arrivals: annual-versus-pilot5/7,p956.15s; new-practice18/18,p959.87s; corrections19/20,p953.37s; negativehosting13/13,p952.74s. Lasttwo latencygatepass; firsttwofail. Manifest `test-results/short-timeout-batch.json`, immutable executable hash inside. Release notes include all completed results; packaged FINAL_REPORT preserves its earlier pending-test checkpoint explicitly superseded by release notes.
+- Exact-candidate numeric gate remains too conservative for some valid corrections:1280heldback so1260retained, and940heldback so900retained. This is documented in published release notes, not claimed solved. Prior broad gate results remain in `short-numeric-broad-gate-batch.json`; long source annotation corrected earlier.
+- All54Swift tests pass (51core+3audio), latest `/tmp/scorecard-focused-scope-tests.log`; sessions63020and20194terminal. Combined estimated/reserved API spend **$2.21943** of$5. Sessionkey cleared on quit; packaged app may need explicit key import/test inSettings. Keepawake42450 has not been repolled since earlier checkpoint; revalidate if needed, never duplicate blindly.
+- Concrete progress: published current source and matching app at user's request. Goal remains active. Next: investigate withheld valid numeric corrections using actual Decisions responses; do not lower global replacement thresholds blindly or hide failed metrics. Clean-source rebuild ofv0.1.1 and exact-current native replay still pending. ActualMeet/sharing/realend-to-end gates also pending. Preserve both public releases; future code changes get a new version.
+
 ## User-requested publication checkpoint — October10 approximately02:57 Pacific
 
 - User explicitly requested pushing the current app to GitHub. Preparing separatev0.1.1 alpha, preservingv0.1.0. Current implementation commit02b4530, catalog16;54Swift tests pass (51core+3audio), log `/tmp/scorecard-focused-scope-tests.log`.
