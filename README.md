@@ -12,7 +12,9 @@ See `OVERNIGHT_PLAN.md` for the October 10, 08:00 Pacific target and `PREFLIGHT.
 
 ## Enter your API key
 
-Open `.env` in this directory and put your own OpenAI Platform API key after `OPENAI_API_KEY=`. Create a key at https://platform.openai.com/api-keys if needed. Do not paste it in chat. The file is excluded by `.gitignore`; `.env.example` contains placeholders for distribution. The connection test does not print keys or API error bodies.
+In the downloaded Mac app, open **Settings → Connections**, enter your own OpenAI Platform API key, choose **Save**, then **Test text APIs**. The app uses macOS Keychain; it does not require a source checkout or an environment file. Create a key at https://platform.openai.com/api-keys if needed. Do not paste it in chat.
+
+For development and command-line tests, open `.env` in this directory and put your key after `OPENAI_API_KEY=`. The file is excluded by `.gitignore`; `.env.example` contains placeholders for distribution. The connection test does not print keys or API error bodies.
 
 For a fresh checkout, copy `.env.example` to `.env` first. Environment variables override file settings. No shell evaluation of the file occurs.
 
@@ -90,6 +92,8 @@ This repeats the same synthetic conversation, uses API credits, and measures the
 
 
 ## Verification status
+
+See the [acceptance audit](docs/ACCEPTANCE_AUDIT.md) for implemented components, the evidence supporting each claim, and remaining live-call gates. Development checks below do not automatically apply to the submitted v0.1.0 binary.
 
 The 45-minute synthetic transcript soak processed 541/541 sentences with no pending jobs. Transcript-to-persistence p95 was 3.84 seconds; batches that changed answers had a 4.12-second p95. Estimated test cost was $0.54. This run used catalog revision 8; the expanded 50-field revision is being evaluated separately. A native short replay on revision 10 measured a 4.72-second p95 visible-row callback over 18 observations. These measurements exclude live audio transcription and are not a Google Meet end-to-end guarantee.
 
