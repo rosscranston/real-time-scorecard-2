@@ -618,6 +618,29 @@
       "varr": {
         "absent": true
       }
+    },
+    "call-08-annual-versus-pilot": {
+      "number_of_returns": {
+        "equals": 1280
+      },
+      "personal_returns": {
+        "equals": 1040
+      },
+      "business_returns": {
+        "equals": 240
+      },
+      "individual_return_mix_pct": {
+        "equals": 81.25
+      },
+      "pilot_amount": {
+        "absent": true
+      },
+      "deal_value": {
+        "absent": true
+      },
+      "varr": {
+        "absent": true
+      }
     }
   }
 }

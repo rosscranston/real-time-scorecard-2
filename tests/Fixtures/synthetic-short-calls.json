@@ -664,6 +664,89 @@
           "timestamp_seconds": 55
         }
       ]
+    },
+    {
+      "id": "call-08-annual-versus-pilot",
+      "title": "Annual firm volume versus pilot and purchase quantities",
+      "turns": [
+        {
+          "turn": 1,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Our existing firm prepares 1,260 returns annually: 1,020 personal and 240 business.",
+          "timestamp_seconds": 0
+        },
+        {
+          "turn": 2,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How many completed returns would you want to use in an evaluation of our product?",
+          "timestamp_seconds": 5
+        },
+        {
+          "turn": 3,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Twelve completed returns.",
+          "timestamp_seconds": 10
+        },
+        {
+          "turn": 4,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "How should we split that evaluation sample?",
+          "timestamp_seconds": 15
+        },
+        {
+          "turn": 5,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "Eight personal and four business overall, all already completed so we can compare to known results.",
+          "timestamp_seconds": 20
+        },
+        {
+          "turn": 6,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "And if the evaluation works, what would your initial annual purchase of our product look like?",
+          "timestamp_seconds": 25
+        },
+        {
+          "turn": 7,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "For the existing firm, 180 returns is our planning target for a first year.",
+          "timestamp_seconds": 30
+        },
+        {
+          "turn": 8,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "That is how many we might process with you, not our whole annual practice volume.",
+          "timestamp_seconds": 35
+        },
+        {
+          "turn": 9,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "I checked our final annual totals: actually 1,280 firm returns, including 1,040 personal and 240 business.",
+          "timestamp_seconds": 40
+        },
+        {
+          "turn": 10,
+          "speaker": "ROSS",
+          "channel": "ROSS",
+          "text": "Would that change the evaluation sample?",
+          "timestamp_seconds": 45
+        },
+        {
+          "turn": 11,
+          "speaker": "PROSPECT",
+          "channel": "PROSPECT",
+          "text": "No, the evaluation stays at twelve returns: eight personal and four business.",
+          "timestamp_seconds": 50
+        }
+      ]
     }
   ]
 }

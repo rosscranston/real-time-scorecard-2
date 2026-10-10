@@ -40,6 +40,37 @@ private actor FocusedReviewTransport: HTTPTransport {
 }
 
 final class CloudExtractorTests: XCTestCase {
+    func testNumericScopeGateRejectsSampleAndRequiresConfidentReplacement() throws {
+        var field = FieldDefinition(key: "returns", label: "Annual firm returns", type: "number")
+        field.requiresEvidenceGate = true
+        field.evidenceRule = "Whole-firm annual volume, excluding evaluation samples."
+        let config = ScorecardConfiguration(id: "scope", title: "Scope", groups: [FieldGroup(id: "profile", label: "Profile", fields: [field])])
+        let roundtrip = try ScorecardConfiguration.load(ScorecardCoding.encoder().encode(config))
+        XCTAssertEqual(roundtrip.fields.first?.requiresEvidenceGate, true)
+        var company = CompanyScorecard(name: "Synthetic firm", configuration: config)
+        let call = CallRecord(company: company)
+        _ = try FactReducer.manualEdit(field: field, text: "1260", configuration: config, company: &company)
+        _ = FactReducer.toggleLock(fieldKey: field.key, company: &company)
+        let segment = TranscriptEntry(callID: call.id, sequence: 1, speaker: .customer, text: "Our evaluation will use twelve returns.")
+        let job = ExtractionJob(company: company, callID: call.id, configuration: config, segments: [segment])
+        let facts: [String: Any] = ["facts": [["field_key": "returns", "value": 12, "confidence": 0.99,
+            "estimated": false, "segment_id": segment.id.uuidString, "quote": segment.text, "retracts_previous": false]]]
+        let payload = String(decoding: try JSONSerialization.data(withJSONObject: facts), as: UTF8.self)
+        let response = try JSONSerialization.data(withJSONObject: ["status": "completed", "output": [["content": [["type": "output_text", "text": payload]]]]])
+        for choice in ["__unknown__", "unexpected", "supported"] {
+            let data = try JSONSerialization.data(withJSONObject: ["answers": [["type": "choice", "name": "returns", "choice": choice, "confidence": 0.8]]])
+            let result = try CloudExtractor.decode(decisions: data, responses: response, configuration: config, seconds: 0)
+            XCTAssertTrue(result.reviewCandidates.isEmpty, "Scope rejection must not enter the option recheck path")
+            if choice == "supported" {
+                XCTAssertEqual(result.candidates.first?.confidence, 0.8)
+                var unchanged = company
+                XCTAssertEqual(FactReducer.apply(result.candidates[0], job: job, currentSegments: [segment.id: segment], configuration: config, company: &unchanged), .rejected("Replacement needs stronger evidence."))
+                XCTAssertEqual(unchanged.facts["returns"]?.value, .number(1260))
+            } else { XCTAssertTrue(result.candidates.isEmpty) }
+        }
+        let missing = try CloudExtractor.decode(decisions: nil, responses: response, configuration: config, seconds: 0)
+        XCTAssertTrue(missing.candidates.isEmpty)
+    }
     func testTransportFailuresRetainReservationsAndCancellationIsNotRetryableNetworkFailure() async throws {
         for code in [URLError.Code.timedOut, .cancelled] {
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("scorecard-usage-\(UUID()).json")
