@@ -417,6 +417,10 @@
       },
       "practice_management": {
         "absent": true
+      },
+      "high_level_note": {
+        "absent": true,
+        "rationale": "Seller minimums and a prospect question about them are not accepted buying conditions."
       }
     },
     "call-04-short-answers": {
@@ -440,7 +444,11 @@
       },
       "tax_software": {
         "equals": "Other",
-        "other_detail": "TaxShark"
+        "other_detail_one_of": [
+          "TaxShark",
+          "TaxShark cloud"
+        ],
+        "rationale": "The spoken answer is TaxShark cloud; preserving its cloud edition is a valid product detail."
       },
       "deal_value": {
         "absent": true

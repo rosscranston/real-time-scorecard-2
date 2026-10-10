@@ -84,4 +84,11 @@ For the bounded 45-minute synthetic stress run:
 .build/debug/ScorecardProbe --replay --call 03-partners-corrections --interval 5 --soak-minutes 45
 ```
 
-This repeats the same synthetic conversation, uses API credits, and measures the core pipeline; it is not a real meeting or a fresh accuracy evaluation. The five shorter synthetic fixtures use `--short --call call-01-straightforward` (and the other IDs in the short-fixture JSON).
+This repeats the same synthetic conversation, uses API credits, and measures the core pipeline; it is not a real meeting or a fresh accuracy evaluation. The six shorter synthetic fixtures use `--short --call call-01-straightforward` (and the other IDs in the short-fixture JSON).
+
+
+## Verification status
+
+The 45-minute synthetic transcript soak processed 541/541 sentences with no pending jobs. Transcript-to-persistence p95 was 3.84 seconds; batches that changed answers had a 4.12-second p95. Estimated test cost was $0.54. This run used catalog revision 8; the expanded 50-field revision is being evaluated separately. A native short replay on revision 10 measured a 4.72-second p95 visible-row callback over 18 observations. These measurements exclude live audio transcription and are not a Google Meet end-to-end guarantee.
+
+All 42 Swift regression tests currently pass. Native checks verified manual edits/locks, undo, evidence expansion, stored transcripts, and company collapse-state persistence across relaunch. History exposes separate accessible actions. Inconsistent numeric inputs show an explanation behind ! while preserving direct and locked answers.

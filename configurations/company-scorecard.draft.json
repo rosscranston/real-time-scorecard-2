@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 10,
+  "revision": 11,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -313,7 +313,7 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "Where the current tax software runs. A generic statement in the cloud does NOT establish vendor-hosted online software. If an explicitly named external provider matches an allowed option, select that provider here as well as in hosting_provider. A newly named provider refines any generic cloud/unknown answer and is a change to BOTH fields. A firm-run server does not establish physical location or external provider; retain ambiguity rather than assuming on-premises. Once a provider is known, generic references to its remote Windows environment do not erase its identity."
+          "evidence_rule": "Where the current tax software runs. A generic statement in the cloud does NOT establish vendor-hosted online software. If an explicitly named external provider matches an allowed option, select that provider here as well as in hosting_provider. A newly named provider refines any generic cloud/unknown answer and is a change to BOTH fields. A firm-run server does not establish physical location or external provider; retain ambiguity rather than assuming on-premises. Once a provider is known, generic references to its remote Windows environment do not erase its identity. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it."
         },
         {
           "key": "hosting_company",
@@ -469,7 +469,7 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "Track the primary practice-management/workflow platform when known. Preserve that platform when later speech lists accounting, spreadsheets, PDF tools, or other supporting software; those do not replace practice management. Only if no practice-management platform has been established, use the first explicitly named supporting product. Use Other plus its name for unlisted software."
+          "evidence_rule": "Despite the broad label, select the primary practice-management/workflow platform whenever one is established, even if another field already records it. The same platform may populate BOTH other_software and practice_management. Accounting, spreadsheets, PDF and supporting tools do not replace that platform. Only when no practice-management platform is established, select the first explicitly named supporting product. Use Other plus its name for an unlisted platform. Follow this priority rather than the conversational phrase other tools."
         },
         {
           "key": "employee_range",
@@ -566,7 +566,7 @@
               "Right Networks"
             ]
           },
-          "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence."
+          "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence. An explicit hosted by NAME statement takes precedence over assumptions about the tax software brand. If NAME is not a listed provider, choose Other and retain NAME as detail. Do not infer Tax software vendor or vendor cloud from a software product name alone; require evidence that the software vendor actually hosts it."
         },
         {
           "key": "personal_returns",
@@ -693,7 +693,7 @@
               "Financial Sense"
             ]
           },
-          "evidence_rule": "Primary practice-management, workflow or client-intake system currently used by the prospect firm. A client portal alone does not establish practice management. Keep distinct from tax preparation software, document portal, accounting tools, and products being demonstrated or evaluated. Use Other with the named product if it is not listed.",
+          "evidence_rule": "Primary practice-management, workflow or client-intake system currently used by the prospect firm. If a product explicitly handles BOTH client portal and practice management, populate this field as well as document_management and other_software; fields are independent. A portal with no stated workflow role alone does not establish practice management. Exclude tax preparation, accounting, demo and merely evaluated products. Use Other with the named product if not listed.",
           "added_by": "approved_practice_management_requirement"
         }
       ]
@@ -1049,7 +1049,7 @@
           "extraction_route": "structured_extraction",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "One concise, substantive company need, operational constraint, buying condition, or agreed next step. Preserve a useful note when later speech is generic agreement, pleasantries, seller reassurance, or meeting logistics. Do not replace a concrete business fact with a vague closing remark such as we can work through the rest together."
+          "evidence_rule": "One concise, substantive company need, operational constraint, buying condition, or agreed next step. Preserve a useful note when later speech is generic agreement, pleasantries, seller reassurance, or meeting logistics. Do not replace a concrete business fact with a vague closing remark such as we can work through the rest together. Seller pricing, minimum commitments, trial offers and product descriptions are not a customer need or agreed buying condition unless the prospect explicitly accepts them. A question about a minimum does not accept it. Omit these unaccepted offers entirely."
         },
         {
           "key": "pilot_contract_signed",

@@ -97,6 +97,9 @@ public enum ExtractionRequests {
         populate return counts with estimated=true; never reuse its founders' prior-employer counts.
         Link short answers to the preceding question. Prefer clear later corrections. Respect speaker
         policy except explicit salesperson DEBRIEF. Don't infer a company-wide fact from an unrelated person.
+        Field-specific rules override broad labels. Fields are independent: the same evidence and
+        value may fill multiple fields when each definition applies. Do not suppress a supported field
+        merely because another field already represents the same product.
         Fixed options must match their canonical spellings. Use value Other with other_detail for a named
         unlisted option. Use numeric JSON values for quantities/USD, booleans for supported true/false;
         absence is unknown. If a number is a spoken range, use its midpoint and estimated=true; round

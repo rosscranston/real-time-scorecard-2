@@ -23,7 +23,7 @@ flowchart LR
 
 ## Commit rules
 
-Every extraction job carries company/call identity, configuration revision, transcript revisions, and field versions. The main-actor reducer checks those again after network calls return. Manual edits can proceed during requests; a late response cannot undo them. Locks protect values from inference and arithmetic. Conflicts become proposals; accepting a proposal retains the lock.
+Every extraction job carries company/call identity, configuration revision, transcript revisions, and field versions. The main-actor reducer checks those again after network calls return. Manual edits can proceed during requests; a late response cannot undo them. Locks protect values from inference and arithmetic. Conflicts become proposals; accepting a proposal retains the lock. Contradictory direct numeric inputs remain intact and show a calculation-conflict explanation; invalid negative derived values are never displayed.
 
 Evidence quotes must occur in the referenced final transcript segment. Fixed choices must agree between Decisions and structured extraction. Explicitly named values outside the supplied catalog use Other with a detail. Unknown stays null. New replies that contradict a filled answer require the replacement threshold. Thresholds are tunable heuristics, not calibrated probabilities.
 
@@ -35,7 +35,7 @@ Capture begins only after an explicit Start. Microphone and selected-browser aud
 
 Each cloud channel retains at most 12 unfinished audio turns in memory. It can reconnect twice after a network failure, resend those turns with the original client IDs, and ignore late replies from the previous connection. Quota, authentication, invalid protocol, and budget failures stop automatically. Final drain is bounded to eight seconds; missing audio is reported. Raw audio is not persisted for crash recovery. Final transcript jobs are durable and can resume from History.
 
-Extraction is serial per call, with concurrent Decisions/Responses requests and up to four queued sentences coalesced into one job. Transient text failures allow at most three attempts per durable job. Quota, authentication, budget, and rate-limit failures require an explicit retry.
+Extraction is serial per call, with concurrent Decisions/Responses requests and up to four queued sentences coalesced into one job. At most 128 pending jobs are loaded into the active page; overflow stays in SQLite and recovery follows transcript sequence. Transient text failures allow at most three attempts per durable job. Quota, authentication, budget, and rate-limit failures require an explicit retry.
 
 ## Measurement
 

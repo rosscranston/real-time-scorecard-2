@@ -31,10 +31,13 @@ for key, rule in rules.items():
         passed &= value is None or value == rule["absent_or"]
     if "other_detail" in rule:
         passed &= str(fact.get("otherDetail", "")).lower() == rule["other_detail"].lower()
-    checks.append({"field": key, "pass": bool(passed), "actual": value, "expected": rule})
+    if "other_detail_one_of" in rule:
+        passed &= str(fact.get("otherDetail", "")).casefold() in {name.casefold() for name in rule["other_detail_one_of"]}
+    checks.append({"field": key, "pass": bool(passed), "actual": value, "actual_other_detail": fact.get("otherDetail"), "expected": rule})
     print(f"{'PASS' if passed else 'FAIL'} {key}: {value}")
 unscored = {key: fact["value"] for key, fact in company["facts"].items() if key not in rules and fact["value"] is not None}
 result = {
+    "configuration_revision": report.get("configuration_revision"),
     "call": report["call"], "passed": sum(c["pass"] for c in checks), "total": len(checks),
     "checks": checks, "unscored_populated_fields": unscored,
     "unmapped_source_fields": rubric["unmapped_source_fields"],
