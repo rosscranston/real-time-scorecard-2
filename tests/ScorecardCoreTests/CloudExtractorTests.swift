@@ -12,6 +12,11 @@ private actor MockTransport: HTTPTransport {
     }
 }
 
+private struct InterruptedTransport: HTTPTransport {
+    let code: URLError.Code
+    func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) { throw URLError(code) }
+}
+
 private actor FocusedReviewTransport: HTTPTransport {
     let responses: Data
     let reviewChoice: String
@@ -35,6 +40,26 @@ private actor FocusedReviewTransport: HTTPTransport {
 }
 
 final class CloudExtractorTests: XCTestCase {
+    func testTransportFailuresRetainReservationsAndCancellationIsNotRetryableNetworkFailure() async throws {
+        for code in [URLError.Code.timedOut, .cancelled] {
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("scorecard-usage-\(UUID()).json")
+            defer { try? FileManager.default.removeItem(at: url) }
+            let client = try OpenAIClient(key: "fake-test-key", transport: InterruptedTransport(code: code), ledgerURL: url)
+            do { _ = try await client.post(endpoint: "responses", body: Data("{}".utf8)); XCTFail("Expected interruption") }
+            catch is CancellationError { XCTAssertEqual(code, .cancelled) }
+            catch let error as OpenAIError { XCTAssertEqual(code, .timedOut); XCTAssertEqual(error, .network) }
+            let usage = await client.usage()
+            XCTAssertGreaterThan(usage.chargedOrReservedUSD, 0)
+            XCTAssertEqual(usage.requests.count, 1)
+            XCTAssertEqual(usage.requests[0].estimatedUSD, usage.chargedOrReservedUSD)
+            XCTAssertEqual(usage.requests[0].endpoint, code == .cancelled ? "responses_cancelled" : "responses_transport_failure")
+            let reopened = try OpenAIClient(key: "fake-test-key", ledgerURL: url)
+            let persisted = await reopened.usage()
+            XCTAssertEqual(persisted.chargedOrReservedUSD, usage.chargedOrReservedUSD)
+            let stored = try String(contentsOf: url, encoding: .utf8)
+            XCTAssertFalse(stored.contains("fake-test-key"))
+        }
+    }
     func config() -> ScorecardConfiguration {
         ScorecardConfiguration(id: "test", title: "Test", groups: [FieldGroup(id: "profile", label: "Profile", fields: [
             FieldDefinition(key: "software", label: "Software", type: "select", options: ["Drake", "Lacerte"])

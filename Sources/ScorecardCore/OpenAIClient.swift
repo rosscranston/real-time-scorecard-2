@@ -29,7 +29,7 @@ public final class URLSessionTransport: HTTPTransport, @unchecked Sendable {
     private let session: URLSession
     public init() {
         let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForRequest = 15; config.timeoutIntervalForResource = 20
+        config.timeoutIntervalForRequest = 6; config.timeoutIntervalForResource = 8
         session = URLSession(configuration: config, delegate: NoRedirectDelegate(), delegateQueue: nil)
     }
     public func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
@@ -107,6 +107,11 @@ public actor OpenAIClient {
         guard !quotaBlockedEndpoints.contains(endpoint) else { throw OpenAIError.quota }
         var request = URLRequest(url: URL(string: "https://api.openai.com/v1/\(endpoint)")!)
         request.httpMethod = "POST"; request.httpBody = body
+        // Long synthetic calls showed 15-second transport stalls propagating to
+        // several later sentences. Successful Decisions peaked below 1.6s and
+        // Responses p99 was 4.34s across ~1,900 requests per endpoint. Fail a
+        // stalled request sooner; the durable session still owns bounded retry.
+        request.timeoutInterval = endpoint == "decisions" ? 3 : 6
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         // Conservative upper estimate using UTF-8 bytes as tokens, cache-write rate,
@@ -120,8 +125,17 @@ public actor OpenAIClient {
         let data: Data
         let response: HTTPURLResponse
         do { (data, response) = try await transport.send(request) }
-        catch is CancellationError { throw CancellationError() }
-        catch { throw OpenAIError.network } // Reservation remains for uncertain billing.
+        catch {
+            let cancelled = error is CancellationError || (error as? URLError)?.code == .cancelled
+            // Keep the full reservation when billing is uncertain. Persist only
+            // endpoint/timing metadata, never the request or provider error body.
+            ledger.requests.append(APIUsage(endpoint: endpoint + (cancelled ? "_cancelled" : "_transport_failure"),
+                model: "gpt-6-luna", inputTokens: 0, outputTokens: 0,
+                seconds: Date().timeIntervalSince(start), estimatedUSD: reservation))
+            try saveLedger()
+            if cancelled { throw CancellationError() }
+            throw OpenAIError.network
+        }
         guard response.statusCode == 200 else {
             let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
             let error = json?["error"] as? [String: Any]

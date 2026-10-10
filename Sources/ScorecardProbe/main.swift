@@ -140,6 +140,10 @@ struct ScorecardProbe {
         }
         do {
             let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            // Capture this at startup, not after a long replay: a later build may
+            // replace the shared executable path while this process still runs.
+            let executableHash = SHA256.hash(data: try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[0])))
+                .map { String(format: "%02x", $0) }.joined()
             let interval = Double(argument("--interval", fallback: "5")) ?? 5
             guard interval >= 3, interval <= 30 else { throw OpenAIError.invalidResponse }
             let soakMinutes = Int(argument("--soak-minutes", fallback: "0")) ?? 0
@@ -226,6 +230,7 @@ struct ScorecardProbe {
                 + Double(resources.ru_utime.tv_usec + resources.ru_stime.tv_usec) / 1_000_000
             let results: [String: Any] = [
                 "call": id, "interval_seconds": interval,
+                "executable_sha256": executableHash,
                 "fixture_sha256": SHA256.hash(data: packData).map { String(format: "%02x", $0) }.joined(),
                 "configuration_id": config.id, "configuration_revision": config.revision,
                 "configuration_sha256": SHA256.hash(data: try ScorecardCoding.encoder().encode(config)).map { String(format: "%02x", $0) }.joined(),
