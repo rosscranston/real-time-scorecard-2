@@ -4,17 +4,22 @@ import ScorecardCore
 struct ScorecardView: View {
     @EnvironmentObject var store: AppStore
     @State private var selectedField: String?
+    @State private var editTarget: String?
     var body: some View {
         VStack(spacing: 0) {
             header.padding(12)
             Divider().overlay(scoreGreen.opacity(0.25))
             if let config = store.configuration {
+                ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(config.orderedGroups(for: store.callType)) { group in
                             section(group, configuration: config)
                         }
                     }.padding(10)
+                }.onChange(of: selectedField) { _, field in
+                    if let field { proxy.scrollTo(field, anchor: .center) }
+                }
                 }
             }
             Divider()
@@ -42,7 +47,7 @@ struct ScorecardView: View {
         .onKeyPress(.downArrow) { moveSelection(1); return .handled }
         .background {
             Button("") { if let selectedField { store.toggleLock(selectedField) } }
-                .keyboardShortcut("l", modifiers: [.command, .shift]).hidden()
+                .keyboardShortcut("l", modifiers: store.lockShortcutModifiers).hidden()
         }
     }
     private var header: some View {
@@ -90,7 +95,9 @@ struct ScorecardView: View {
             if !collapsed {
                 ForEach(group.fields.filter(\.isVisible)) { field in
                     ScorecardRow(field: field, configuration: configuration, selected: selectedField == field.key,
-                                 select: { selectedField = field.key }).environmentObject(store)
+                                 editRequested: editTarget == field.key,
+                                 select: { selectedField = field.key },
+                                 navigate: { moveSelection($0) }).environmentObject(store).id(field.key)
                 }
             }
         }
@@ -102,6 +109,7 @@ struct ScorecardView: View {
         guard !fields.isEmpty else { return }
         let current = fields.firstIndex { $0.key == selectedField } ?? (delta > 0 ? -1 : fields.count)
         selectedField = fields[max(0, min(fields.count - 1, current + delta))].key
+        editTarget = selectedField
     }
 }
 
@@ -110,7 +118,9 @@ struct ScorecardRow: View {
     let field: FieldDefinition
     let configuration: ScorecardConfiguration
     var selected: Bool
+    var editRequested: Bool
     var select: () -> Void
+    var navigate: (Int) -> Void
     @State private var editing = false
     @State private var draft = ""
     @State private var evidenceOpen = false
@@ -136,10 +146,12 @@ struct ScorecardRow: View {
                 Text(field.label.uppercased()).foregroundStyle(.gray).lineLimit(1).frame(maxWidth: 105, alignment: .leading)
                 if editing {
                     TextField("", text: $draft).textFieldStyle(.plain).focused($focused)
-                        .onSubmit { store.edit(field, text: draft); editing = false }
+                        .onSubmit { commitEdit() }
                         .onExitCommand { editing = false }
+                        .onKeyPress(.upArrow) { commitEdit(); navigate(-1); return .handled }
+                        .onKeyPress(.downArrow) { commitEdit(); navigate(1); return .handled }
                         .onChange(of: focused) { _, focus in
-                            if !focus && editing { store.edit(field, text: draft); editing = false }
+                            if !focus && editing { commitEdit() }
                         }
                 } else {
                     Text(fact?.display ?? "?")
@@ -173,7 +185,7 @@ struct ScorecardRow: View {
                     .foregroundStyle(.gray).disabled(record?.evidence.isEmpty ?? true).help("Evidence")
             }.padding(.vertical, 6).padding(.horizontal, 3)
                 .background(selected ? scoreGreen.opacity(0.10) : .clear)
-                .contentShape(Rectangle()).onTapGesture { select() }
+                .contentShape(Rectangle()).onTapGesture { select(); beginEdit() }
             if evidenceOpen {
                 ForEach(Array((record?.evidence ?? []).enumerated()), id: \.offset) { _, evidence in
                     Text(evidence.quote).foregroundStyle(.gray).textSelection(.enabled)
@@ -181,6 +193,13 @@ struct ScorecardRow: View {
                 }
             }
         }.buttonStyle(.plain)
+        .onChange(of: editRequested) { _, requested in
+            if requested { beginEdit() }
+        }
+        .onChange(of: selected) { _, selected in
+            if selected { beginEdit() }
+        }
+        .onAppear { if editRequested { beginEdit() } }
         .contextMenu {
             Button("Edit") { select(); beginEdit() }
             Button(record?.locked == true ? "Unlock" : "Lock") { store.toggleLock(field.key) }
@@ -191,6 +210,13 @@ struct ScorecardRow: View {
         }.disabled(store.company == nil)
     }
     private func beginEdit() { draft = fact?.display ?? ""; editing = true; focused = true }
+    private func commitEdit() {
+        guard editing else { return }
+        editing = false
+        // Merely navigating through a field must not create a lock or clear it.
+        guard draft != (fact?.display ?? "") else { return }
+        store.edit(field, text: draft)
+    }
 }
 
 struct WindowPolicy: NSViewRepresentable {

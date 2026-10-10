@@ -139,6 +139,7 @@ public struct ScorecardConfiguration: Codable, Identifiable, Equatable, Sendable
     public var sourceCatalog: [String: JSONValue]?
     public var integrations: [String: JSONValue]?
     public var draftNotes: [String]?
+    public var calculations: [NumericCalculation]?
     public var fields: [FieldDefinition] { groups.flatMap(\.fields) }
     public init(id: String, title: String, groups: [FieldGroup]) {
         self.schemaVersion = 1; self.id = id; self.title = title; self.groups = groups
@@ -191,6 +192,17 @@ public struct ScorecardConfiguration: Codable, Identifiable, Equatable, Sendable
                   Set(layout.priorityFields).isSubset(of: Set(keys)),
                   Set(layout.priorityFields).count == layout.priorityFields.count else {
                 throw ConfigurationError.invalid("Layout references invalid or duplicated sections/fields.")
+            }
+        }
+        let formulas = calculations ?? []
+        guard Set(formulas.map(\.id)).count == formulas.count else { throw ConfigurationError.invalid("Calculation IDs must be unique.") }
+        for formula in formulas {
+            guard !formula.id.isEmpty, formula.inputs.count == 2, Set(formula.inputs).count == 2,
+                  !formula.inputs.contains(formula.target),
+                  fields.first(where: { $0.key == formula.target })?.isNumeric == true,
+                  formula.inputs.allSatisfy({ key in fields.first(where: { $0.key == key })?.isNumeric == true }),
+                  (0...6).contains(formula.decimalPlaces ?? 0) else {
+                throw ConfigurationError.invalid("Calculation references invalid numeric fields or precision.")
             }
         }
     }

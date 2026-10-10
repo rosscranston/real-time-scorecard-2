@@ -41,6 +41,20 @@ final class CloudExtractorTests: XCTestCase {
         let result = try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: object), configuration: config())
         XCTAssertEqual(result.candidates.count, 1)
     }
+    func testCommentaryIsNeverParsedAsFinalStructuredAnswer() throws {
+        var object = try JSONSerialization.jsonObject(with: response(value: "Drake", id: UUID())) as! [String: Any]
+        var final = (object["output"] as! [[String: Any]])[0]
+        final["phase"] = "final_answer"
+        object["output"] = [
+            ["phase": "commentary", "content": [["type": "output_text", "text": "Intermediate text {not valid JSON}"]]],
+            final
+        ]
+        let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.99}]}"#.utf8)
+        let result = try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: object), configuration: config())
+        XCTAssertEqual(result.candidates.count, 1)
+        object["output"] = [["phase": "commentary", "content": [["type": "output_text", "text": "{\"facts\":[]}"]]]]
+        XCTAssertThrowsError(try CloudExtractor.decode(decisions: decisions, responses: JSONSerialization.data(withJSONObject: object), configuration: config()))
+    }
     func testAcceptedCandidateUsesLowerConfidence() throws {
         let decisions = Data(#"{"answers":[{"type":"choice","name":"software","choice":"Drake","confidence":0.81}]}"#.utf8)
         let result = try CloudExtractor.decode(decisions: decisions, responses: response(value: "Drake", id: UUID()), configuration: config())

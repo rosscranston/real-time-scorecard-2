@@ -179,6 +179,29 @@ public final class ScorecardDatabase: @unchecked Sendable {
     public func saveJob(_ job: ExtractionJob) throws {
         try synchronized { try write(job, kind: "job", id: job.id.uuidString, companyID: job.companyID) }
     }
+    public func switchConfiguration(company: CompanyScorecard, call: CallRecord,
+                                    superseded: [ExtractionJob], pending: [ExtractionJob]) throws {
+        guard call.companyID == company.id, call.configurationID == company.configurationID else {
+            throw DatabaseError(message: "Configuration switch identity does not match.")
+        }
+        try synchronized {
+            try transaction {
+                try write(company, kind: "company", id: company.storageID, companyID: company.id)
+                try write(call, kind: "call", id: call.id.uuidString, companyID: company.id)
+                for var job in superseded {
+                    job.status = .superseded
+                    try write(job, kind: "job", id: job.id.uuidString, companyID: company.id)
+                }
+                for job in pending {
+                    guard job.companyID == company.id, job.callID == call.id,
+                          job.configurationID == company.configurationID else {
+                        throw DatabaseError(message: "New configuration queue identity does not match.")
+                    }
+                    try write(job, kind: "job", id: job.id.uuidString, companyID: company.id)
+                }
+            }
+        }
+    }
     public func pendingJobs() throws -> [ExtractionJob] {
         try synchronized {
             try read(ExtractionJob.self, kind: "job").filter { [.pending, .running, .failed].contains($0.status) }.sorted { $0.createdAt < $1.createdAt }

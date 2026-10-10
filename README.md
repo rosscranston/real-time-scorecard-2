@@ -33,7 +33,7 @@ See `PROJECT_PLAN.md` for components, milestones, defaults, acceptance gates, an
 
 ## Starting criteria configuration
 
-`configurations/company-scorecard.draft.json` adapts the supplied 39-field catalog into a 41-field draft, adding exact team size and separate hosting provider. It includes suggested call-type priorities, one answer per field, uncertainty and lock defaults, and extraction routes. The native app and probe load this configuration at runtime. The older Python smoke test uses only its two built-in questions.
+`configurations/company-scorecard.draft.json` adapts the supplied 39-field catalog into a 43-field draft, adding exact team size, separate hosting provider, and personal/business return counts with JSON-defined calculations. It includes suggested call-type priorities, one answer per field, uncertainty and lock defaults, and extraction routes. The native app and probe load this configuration at runtime. The older Python smoke test uses only its two built-in questions.
 
 The untouched source is stored under ignored `private-data/imports/company-fields.original.json`. Contact/company examples are omitted from the distributable draft. Attio mappings are metadata only and do not enable synchronization or writes.
 

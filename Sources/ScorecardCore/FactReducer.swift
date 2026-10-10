@@ -45,10 +45,11 @@ public enum FactReducer {
                                     confidence: candidate.confidence, estimated: candidate.estimated, evidence: [evidence])
         let same = before.value == value && before.otherDetail == candidate.otherDetail
         if same {
-            guard !before.locked, candidate.confidence > before.confidence else { return .unchanged }
+            guard !before.locked, candidate.confidence > before.confidence || before.derivedFrom != nil else { return .unchanged }
             var fact = before
             fact.confidence = candidate.confidence; fact.estimated = candidate.estimated
             fact.evidence = [evidence]; fact.version += 1; fact.updatedAt = Date()
+            fact.derivedFrom = nil
             company.facts[field.key] = fact
             markChanged(field.key, configuration: configuration, company: &company)
             return .updated
@@ -72,6 +73,7 @@ public enum FactReducer {
         fact.confidence = candidate.confidence; fact.estimated = candidate.estimated
         fact.evidence = [evidence]; fact.proposal = nil; fact.version += 1; fact.updatedAt = Date()
         fact.dismissedProposalFingerprint = nil
+        fact.derivedFrom = nil
         company.facts[field.key] = fact
         company.latestSequence = max(company.latestSequence, segment.sequence)
         markChanged(field.key, configuration: configuration, company: &company)
@@ -88,6 +90,7 @@ public enum FactReducer {
         after.value = value; after.otherDetail = detail; after.locked = true
         after.confidence = 1; after.estimated = false; after.version += 1
         after.updatedAt = Date(); after.proposal = nil; after.dismissedProposalFingerprint = nil
+        after.derivedFrom = nil
         after.evidence = [Evidence(quote: value == .null ? "Manually cleared" : "Manually entered: \(text)", source: .manual)]
         if value == .null { after.clearedThroughSequence = company.latestSequence }
         company.facts[field.key] = after
@@ -101,6 +104,7 @@ public enum FactReducer {
         remember(fieldKey, before: before, company: &company)
         var after = before
         after.value = .null; after.otherDetail = nil; after.confidence = 0
+        after.derivedFrom = nil
         after.proposal = nil; after.evidence = []; after.estimated = false
         after.clearedThroughSequence = company.latestSequence; after.version += 1; after.updatedAt = Date()
         // Preserve explicit lock state; unlocked clearing waits for new evidence.
@@ -165,7 +169,7 @@ public enum FactReducer {
         company.undoStack.append(UndoEntry(fieldKey: key, previous: before))
         if company.undoStack.count > 100 { company.undoStack.removeFirst(company.undoStack.count - 100) }
     }
-    private static func markChanged(_ key: String, configuration: ScorecardConfiguration, company: inout CompanyScorecard) {
+    static func markChanged(_ key: String, configuration: ScorecardConfiguration, company: inout CompanyScorecard) {
         guard let group = configuration.groups.first(where: { $0.fields.contains(where: { $0.key == key }) }),
               company.collapsedSections.contains(group.id) else { return }
         company.unreadFields[group.id, default: []].insert(key)

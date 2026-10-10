@@ -1,8 +1,6 @@
 {
   "scope": "Mapped core fields from the supplied human-authored synthetic discovery answer keys. Partial rubric, not comprehensive all-field accuracy. Source pack never enters inference as an answer key.",
   "unmapped_source_fields": [
-    "personal_returns",
-    "business_returns",
     "practice_management",
     "admins",
     "preparers",
@@ -63,6 +61,12 @@
       },
       "varr": {
         "absent": true
+      },
+      "personal_returns": {
+        "equals": 528
+      },
+      "business_returns": {
+        "equals": 156
       }
     },
     "02-skeptical-operator": {
@@ -108,6 +112,12 @@
       },
       "varr": {
         "absent": true
+      },
+      "personal_returns": {
+        "equals": 1110
+      },
+      "business_returns": {
+        "equals": 370
       }
     },
     "03-partners-corrections": {
@@ -155,6 +165,12 @@
       },
       "varr": {
         "absent": true
+      },
+      "personal_returns": {
+        "equals": 1020
+      },
+      "business_returns": {
+        "equals": 240
       }
     }
   }

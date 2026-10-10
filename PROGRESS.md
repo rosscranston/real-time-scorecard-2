@@ -20,42 +20,56 @@
 - Verified the actual native pipeline with one synthetic excerpt: 4/4 expected fields correct, 3.52 seconds transcript-to-candidates, zero warnings, estimated cost $0.000713.
 - Power was subsequently observed as AC Power (battery still discharging at that instant); keep external power connected.
 
-## Current stage (00:12 Pacific)
+## Current stage (00:31 Pacific)
 
-The native UI and core are implemented and build. Verified through macOS accessibility: manual event name → Start without Calendar, synthetic transcript → four correct visible values, inline edit auto-lock, Command-Z restoring prior value and lock. Settings offers masked key entry/Keychain, API test, optional Calendar, configurations and replay. The app bundle is stale (built before audio integration/latest changes); rebuild before delivery.
+The independent native app builds and launches. 34 Swift tests pass, including numeric dependencies, confidence/locks, out-of-order audio completion, bounded retries, and configuration switches while a request is in flight. Five earlier Python harness tests also passed. Latest test output: /tmp/scorecard-tests.log.
 
-Added separate microphone/selected-browser capture using ScreenCaptureKit, bounded per-channel input streams, PCM conversion, client-side voice turn boundaries, OpenAI WebSocket transcription, stable item IDs across out-of-order completions, final transcript ingestion, explicit Apple Speech option, and Settings provider/browser controls. No ElevenLabs or local LLM inference. Audio starts only after explicit Start; replay does not capture. Capture is restricted to the chosen browser rather than all applications. Known gaps: automatic bounded reconnect is not yet implemented (explicit reconnect works in code), real ScreenCaptureKit/Google Meet capture and permissions are untested, and final audio-drain/reconnect lifecycle needs additional testing.
+Implemented since the previous checkpoint:
+- Catalog revision 5: 43 fields, 35 automatically extracted; personal/business return counts and six JSON-defined numeric formulas. Calculations require two direct/locked inputs, retain evidence, respect locks, and avoid circular derivation.
+- Three-attempt bounded retries for malformed final responses, network failures, and HTTP 5xx. Quota/auth/budget/rate-limit failures remain explicit stops. Attempts persist across restarts.
+- Immediate configuration switching: transactional replacement queue, archived previous configs/facts, generation check that rejects late old-config results. Removed fields do not enter model context.
+- History exposes Resume pending jobs, without starting capture. Settings edits allowed values, aliases, source policies, visibility/extraction rules and confidence thresholds, then saves an exportable revision.
+- Keyboard navigation saves/locks edited field and focuses the next. Mere navigation does not lock or clear values. Configurable lock shortcut. Verified Down from number of returns after typing 800, typing 6 in team size, Return, then Command-Shift-L unlock.
+- UI settings revision save and manual Start without Calendar verified. App initially appeared unresponsive through CUA; process sample showed it idle/responsive, and rebinding cua.getApp fixed automation. Not an app hang.
+- Bundled config update preserves a user-created revision with the same number instead of failing initialization.
 
-**OpenAI AUDIO ACCESS IS NOW VERIFIED.** At ~00:07 the new adapter transcribed a generated 7.58-second Samantha speech file, then passed software=Drake Desktop, employee_count=6, number_of_returns=800 through the real core pipeline. Transcript: test-results/audio/transcribed.txt. Source audio and PCM under test-results/audio. This is a short synthetic roundtrip, not live Meet/audio-to-screen latency proof. Reserved $0.034 conservatively in the shared test ledger. The earlier quota/rate-limit blocker no longer applies to this tested request.
+App bundle in dist is a launchable ad-hoc debug build with the new settings/keyboard/audio, but it predates the final-answer phase parser and revision-5 definitions. Rebuild for delivery. Local UI is on a synthetic history company with returns800 locked and team6 unlocked; transcription preference is temporarily transcript-only for testing. Restore OpenAI cloud before final handoff. Local UI saved config revision5 is the older catalog4 content; bundled revision5 will safely become revision6 on launch, and existing selection remains preserved.
 
-27 Swift tests pass, including audio silence/chunking/last-voice timestamp, out-of-order commit identity, concurrent manual-edit protection, and two production-response regression cases. Five Python harness tests also previously passed.
+## Audio and connectivity
 
-## Replay findings and current worker
+OpenAI text and AUDIO access are verified. At ~00:07 the adapter transcribed generated 7.58-second Samantha speech, then passed software=Drake Desktop, employee_count=6, number_of_returns=800 through the real core pipeline. Files in test-results/audio. This does not verify real Meet/audio-to-screen latency. Earlier quota/rate-limit blocker is resolved for this request.
 
-First long call completed through recovery, not an uninterrupted run. Full 127 sentences are persisted with zero pending in test-results/01-owner-story-1791615393. It took two parser fixes: (1) model returned several values for one software field; use the Decisions-supported primary and skip extras rather than aborting; (2) API returned the same complete JSON twice in separate output_text items; deduplicate identical documents rather than concatenating invalid JSON. Conflicting documents remain rejected. Regression tests cover both. The first earlier run at test-results/01-owner-story-1791614577 remains an incomplete baseline.
+Audio implementation: selected-browser plus microphone ScreenCaptureKit channels, bounded streams, PCM conversion, client voice turns, gpt-live-transcribe WebSocket, stable client IDs through out-of-order acknowledgments, final transcript ingestion. Apple Speech is explicitly optional. No ElevenLabs/local LLM. Automatic audio reconnect and actual capture/start/stop lifecycle still need work; explicit reconnect exists. Never silently claim lost audio succeeded.
 
-Evaluation using scripts/evaluate-replay.py gives 12/13 explicitly mapped core checks for completed call 1; five additional populated fields require manual review. The failure: number_of_returns became 240 (proposed purchase volume) instead of actual annual firm volume 684. Strengthened definitions for annual volume, overlapping team roles, monetary fields, and hosting provider. Catalog revision is now 3. Do not claim accuracy or latency targets passed; resumed-call latency includes real recovery delay, and the key volume error needs a fresh regression pass.
+GitHub CLI authentication now VERIFIED for rosscranston with repo/workflow scope. No remote/repo published yet. Developer ID/notarization remain unavailable; source and explicitly labeled ad-hoc app can be shared.
 
-**CURRENT RUN: unified exec session 45191**, .build/debug/ScorecardProbe --replay --call 02-skeptical-operator --interval 3, 141 sentences. Poll this worker; do not duplicate it. Uses revision 3 and all parser fixes. Raw synthetic response bodies (never headers) are under its test-results run. Prior workers 45678, 12100, 48358 and audio test 96257 all completed. A keep-awake assertion is running in exec session 42450 (caffeinate -i -s -t 28200), bounded to ~08:00; do not create another.
+Power risk: at 00:31 Mac reported AC but 33% battery, discharging, estimated2:16 remaining. User warned in commentary to check stronger charger/cable. Bounded caffeinate process session42450 remains; do not duplicate. Power is a real overnight risk, not a reason to stop independent work.
+
+## Replay results and current worker
+
+Call1 recovered full127 sentences in test-results/01-owner-story-1791615393, but old rubric12/13: proposed purchase240 incorrectly replaced actual684. Old revision2 definitions. Initial parser problems recovered; not an uninterrupted latency pass. Needs fresh replay after definition fixes.
+
+Call2 test-results/02-skeptical-operator-1791616259 stopped37/39 on differing intermediate/final documents, p952.57 before stop. Worker45191 ended. Needs fresh full replay with latest parser/catalog.
+
+Call3 test-results/03-partners-corrections-1791616869 completed151/151, zero pending/error,13/15 mapped checks; p955.54s and142/151 within5seconds (94.0%, targetnotmet). Failures: firm location replaced with participant visiting Boise; software remained Drake edition-unconfirmed despite later desktop clarification. Other software changed from practice management to accounting; manually review unscored fields. Five malformed-looking responses were actually commentary plus final_answer messages; parser now selects final_answer phase per official Responses API. That fix should eliminate unnecessary retries; regression test added. More specific location/software/practice-management rules and previous-answer evidence context added, catalogrev5. Never assume improvements passed without new result.
+
+CURRENT LIVE RUN: exec session8174, .build/debug/ScorecardProbe --replay --call 03-partners-corrections --interval3. Log /tmp/scorecard-replay-03b.log. Uses latest parser and catalog5. Poll it; do not start duplicate API runs sharing ledger. Previous run68098 and test16293 ended. Latest Swift tests48029 completed34/34. Other stale handles need not be polled.
+
+Synthetic rubric now15 checks percall including personal/business counts. scripts/evaluate-replay.py writes scoped evaluation, not all-field precision. Original answer keys never enter inference. Raw synthetic responses are ignored/private; do not publish diagnostics. Test ledger private-data/api-test-usage.json is far below$5 but avoid concurrent writers.
 
 ## Next actions
 
-1. Poll replay 45191, evaluate its final output, diagnose errors from synthetic response files. Run third long script and rerun first after definition fix. Preserve scoped metrics: mapped checks are not comprehensive all-field precision/recall. Review extra fields and add necessary tests.
-2. Implement generic numeric derivations and missing personal/business return-count fields; avoid guessing unknown subcategories. Current catalog is 41 fields and max50.
-3. Finish recovery/retry policy, UI resume of persisted pending jobs, immediate configuration switching, Settings field/threshold edits and export, keyboard focus/navigation, and audio reconnect/lifecycle. Current configuration UI switches only after a call, a known gap versus requested immediate switching.
-4. Rebuild the app and validate real UI layouts, audio permission/start/stop using synthetic files where possible. Real Google Meet audio and actual sharing invisibility remain unverified; prior screenshot exclusion is not proof for Meet. Calendar connection is optional; automatic naming explicitly deferred to next version.
-5. 45-minute soak, release packaging/license/source review/secret scans, reproducible artifact checks, GitHub publish when authenticated, FINAL_REPORT.
+1. Finish current03 rerun and evaluate; fresh02 then01. Review additional populated facts and cross-sentence correctness. No fabrication of comprehensive accuracy or audio-to-screen SLO.
+2. Finish bounded audio reconnect/lifecycle verification, pending recovery UI test, config switch UI test, and any remaining requirement gaps. Inspect PROJECT_PLAN/OVERNIGHT_PLAN and current source.
+3. Actual capture/permissions with synthetic audio where feasible; real Google Meet and sharing exclusion remain unverified. Calendar optional connection implemented; automatic naming explicitly next version.
+4. Start meaningful45-minute soak soon; prefer completing independent packaging while it runs. Keep battery/deadline risk in mind.
+5. Release packaging, license, source/secret scan, clean GitHub repository/release, source/appZIP/checksums, reproducible verification, FINAL_REPORT by08:00. No Developer ID means label app non-notarized. Do not push old parentrepo/private files.
 
-## Verification commands
+## Verification
 
-- swift test --disable-sandbox (27 tests passed; module cache envs can point to /tmp/scorecard2-clang and /tmp/scorecard2-swift in sandbox).
-- .build/debug/ScorecardProbe --live-sample uses the real OpenAI core with synthetic data; network access required. Do not repeatedly run without a new reason.
-- Usage ledger: ignored private-data/api-test-usage.json. Avoid printing credential files.
+- env CLANG_MODULE_CACHE_PATH=/tmp/scorecard2-clang SWIFT_MODULECACHE_PATH=/tmp/scorecard2-swift swift test --disable-sandbox
+- bash scripts/build-app.sh debug (or release)
+- python3 scripts/evaluate-replay.py test-results/<run>
+- API key remains ignored.env and native Keychain; never print keys.
 
-## External blockers
-
-- OpenAI text AND short synthetic audio roundtrip now pass. Live Meet capture remains unverified.
-- Mac was charging at 23:58; at 00:07 it showed AC, 38% and discharging (intermittent). Keep monitoring actual power rather than assuming unlimited runtime.
-- No real Google recordings located for live-audio evaluation.
-- GitHub release-upload auth and Developer ID/notarization unavailable.
-- New-app capture/calendar permissions and actual Meet sharing test pending.
+Official phase documentation: https://developers.openai.com/api/reference/resources/responses/methods/create

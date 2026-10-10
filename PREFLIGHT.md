@@ -38,3 +38,7 @@ After the user added a payment method, the explicit Realtime transcription sessi
 ## Audio access cleared by actual test — October 10 ~00:07
 
 The implemented OpenAITranscriber successfully accepted a session, transcribed 7.58 seconds of synthetic macOS Samantha speech, and fed the transcript into Decisions/Responses. Software, team size and return count matched expected values. The prior quota/rate-limit failures are historical, not a current blocker for this tested request. Raw microphone/Meet capture is still untested. No real customer audio was used.
+
+## Resolved checks at 00:31 Pacific, October 10
+
+OpenAI audio now passes a 7.58-second generated-speech round trip and three-field extraction. GitHub CLI is authenticated as rosscranston. Earlier audio and GitHub blockers above are historical. Developer ID/notarization and actual Meet capture/sharing validation remain open. Mac is on AC but discharging at33% (estimated2h16remaining); user warned. Current detailed results and worker identity are in PROGRESS.md.

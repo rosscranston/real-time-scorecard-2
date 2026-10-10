@@ -10,18 +10,20 @@ final class AppStore: ObservableObject {
     @Published var configurations: [ScorecardConfiguration] = []
     @Published var companies: [CompanyScorecard] = []
     @Published var history: [CallRecord] = []
+    @Published var pendingCalls: [UUID: Int] = [:]
     @Published var selectedCompany: CompanyScorecard?
     @Published var session: ExtractionSession?
     @Published var eventName = ""
     @Published var firmName = ""
     @Published var callType = "initial"
     @Published var message: String?
-    @Published var connectionStatus = "Add an OpenAI API key"
+    @Published var connectionStatus = "Add a key or test the saved connection"
     @Published var calendarStatus = "Optional · not connected"
     @Published var showTranscript = false
     @Published var showHistory = false
     @Published var showInScreenSharing = false
     @Published var opacity = 1.0
+    @Published var lockShortcut = "commandShiftL"
     @Published var replaying = false
     @Published var transcriptionProvider = "openai"
     @Published var browserBundleID = "com.google.Chrome"
@@ -46,14 +48,23 @@ final class AppStore: ObservableObject {
             guard let url = Bundle.module.url(forResource: "default-configuration", withExtension: "json") else {
                 throw DatabaseError(message: "The app's default configuration is missing.")
             }
-            let initial = try ScorecardConfiguration.load(Data(contentsOf: url))
+            var initial = try ScorecardConfiguration.load(Data(contentsOf: url))
+            let saved = try db.configurations()
+            if let existing = saved.first(where: { $0.id == initial.id && $0.revision == initial.revision }),
+               existing != initial {
+                // A user may have created this revision number in Settings. Preserve
+                // that configuration when the bundled catalog receives an update.
+                initial.revision = (saved.filter { $0.id == initial.id }.map(\.revision).max() ?? initial.revision) + 1
+            }
             try db.saveConfiguration(initial)
             configurations = try db.configurations()
             let selected = try db.preference(String.self, key: "activeConfiguration")
             configuration = configurations.first { "\($0.id):\($0.revision)" == selected } ?? initial
             companies = try db.companies(); history = try db.calls()
+            pendingCalls = Dictionary(grouping: try db.pendingJobs(), by: \.callID).mapValues(\.count)
             showInScreenSharing = try db.preference(Bool.self, key: "showInScreenSharing") ?? false
             opacity = try db.preference(Double.self, key: "opacity") ?? 1
+            lockShortcut = try db.preference(String.self, key: "lockShortcut") ?? "commandShiftL"
             transcriptionProvider = try db.preference(String.self, key: "transcriptionProvider") ?? "openai"
             browserBundleID = try db.preference(String.self, key: "browserBundleID") ?? "com.google.Chrome"
         } catch { message = error.localizedDescription }
@@ -227,7 +238,8 @@ final class AppStore: ObservableObject {
             if let session {
                 try session.mutate { company in try action(&company, configuration) }
             } else if var company = selectedCompany {
-                let events = try action(&company, configuration)
+                var events = try action(&company, configuration)
+                events += NumericDeriver.recalculate(configuration: configuration, company: &company)
                 try database.saveCompany(company, events: events); selectedCompany = company
             }
         } catch { message = error.localizedDescription }
@@ -264,8 +276,26 @@ final class AppStore: ObservableObject {
     func transcript(for call: CallRecord) -> [TranscriptEntry] {
         (try? database?.segments(callID: call.id, companyID: call.companyID)) ?? []
     }
+    func resumeHistory(_ call: CallRecord) {
+        guard !active, !busy, !audioBusy, let database else { return }
+        do {
+            guard let company = try database.company(id: call.companyID, configurationID: call.configurationID),
+                  let config = configurations.first(where: {
+                      $0.id == company.configurationID && $0.revision == company.configurationRevision
+                  }) else { throw DatabaseError(message: "The saved call configuration is unavailable.") }
+            let running = try ExtractionSession(company: company, call: call, configuration: config,
+                database: database, extractor: CloudExtractor(client: makeClient()))
+            running.onChange = { [weak self] in self?.objectWillChange.send() }
+            configuration = config; selectedCompany = company; session = running
+            eventName = call.eventName ?? company.name; firmName = company.name
+            message = nil; showHistory = false
+            // Recover text only. Audio capture always requires a separate explicit start.
+            running.resume()
+        } catch { message = error.localizedDescription }
+    }
     func refreshHistory() throws {
         history = try database?.calls() ?? []; companies = try database?.companies() ?? []
+        pendingCalls = Dictionary(grouping: try database?.pendingJobs() ?? [], by: \.callID).mapValues(\.count)
     }
     func importConfiguration() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]; panel.allowsMultipleSelection = false
@@ -278,11 +308,26 @@ final class AppStore: ObservableObject {
         } catch { message = error.localizedDescription }
     }
     func selectConfiguration(_ config: ScorecardConfiguration) {
-        guard !active, !busy else { message = "Finish this call before switching configurations."; return }
-        do {
-            try database?.savePreference("\(config.id):\(config.revision)", key: "activeConfiguration")
-            configuration = config; session = nil; selectedCompany = nil
-        } catch { message = error.localizedDescription }
+        do { try activateConfiguration(config) } catch { message = error.localizedDescription }
+    }
+    private func activateConfiguration(_ config: ScorecardConfiguration) throws {
+        if let session { try session.switchConfiguration(config) }
+        try database?.savePreference("\(config.id):\(config.revision)", key: "activeConfiguration")
+        configuration = config
+        if session == nil, let selectedCompany {
+            self.selectedCompany = try database?.company(id: selectedCompany.id, configurationID: config.id)
+                ?? CompanyScorecard(id: selectedCompany.id, name: selectedCompany.name, configuration: config)
+        }
+        try refreshHistory()
+    }
+    func saveEditedConfiguration(_ edited: ScorecardConfiguration) throws {
+        guard let database else { throw DatabaseError(message: "Database unavailable.") }
+        var revised = edited
+        revised.revision = (configurations.filter { $0.id == edited.id }.map(\.revision).max() ?? edited.revision) + 1
+        try revised.validate()
+        try database.saveConfiguration(revised)
+        configurations = try database.configurations()
+        try activateConfiguration(revised)
     }
     func exportConfiguration() {
         guard let configuration else { return }
@@ -304,7 +349,11 @@ final class AppStore: ObservableObject {
         do {
             try database?.savePreference(showInScreenSharing, key: "showInScreenSharing")
             try database?.savePreference(opacity, key: "opacity")
+            try database?.savePreference(lockShortcut, key: "lockShortcut")
         } catch { message = error.localizedDescription }
+    }
+    var lockShortcutModifiers: EventModifiers {
+        lockShortcut == "controlOptionL" ? [.control, .option] : [.command, .shift]
     }
     func replayFile() {
         guard !active, !busy else { return }

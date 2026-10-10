@@ -19,7 +19,7 @@ public struct ProcessingMeasurement: Codable, Sendable {
 @MainActor
 public final class ExtractionSession {
     public private(set) var company: CompanyScorecard
-    public let configuration: ScorecardConfiguration
+    public private(set) var configuration: ScorecardConfiguration
     public private(set) var call: CallRecord
     public private(set) var segments: [TranscriptEntry]
     public private(set) var measurements: [ProcessingMeasurement] = []
@@ -31,16 +31,19 @@ public final class ExtractionSession {
     private let extractor: any FactExtracting
     private var pending: [ExtractionJob] = []
     private var worker: Task<Void, Never>?
+    private var generation = UUID()
+    private let retryDelay: Duration
     public var pendingCount: Int { pending.count }
 
     public init(company: CompanyScorecard, call: CallRecord, configuration: ScorecardConfiguration,
-                database: ScorecardDatabase, extractor: any FactExtracting) throws {
+                database: ScorecardDatabase, extractor: any FactExtracting, retryDelay: Duration = .seconds(1)) throws {
         guard company.id == call.companyID, company.configurationID == configuration.id,
               call.configurationID == configuration.id else {
             throw DatabaseError(message: "Session identity does not match.")
         }
         self.company = company; self.call = call; self.configuration = configuration
         self.database = database; self.extractor = extractor
+        self.retryDelay = retryDelay
         try database.saveConfiguration(configuration)
         try database.saveCompany(company); try database.saveCall(call)
         segments = try database.segments(callID: call.id, companyID: company.id)
@@ -52,7 +55,8 @@ public final class ExtractionSession {
     public func resume() {
         errorMessage = nil
         guard worker == nil, !pending.isEmpty else { onChange?(); return }
-        worker = Task { [weak self] in await self?.drain() }
+        let current = generation
+        worker = Task { [weak self] in await self?.drain(generation: current) }
     }
     public func ingest(_ segment: TranscriptEntry) throws {
         guard segment.callID == call.id else { throw DatabaseError(message: "Wrong call for transcript.") }
@@ -70,7 +74,8 @@ public final class ExtractionSession {
     }
     public func mutate(_ mutation: (inout CompanyScorecard) throws -> [ChangeEvent]) throws {
         var next = company
-        let events = try mutation(&next)
+        var events = try mutation(&next)
+        events += NumericDeriver.recalculate(configuration: configuration, company: &next)
         try database.saveCompany(next, events: events)
         company = next; onChange?()
     }
@@ -78,12 +83,34 @@ public final class ExtractionSession {
         var ended = call; ended.endedAt = Date()
         try database.saveCall(ended); call = ended; onChange?()
     }
+    public func switchConfiguration(_ configuration: ScorecardConfiguration) throws {
+        guard configuration != self.configuration else { return }
+        try database.saveConfiguration(configuration)
+        var next = configuration.id == company.configurationID ? company
+            : try database.company(id: company.id, configurationID: configuration.id)
+                ?? CompanyScorecard(id: company.id, name: company.name, configuration: configuration)
+        next.configurationRevision = configuration.revision
+        next.latestSequence = max(next.latestSequence, company.latestSequence)
+        var updatedCall = call; updatedCall.configurationID = configuration.id
+        let jobs = segments.filter(\.isFinal).map {
+            ExtractionJob(company: next, callID: call.id, configuration: configuration, segments: [$0])
+        }
+        try database.switchConfiguration(company: next, call: updatedCall, superseded: pending, pending: jobs)
+        // Cancel only after the replacement state is durable. A late result from an
+        // uncooperative transport cannot commit into the new configuration.
+        generation = UUID(); worker?.cancel(); worker = nil; isProcessing = false
+        self.configuration = configuration; company = next; call = updatedCall
+        pending = jobs; errorMessage = nil
+        onChange?(); resume()
+    }
     public func waitUntilIdle() async {
         if let worker { await worker.value }
     }
-    private func drain() async {
+    private func drain(generation currentGeneration: UUID) async {
         isProcessing = true; onChange?()
-        defer { isProcessing = false; worker = nil; onChange?() }
+        defer {
+            if generation == currentGeneration { isProcessing = false; worker = nil; onChange?() }
+        }
         while !pending.isEmpty && !Task.isCancelled {
             // Coalesce bursts, but cap each request's new evidence.
             let batch = Array(pending.prefix(4))
@@ -99,6 +126,7 @@ public final class ExtractionSession {
             do {
                 // The durable per-segment jobs remain the recovery source until commit.
                 let result = try await extractor.extract(job: job, company: company, configuration: configuration)
+                guard generation == currentGeneration, !Task.isCancelled else { return }
                 var next = company
                 var events: [ChangeEvent] = []
                 var warnings = result.warnings
@@ -116,6 +144,7 @@ public final class ExtractionSession {
                     case .unchanged: break
                     }
                 }
+                events += NumericDeriver.recalculate(configuration: configuration, company: &next)
                 try database.saveCompany(next, events: events); company = next
                 // A crash before these marks can replay, but reducer versions and same-value
                 // detection make committed answers idempotent.
@@ -132,6 +161,7 @@ public final class ExtractionSession {
                 }
                 onChange?()
             } catch {
+                guard generation == currentGeneration, !Task.isCancelled else { return }
                 let message: String
                 if let error = error as? OpenAIError { message = error.localizedDescription }
                 else if let error = error as? ConfigurationError { message = error.localizedDescription }
@@ -145,14 +175,32 @@ public final class ExtractionSession {
                     // Schema paths contain no transcript or provider error-body text.
                     message = "Response decoding failed at \(context.codingPath.map(\.stringValue).joined(separator: ".")); work is saved."
                 } else { message = "Processing could not finish; transcript work is saved." }
-                errorMessage = message
+                var attempt = 0
                 for var item in batch {
                     item.status = .failed; item.attempts += 1; item.errorSummary = message
+                    attempt = max(attempt, item.attempts)
                     try? database.saveJob(item)
+                    if let index = pending.firstIndex(where: { $0.id == item.id }) { pending[index] = item }
                 }
-                // Explicit retry avoids unattended quota/rate-limit loops.
+                if Self.isTransient(error), attempt < 3, !Task.isCancelled {
+                    // At most three paid attempts per durable job, including restarts.
+                    // Authentication, quota and budget errors never enter this path.
+                    do { try await Task.sleep(for: retryDelay * attempt) }
+                    catch { return }
+                    continue
+                }
+                errorMessage = message
                 return
             }
+        }
+    }
+    private static func isTransient(_ error: Error) -> Bool {
+        if error is DecodingError { return true }
+        guard let error = error as? OpenAIError else { return false }
+        switch error {
+        case .network, .invalidResponse: return true
+        case .server(let status): return (500...599).contains(status)
+        default: return false
         }
     }
 }

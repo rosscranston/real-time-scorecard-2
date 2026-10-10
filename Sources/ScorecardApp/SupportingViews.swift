@@ -5,6 +5,7 @@ struct ConnectionSettings: View {
     @EnvironmentObject var store: AppStore
     @State private var key = ""
     @State private var testing = false
+    @State private var editingConfiguration: ScorecardConfiguration?
     var body: some View {
         Form {
             Section("OpenAI") {
@@ -56,11 +57,11 @@ struct ConnectionSettings: View {
             Section("Scorecard configuration") {
                 ForEach(store.configurations, id: \.revisionIdentity) { configuration in
                     Button("\(configuration.title) · v\(configuration.revision)") { store.selectConfiguration(configuration) }
-                        .disabled(store.active || store.busy)
                 }
                 HStack {
-                    Button("Import JSON…") { store.importConfiguration() }.disabled(store.active || store.busy)
+                    Button("Import JSON…") { store.importConfiguration() }
                     Button("Export JSON…") { store.exportConfiguration() }
+                    Button("Edit fields…") { editingConfiguration = store.configuration }
                 }
             }
             Section("Appearance") {
@@ -73,8 +74,19 @@ struct ConnectionSettings: View {
                 Button("Replay synthetic conversation JSON…") { store.replayFile() }.disabled(store.active || store.busy)
                 Text("Replay sends one sentence every five seconds to OpenAI and uses your API credits.").font(.caption).foregroundStyle(.secondary)
             }
+            Section("Keyboard shortcuts") {
+                Picker("Lock or unlock selected field", selection: $store.lockShortcut) {
+                    Text("⌘⇧L · recommended").tag("commandShiftL")
+                    Text("⌃⌥L").tag("controlOptionL")
+                }.onChange(of: store.lockShortcut) { _, _ in store.saveAppearance() }
+                Text("↑ / ↓ selects and edits the next field. Return saves; Escape cancels. ⌘Z or ⌃Z undoes the last manual change.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             if let message = store.message { Text(message).foregroundStyle(.orange) }
         }.formStyle(.grouped).frame(width: 580, height: 650)
+            .sheet(item: $editingConfiguration) { config in
+                ConfigurationEditor(configuration: config).environmentObject(store)
+            }
     }
 }
 extension ScorecardConfiguration {
@@ -137,10 +149,15 @@ struct HistoryView: View {
                     HStack {
                         Button("Company answers") { store.openHistory(call) }.disabled(store.active || store.busy)
                         Button("Transcript") { selectedCall = call }
+                        if let pending = store.pendingCalls[call.id], pending > 0 {
+                            Button("Resume \(pending) pending") { store.resumeHistory(call) }
+                                .disabled(store.active || store.busy || store.audioBusy)
+                        }
                     }
                 }.padding(.vertical, 5)
             }
         }.padding(20).frame(width: 560, height: 550)
+            .onAppear { try? store.refreshHistory() }
             .sheet(item: $selectedCall) { call in
                 VStack(alignment: .leading) {
                     HStack { Text(call.eventName ?? call.companyName); Spacer(); Button("Done") { selectedCall = nil } }

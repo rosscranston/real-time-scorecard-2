@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "cranston-company-scorecard",
-  "revision": 3,
+  "revision": 5,
   "status": "draft",
   "title": "Company sales scorecard",
   "max_fields": 50,
@@ -277,7 +277,7 @@
               "La Certe"
             ]
           },
-          "evidence_rule": "Do not infer desktop or online edition from the bare name Drake."
+          "evidence_rule": "Track the current tax preparation package and edition. Bare Drake is edition unconfirmed only when no edition has been established. An explicit later Drake desktop or Drake online statement refines that answer and must be emitted as a change. Later shorthand Drake must not erase a known edition. Hosting a desktop edition externally does not turn it into Drake Online. Old archived returns do not establish current software."
         },
         {
           "key": "hosting_deal",
@@ -386,7 +386,7 @@
           "extraction_route": "structured_extraction",
           "source_policy": "either",
           "unknown_value": null,
-          "integer": true,
+          "integer": false,
           "evidence_rule": "Percent of the current firm annual returns that are individual/personal/1040 returns. Derive only from supported personal count and total count; never use pilot sample proportions."
         },
         {
@@ -468,7 +468,7 @@
           "extraction_route": "decisions_choice",
           "source_policy": "either",
           "unknown_value": null,
-          "evidence_rule": "Single most likely primary supporting software. Exclude the main tax package. If several products are listed without a primary, favor the explicitly identified practice management system, then the first clearly used supporting product. Do not emit multiple answers for this field."
+          "evidence_rule": "Track the primary practice-management/workflow platform when known. Preserve that platform when later speech lists accounting, spreadsheets, PDF tools, or other supporting software; those do not replace practice management. Only if no practice-management platform has been established, use the first explicitly named supporting product. Use Other plus its name for unlisted software."
         },
         {
           "key": "employee_range",
@@ -520,7 +520,8 @@
           "automatic_extraction": true,
           "extraction_route": "structured_extraction",
           "source_policy": "either",
-          "unknown_value": null
+          "unknown_value": null,
+          "evidence_rule": "The primary office or operating base of the firm, not the current location of a meeting participant. Travel, visits, and statements such as I am in a city today must not replace the established firm location. Preserve the city and state already established unless explicitly corrected."
         },
         {
           "key": "employee_count",
@@ -565,6 +566,30 @@
             ]
           },
           "evidence_rule": "Name an external provider only when supported. Self-hosting or no outside company remains unknown/null rather than Other: self-hosted. Tax software vendor cloud maps to Tax software vendor; retain the named vendor in evidence."
+        },
+        {
+          "key": "personal_returns",
+          "label": "Personal returns",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "Current annual individual/personal/1040 return count for the whole firm. Exclude pilot samples, proposed purchase volumes and future acquisitions.",
+          "added_by": "scorecard_numeric_requirements"
+        },
+        {
+          "key": "business_returns",
+          "label": "Business returns",
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "visible": true,
+          "automatic_extraction": true,
+          "source_policy": "either",
+          "evidence_rule": "Current annual business return count for the whole firm, including partnership and corporate returns. Exclude pilot samples, proposed purchase volumes and future acquisitions.",
+          "added_by": "scorecard_numeric_requirements"
         }
       ]
     },
@@ -1141,5 +1166,64 @@
     "GruntWorks is preserved as supplied; earlier conversation used GruntWorx. Canonical spelling remains to be reconciled before release.",
     "39 imported fields plus exact team size and separate hosting provider gives 41 total, below the 50-field maximum.",
     "Initial/demo/review priorities and visibility are suggested defaults, not approved new mockups."
+  ],
+  "calculations": [
+    {
+      "id": "total_from_components",
+      "target": "number_of_returns",
+      "inputs": [
+        "personal_returns",
+        "business_returns"
+      ],
+      "operation": "sum"
+    },
+    {
+      "id": "business_from_total",
+      "target": "business_returns",
+      "inputs": [
+        "number_of_returns",
+        "personal_returns"
+      ],
+      "operation": "difference"
+    },
+    {
+      "id": "personal_from_total",
+      "target": "personal_returns",
+      "inputs": [
+        "number_of_returns",
+        "business_returns"
+      ],
+      "operation": "difference"
+    },
+    {
+      "id": "personal_mix",
+      "target": "individual_return_mix_pct",
+      "inputs": [
+        "personal_returns",
+        "number_of_returns"
+      ],
+      "operation": "percent",
+      "decimal_places": 2
+    },
+    {
+      "id": "personal_mix_components",
+      "target": "individual_return_mix_pct",
+      "inputs": [
+        "personal_returns",
+        "business_returns"
+      ],
+      "operation": "percent_of_sum",
+      "decimal_places": 2
+    },
+    {
+      "id": "personal_mix_complement",
+      "target": "individual_return_mix_pct",
+      "inputs": [
+        "business_returns",
+        "number_of_returns"
+      ],
+      "operation": "complement_percent",
+      "decimal_places": 2
+    }
   ]
 }

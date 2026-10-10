@@ -55,6 +55,7 @@ public struct FactRecord: Codable, Equatable, Sendable {
     public var dismissedProposalFingerprint: String?
     public var clearedThroughSequence: Int = -1
     public var updatedAt: Date = Date()
+    public var derivedFrom: [String: Int]?
     public var display: String {
         if value == .string("Other"), let detail = otherDetail { return "Other: \(detail)" }
         return value.display
@@ -139,7 +140,7 @@ public struct CallRecord: Codable, Identifiable, Equatable, Sendable {
 }
 
 public struct ExtractionJob: Codable, Identifiable, Sendable {
-    public enum Status: String, Codable, Sendable { case pending, running, failed, completed, blocked }
+    public enum Status: String, Codable, Sendable { case pending, running, failed, completed, blocked, superseded }
     public var id: UUID
     public var companyID: UUID
     public var callID: UUID
