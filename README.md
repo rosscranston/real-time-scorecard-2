@@ -96,3 +96,9 @@ The 45-minute synthetic transcript soak processed 541/541 sentences with no pend
 All 46 Swift regression tests currently pass. Native checks verified manual edits/locks, undo, evidence expansion, stored transcripts, and company collapse-state persistence across relaunch. History exposes separate accessible actions. Inconsistent numeric inputs show an explanation behind ! while preserving direct and locked answers.
 
 The shipped catalog permits provisional unlisted names for hosting and document tools. When explicitly named by the customer but not confidently classified, an empty unlocked field can show a red Other answer with the exact source quote. The provisional threshold is 0.30; confirmed styling starts at 0.75 and replacements still require 0.90. These are configurable heuristics, not calibrated probabilities. Listed options and aliases cannot enter this path, and no provisional value replaces an existing answer. Other classification disagreements may receive one focused recheck of at most four fields.
+
+## Development after v0.1.0
+
+The working source adds Settings → Replay audio file through OpenAI. Select a recording up to five minutes and its speaker role; it streams at the original pace through the same conversion, speech-boundary and transcription channel as live capture, without opening the microphone or browser. This is separate from the published v0.1.0 binary. Do not use a mixed-speaker recording with the single-role replay control.
+
+A 6.20-second synthetic recording populated Drake Desktop, team size 6 and 800 returns in the native interface. Its three visible-row observations had a 4.13-second p95 from the VAD turn boundary, not independently annotated sentence ends. Three additional offline audio tests cover paced frame preservation, stereo channel selection, cancellation, and empty-file rejection; all 49 Swift tests pass in this working version. This does not verify real Meet capture.

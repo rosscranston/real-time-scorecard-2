@@ -16,6 +16,8 @@ let package = Package(
         .executableTarget(name: "ScorecardProbe", dependencies: ["ScorecardCore"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
         .testTarget(name: "ScorecardCoreTests", dependencies: ["ScorecardCore"], path: "tests/ScorecardCoreTests",
+                    swiftSettings: [.swiftLanguageMode(.v5)]),
+        .testTarget(name: "ScorecardAudioTests", dependencies: ["ScorecardApp"], path: "tests/ScorecardAudioTests",
                     swiftSettings: [.swiftLanguageMode(.v5)])
     ]
 )

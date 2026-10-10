@@ -281,8 +281,87 @@ final class AppStore: ObservableObject {
             if !self.audioStopping { self.audioBusy = false }
         }
     }
+    func replayAudioFile(speaker: SpeakerRole) async {
+        guard !active, !busy, !audioBusy, !starting, !credentialBusy else { return }
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.audio]
+        panel.canChooseFiles = true; panel.canChooseDirectories = false; panel.allowsMultipleSelection = false
+        panel.allowsOtherFileTypes = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let source: AudioFileReplay
+        do { source = try AudioFileReplay(url: url) }
+        catch { message = "Cannot replay this audio file. Choose a supported recording up to five minutes long."; return }
+        eventName = "Audio replay · \(url.deletingPathExtension().lastPathComponent)"
+        firmName = "Audio replay \(UUID().uuidString.prefix(8))"
+        await start(isReplay: true)
+        guard active, let running = session, let configuration else { return }
+        let callID = running.call.id
+        let sequenceBase = running.company.latestSequence + 1
+        let generation = UUID(); audioGeneration = generation
+        audioBusy = true; replaying = true; audioStatus = "Connecting audio replay…"
+        audioTask = Task { [weak self] in
+            guard let self else { return }
+            var channel: CloudSpeechChannel?
+            var completed = false
+            do {
+                let key = try await self.apiKey()
+                let billing = try await self.makeClient()
+                let origin = Date()
+                let onEvent: OpenAITranscriber.EventHandler = { [weak self] event in
+                    Task { @MainActor in
+                        guard let self, let current = self.session, current.call.id == callID else { return }
+                        var entry = TranscriptEntry(id: event.id, callID: callID,
+                            sequence: sequenceBase + Int(max(0, event.startSeconds) * 1000),
+                            speaker: event.role, text: event.text,
+                            seconds: origin.timeIntervalSince(current.call.startedAt) + event.startSeconds,
+                            sentenceEndedAt: event.sentenceEndedAt)
+                        if let previous = current.segments.first(where: { $0.id == event.id }) {
+                            if previous.text == event.text { return }
+                            entry.revision = previous.revision + 1
+                        }
+                        do { try current.ingest(entry) } catch { self.message = error.localizedDescription }
+                    }
+                }
+                let onError: OpenAITranscriber.ErrorHandler = { [weak self] detail in
+                    Task { @MainActor in
+                        guard let self, self.audioGeneration == generation else { return }
+                        self.message = detail; self.audioStatus = "Audio replay interrupted"
+                        self.stopAudio()
+                    }
+                }
+                let keywords = configuration.fields.flatMap { ($0.options ?? []) + ($0.aliases?.values.flatMap { $0 } ?? []) }
+                let service = CloudSpeechChannel(key: key, role: speaker, origin: origin, keywords: keywords,
+                    onEvent: onEvent, onError: onError,
+                    onUsage: { seconds in try await billing.recordAudioUpload(seconds: seconds) })
+                channel = service
+                try await service.prepare()
+                try Task.checkCancellation()
+                self.audioRunning = true; self.audioBusy = false
+                self.audioStatus = "Audio file replay · \(speaker.rawValue)"
+                try await source.run(channel: service)
+                try Task.checkCancellation()
+                completed = true
+            } catch {
+                if !(error is CancellationError) {
+                    self.message = (error as? OpenAIError)?.localizedDescription ?? "Audio file replay failed."
+                    self.audioStatus = "Audio replay failed"
+                }
+            }
+            // Keep the call and generation available until final transcripts drain.
+            self.audioBusy = true
+            await channel?.stop()
+            await running.waitUntilIdle()
+            do { try running.finish(); try self.refreshHistory() }
+            catch { self.message = error.localizedDescription }
+            self.replaying = false; self.audioRunning = false
+            if completed, self.audioGeneration == generation {
+                self.audioStatus = "Audio replay complete"; self.audioGeneration = nil
+            }
+            if !self.audioStopping { self.audioBusy = false }
+            await self.refreshUsage()
+        }
+    }
     func stopAudio() {
-        guard !audioStopping, audioCapture != nil || audioBusy else { return }
+        guard !audioStopping, audioCapture != nil || audioBusy || audioRunning else { return }
         audioStopping = true; audioGeneration = nil
         audioTask?.cancel()
         let startup = audioTask
@@ -295,6 +374,9 @@ final class AppStore: ObservableObject {
             self.audioRunning = false; self.audioBusy = false
             self.audioStopping = false
             if self.audioStatus == "OpenAI audio" || self.audioStatus == "Apple Speech" { self.audioStatus = "Audio stopped" }
+            if self.audioStatus.hasPrefix("Audio file replay") || self.audioStatus == "Connecting audio replay…" {
+                self.audioStatus = "Audio replay stopped"
+            }
         }
     }
     func retry() async {
@@ -420,7 +502,7 @@ final class AppStore: ObservableObject {
             let audio = usage.requests.filter { $0.endpoint.hasPrefix("realtime_audio") }.reduce(0) { $0 + $1.estimatedUSD }
             let times = session?.measurements.map(\.totalSeconds).sorted() ?? []
             let latency = times.isEmpty ? "No call measurements" :
-                String(format: "p95 transcript-to-save %.2fs", times[min(times.count - 1, Int(ceil(Double(times.count) * 0.95)) - 1)])
+                String(format: "p95 input-end-to-save %.2fs", times[min(times.count - 1, Int(ceil(Double(times.count) * 0.95)) - 1)])
             usageSummary = String(format: "$%.3f estimated/reserved total · $%.3f audio · $%.2f allowance remaining",
                 usage.chargedOrReservedUSD, audio, max(0, apiBudgetUSD - usage.chargedOrReservedUSD)) + "\n" + latency
             if !renderLatencies.isEmpty {

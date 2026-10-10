@@ -6,6 +6,7 @@ struct ConnectionSettings: View {
     @State private var key = ""
     @State private var testing = false
     @State private var editingConfiguration: ScorecardConfiguration?
+    @State private var replaySpeaker = SpeakerRole.customer
     var body: some View {
         Form {
             Section("OpenAI") {
@@ -75,6 +76,14 @@ struct ConnectionSettings: View {
             Section("Testing") {
                 Button("Replay synthetic conversation JSON…") { Task { await store.replayFile() } }.disabled(store.active || store.busy)
                 Text("Replay sends one sentence every five seconds to OpenAI and uses your API credits.").font(.caption).foregroundStyle(.secondary)
+                Picker("Audio file speaker", selection: $replaySpeaker) {
+                    Text("Customer").tag(SpeakerRole.customer)
+                    Text("Salesperson").tag(SpeakerRole.salesperson)
+                }.disabled(store.active || store.busy || store.audioBusy)
+                Button("Replay audio file through OpenAI…") { Task { await store.replayAudioFile(speaker: replaySpeaker) } }
+                    .disabled(store.active || store.busy || store.audioBusy || store.starting || store.credentialBusy)
+                Text("Streams the selected recording at its original pace, up to five minutes, as one speaker. Sends audio to OpenAI and uses API credits; no microphone or browser capture.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section("Keyboard shortcuts") {
                 Picker("Lock or unlock selected field", selection: $store.lockShortcut) {
